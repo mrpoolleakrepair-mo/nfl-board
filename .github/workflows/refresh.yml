@@ -1,8 +1,10 @@
 name: Refresh NFL data
 on:
   schedule:
-    - cron: "0 14 * * 2"   # Tuesday 14:00 UTC, after Monday Night Football
-    - cron: "0 14 * * 6"   # Saturday 14:00 UTC, catches line and QB changes
+    # GitHub cron runs in UTC. 7am Central = 12:00 UTC (CDT) or 13:00 UTC (CST);
+    # run at both and let the guard below keep only the one that lands at 7am Chicago time.
+    - cron: "5 12 * * *"
+    - cron: "5 13 * * *"
   workflow_dispatch: {}
 permissions:
   contents: write
@@ -10,17 +12,29 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      - name: Only run at 7am Central
+        id: guard
+        run: |
+          H=$(TZ=America/Chicago date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" = "07" ]; then echo "go=1" >> $GITHUB_OUTPUT; else echo "Chicago hour $H, skipping"; fi
       - uses: actions/checkout@v4
+        if: steps.guard.outputs.go == '1'
+
       - uses: actions/setup-python@v5
+        if: steps.guard.outputs.go == '1'
         with: { python-version: "3.12" }
       - run: pip install pandas pyarrow
+        if: steps.guard.outputs.go == '1'
       - name: Download nflverse data
+        if: steps.guard.outputs.go == '1'
         run: |
           mkdir -p raw
           curl -sSfL -o raw/games.csv https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv
           curl -sSfL -o raw/pbp_2026.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet
       - run: python model.py raw data
+        if: steps.guard.outputs.go == '1'
       - name: Commit updated data
+        if: steps.guard.outputs.go == '1'
         run: |
           git config user.name "nfl-board-bot"
           git config user.email "actions@users.noreply.github.com"

@@ -242,7 +242,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
         <li><b>Line move (1):</b> manual. Point to the side the line moved toward with no news; to the other side if the move followed one big result.</li>
       </ol>
       <p class="note" style="margin-top:16px">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
-      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed. Refreshes automatically every Tuesday and Saturday.</p>
+      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed. Refreshes automatically every day at 7am Central.</p>
     </div>
   </section>
 </main>
@@ -270,7 +270,9 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       runAll();
     });
     fetch(`data/meta.json?v=${v}`).then((r) => r.json()).then((m) => {
-      document.getElementById('nb-stamp').textContent = `Stats through Week ${m.through_week} · Updated ${m.updated}`;
+      const d = new Date(m.updated.replace(' UTC', 'Z').replace(' ', 'T'));
+      const ct = isNaN(d) ? m.updated : d.toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' CT';
+      document.getElementById('nb-stamp').textContent = `Stats through Week ${m.through_week} · Updated ${ct} · Refreshes daily 7am CT`;
     }).catch(() => {});
     let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(runAll, 150); });
   });

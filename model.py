@@ -711,10 +711,10 @@ news_path = f"{OUT}/news_snapshots.csv"
 news_latest = {}
 if os.path.exists(news_path):
     nw = pd.read_csv(news_path).fillna("")
+    nw_last = nw[nw.ts == nw.ts.max()]  # latest scan only
     for i, r in upcoming.iterrows():
-        x = nw[nw.game_id == r.game_id]
+        x = nw_last[nw_last.game_id == r.game_id]
         if not len(x): continue
-        x = x[x.ts == x.ts.max()]
         lean, summ, call = check9_call(x, r.away, r.home, r.get("dk_total_bets", ""))
         upcoming.at[i, "news_lean"], upcoming.at[i, "news_summary"], upcoming.at[i, "check9"], upcoming.at[i, "news_ts"] = lean, summ, call, x.ts.max()
         news_latest[r.game_id] = x[["source", "title", "url", "lean", "quote", "published"]].drop_duplicates("url").head(25).to_dict("records")

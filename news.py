@@ -33,11 +33,16 @@ def fetch(url, timeout=20):
 
 
 def bing_news(query):
-    url = "https://www.bing.com/news/search?" + urllib.parse.urlencode({"q": query, "format": "rss", "count": 15})
-    try:
-        root = ET.fromstring(fetch(url))
-    except Exception as e:
-        print(f"  bing error '{query}': {e}")
+    url = "https://www.bing.com/news/search?" + urllib.parse.urlencode({"q": query, "format": "rss", "count": 20})
+    root = None
+    for wait in (0, 12, 30):
+        time.sleep(wait)
+        try:
+            root = ET.fromstring(fetch(url)); break
+        except Exception as e:
+            err = e
+    if root is None:
+        print(f"  bing blocked '{query}': {err}")
         return []
     out = []
     for it in root.iter("item"):
@@ -47,6 +52,31 @@ def bing_news(query):
         out.append(dict(title=html.unescape(it.findtext("title") or ""), url=link,
                         desc=html.unescape(re.sub("<[^>]+>", " ", it.findtext("description") or "")), published=it.findtext("pubDate") or ""))
     return out
+
+
+def google_news(query):
+    url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": query + " when:10d", "hl": "en-US", "gl": "US", "ceid": "US:en"})
+    try:
+        root = ET.fromstring(fetch(url))
+    except Exception as e:
+        print(f"  google news error '{query}': {e}")
+        return []
+    out = []
+    for it in root.iter("item"):
+        src = it.find("source")
+        dom = (src.get("url") if src is not None else "") or ""
+        out.append(dict(title=html.unescape(it.findtext("title") or ""), url=it.findtext("link") or "", src_domain=dom,
+                        desc=html.unescape(re.sub("<[^>]+>", " ", it.findtext("description") or "")), published=it.findtext("pubDate") or "", body=" "))
+    return out
+
+
+def discover(query, site):
+    """Articles from one site: Bing (direct links, full text) plus Google News (headline and snippet)."""
+    items = [dict(it, site=site) for it in bing_news(f"{query} site:{site}") if site in it["url"]]
+    time.sleep(2.5)
+    items += [dict(it, site=site) for it in google_news(f"{query} site:{site}") if site in it.get("src_domain", "") or site in it["url"]]
+    time.sleep(1.0)
+    return items
 
 
 def espn_game_news(away, home, gameday):
@@ -162,14 +192,13 @@ def main(raw, out):
     for wk in sorted(g.week.unique()):
         items = []
         for site in SITES:
-            for q in (f"NFL Week {wk} picks predictions site:{site}", f"NFL Week {wk} betting picks over under site:{site}", f"Week {wk} expert picks site:{site}"):
-                items += [dict(it, site=site) for it in bing_news(q) if site in it["url"]]
-                time.sleep(0.8)
+            for q in (f"NFL Week {wk} picks predictions", f"NFL Week {wk} over under picks"):
+                items += discover(q, site)
         weekly[wk] = [it for it in items if fresh(it["published"]) and re.search(rf"\bweek\s*{wk}\b", it["title"] + " " + it["desc"], re.I)
                       and re.search(r"pick|predict|bet|odds|preview|best", it["title"], re.I)]
         print(f"  week {wk}: {len(weekly[wk])} picks/preview articles")
     def body_of(it):
-        if it.get("body"): return it["body"]
+        if it.get("body"): return it["body"].strip()
         if it["url"] not in body_cache: body_cache[it["url"]] = article_text(it["url"]) if it["url"] else ""
         return body_cache[it["url"]]
     for _, r in g.iterrows():
@@ -177,9 +206,7 @@ def main(raw, out):
         na, nh = TEAMS[a]["name"], TEAMS[h]["name"]
         items = []
         for site in SITES:
-            for q in (f"{na} {nh} site:{site}", f"{na} vs {nh} prediction site:{site}", f"{na} {nh} preview site:{site}"):
-                items += [dict(it, site=site) for it in bing_news(q) if site in it["url"]]
-                time.sleep(0.8)
+            items += discover(f"{na} {nh}", site)
         items += [dict(it, site="espn.com") for it in espn_game_news(a, h, r.gameday)]
         cand = []
         for it in items:

@@ -41,3 +41,17 @@ ts,game_id,book,market,side,bet_pct,handle_pct
 2026-11-02T22:23:16Z,2026_09_JAX_BAL,circa,spread,home,50.0,98.0
 2026-11-02T22:23:16Z,2026_09_GB_NE,circa,spread,away,50.0,75.0
 2026-11-02T22:23:16Z,2026_09_GB_NE,circa,spread,home,50.0,25.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,spread,away,45.0,52.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,spread,home,55.0,48.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,moneyline,away,53.0,13.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,moneyline,home,47.0,87.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,total,over,42.0,53.0
+2026-11-02T22:31:39Z,2026_08_CHI_SEA,circa,total,under,58.0,47.0
+2026-11-02T22:31:39Z,2026_09_DEN_CAR,circa,spread,away,20.0,3.0
+2026-11-02T22:31:39Z,2026_09_DEN_CAR,circa,spread,home,80.0,97.0
+2026-11-02T22:31:39Z,2026_09_TB_CHI,circa,spread,away,50.0,95.0
+2026-11-02T22:31:39Z,2026_09_TB_CHI,circa,spread,home,50.0,5.0
+2026-11-02T22:31:39Z,2026_09_JAX_BAL,circa,spread,away,50.0,2.0
+2026-11-02T22:31:39Z,2026_09_JAX_BAL,circa,spread,home,50.0,98.0
+2026-11-02T22:31:39Z,2026_09_GB_NE,circa,spread,away,50.0,75.0
+2026-11-02T22:31:39Z,2026_09_GB_NE,circa,spread,home,50.0,25.0

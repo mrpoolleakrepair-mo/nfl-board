@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NFL Betting Board 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+:root { --font-anthropic-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; --font-anthropic-serif: Georgia, "Times New Roman", serif;
+ --color-fg:#1a1a1a; --color-fg-muted:#666; --color-bg:#f7f7f5; --color-panel:#fff; --color-border-line:#e3e3df; --color-ok:#1f8a4c; --color-warn:#b26b00; --color-bad:#c0392b;
+ --cds-chart-muted:#c9c9c4; --cds-chart-axis:#bbb; --cds-chart-reference:#555; --cds-surface-popover:#fff; --cds-border:#ddd; --cds-shadow-popover:0 4px 14px rgba(0,0,0,.12);
+ --cds-gap-xs:4px; --cds-gap-sm:8px; --cds-gap-md:16px; --cds-gap-lg:24px; --cds-pad-xs:4px; --cds-pad-sm:8px; --cds-pad-md:12px; --cds-pad-lg:18px; --cds-radius:8px;
+ --cds-font-size-caption:13px; --cds-font-size-body:15px; --cds-font-size-heading:17px; --cds-font-size-title:30px; --cds-font-weight-medium:600; --cds-dur-slow:.3s; }
+@media (prefers-color-scheme: dark) { :root { --color-fg:#ececec; --color-fg-muted:#9a9a9a; --color-bg:#151515; --color-panel:#1f1f1f; --color-border-line:#333; --color-ok:#4cc27e; --color-warn:#e0a03a; --color-bad:#ef6a5a; --cds-chart-muted:#4a4a4a; --cds-chart-axis:#555; --cds-chart-reference:#aaa; --cds-surface-popover:#262626; --cds-border:#3a3a3a; } }
+html, body { margin:0; background:var(--color-bg); }
+#dash-root { padding: clamp(12px, 3vw, 32px); max-width: 1500px; margin: 0 auto; }
+.nb .stamp { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 4px 0 0; }
+</style></head><body><div id="dash-root">
+<script>
+(function(){
+  const DS = {}, draws = {}, calcs = {};
+  const runAll = () => Object.keys(draws).forEach((n) => window.dash.draw(n));
+  window.dash = {
+    data: (id) => DS[id] || { status: 'loading', data: [] },
+    draw: (n, fn) => { if (fn) draws[n] = fn; if (!draws[n]) return; document.querySelectorAll(`[data-draw="${n}"]`).forEach((el) => draws[n](el)); },
+    calc: (id, c) => { calcs[id] = c; },
+    setLink: (n) => { history.replaceState(null, '', '#' + n); setTimeout(runAll, 0); },
+  };
+  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv' };
+  window.addEventListener('DOMContentLoaded', () => {
+    Promise.all(Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${Date.now()}`).then((rows) => { DS[id] = { status: 'ok', data: rows, columns: rows.columns }; })))
+      .then(() => {
+        Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
+        runAll();
+      });
+    fetch(`data/meta.json?v=${Date.now()}`).then((r) => r.json()).then((m) => {
+      document.getElementById('nb-stamp').textContent = `Stats through Week ${m.through_week} · updated ${m.updated}`;
+    }).catch(() => {});
+    let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(runAll, 150); });
+  });
+})();
+</script>
+<style>
+#dash-root { --dash-gutter: clamp(12px, 3vw, 32px); }
+.nb { font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-lg); }
+.nb h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.nb h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.nb .lede { color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 0; max-width: 70ch; }
+.nb .note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); }
+.nb .tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
+.nb .tabs button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--cds-pad-sm) var(--cds-pad-md); color: var(--color-fg-muted); cursor: pointer; }
+.nb .tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+.nb section { display: grid; gap: var(--cds-gap-md); }
+.nb section[hidden] { display: none; }
+.nb .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.nb .grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.nb .tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+.nb .tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.nb .tile .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; display: block; min-height: 1.3em; }
+.nb .bar { display: flex; gap: var(--cds-gap-sm); align-items: center; flex-wrap: wrap; }
+.nb select, .nb input { font: inherit; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+.nb .tbl { max-height: 70vh; overflow: auto; }
+.nb table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.nb th, .nb td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: top; }
+.nb th { position: sticky; top: 0; background: var(--color-panel); font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); }
+.nb th.sortable { cursor: pointer; }
+.nb td.wrap { white-space: normal; min-width: 14rem; }
+.nb .chip { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); }
+.nb .v-bet { color: var(--color-ok); border-color: var(--color-ok); }
+.nb .v-handle { color: var(--color-warn); border-color: var(--color-warn); }
+.nb .v-pass { color: var(--color-bad); border-color: var(--color-bad); }
+.nb .pts { display: inline-flex; align-items: center; gap: 6px; }
+.nb .pts i { display: inline-block; height: 6px; border-radius: 3px; background: var(--cds-chart-muted); width: 54px; position: relative; overflow: hidden; }
+.nb .pts i b { position: absolute; inset: 0 auto 0 0; background: var(--color-ok); }
+.nb .spots { display: grid; gap: var(--cds-gap-sm); min-height: 8rem; }
+.nb .spot { border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); display: grid; gap: 2px; }
+.nb .spot:first-child { border-top: 0; padding-top: 0; }
+.nb .spot .row1 { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+.nb .spot .m { font-weight: var(--cds-font-weight-medium); }
+.nb .spot .why { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.nb .chart { position: relative; min-height: 260px; }
+.nb .tip { position: absolute; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; }
+.nb ol.how { margin: 0; padding-left: 1.2rem; display: grid; gap: var(--cds-gap-xs); max-width: 80ch; }
+.nb [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="nb">
+  <header>
+    <h1>NFL betting board · 2026</h1>
+    <p class="stamp" id="nb-stamp">Loading data…</p>
+    <p class="lede">Your checklist, run on every remaining game. Checks 1–5 (9 of the 13 points) are scored automatically from 2026 play-by-play. Check 0 (money handle, 3 pts) and Check 6 (line move, 1 pt) you add from DraftKings splits before kickoff: 10+ is a bet, 8–9 a half-stake lean.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="slate" aria-selected="true">This week</button>
+    <button role="tab" data-tab="schedule" aria-selected="false">Rest of season</button>
+    <button role="tab" data-tab="teams" aria-selected="false">Team checks</button>
+    <button role="tab" data-tab="record" aria-selected="false">Track record</button>
+    <button role="tab" data-tab="how" aria-selected="false">How it scores</button>
+  </nav>
+
+  <section id="slate" data-tab-panel="slate">
+    <div class="bar">
+      <label for="nb-week">Week</label>
+      <select id="nb-week" data-draw="weeksel" data-source="upcoming" aria-label="Week"></select>
+    </div>
+    <div class="tiles">
+      <div class="card tile"><span class="lbl">Games on the slate</span><b class="big" data-draw="t_games" data-source="week_counts" data-field="games">—</b></div>
+      <div class="card tile"><span class="lbl">9 of 9 auto: bet if money agrees</span><b class="big" data-draw="t_bet" data-source="week_counts" data-field="bet">—</b></div>
+      <div class="card tile"><span class="lbl">7–8 auto: needs the handle</span><b class="big" data-draw="t_handle" data-source="week_counts" data-field="handle">—</b></div>
+      <div class="card tile"><span class="lbl">Killed by a pass rule</span><b class="big" data-draw="t_killed" data-source="week_counts" data-field="killed">—</b></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2>Best sides this week</h2>
+        <p class="note">Highest auto score with no pass rule. "Needs" is how many of the 4 manual points (handle 3, line 1) get it to 10.</p>
+        <div class="spots" data-draw="spots" data-source="upcoming">—</div>
+      </div>
+      <div class="card">
+        <h2>Totals and team totals</h2>
+        <p class="note">Check 7 leans need 2+ reasons on one side. Check 8 flags underdog team-total unders and bad teams that can run.</p>
+        <div class="spots" data-draw="totals" data-source="upcoming">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Every game this week</h2>
+      <p class="note">Columns C1–C5 show which team won each check (Even = too close to call). Spreads and totals are current consensus lines.</p>
+      <div class="tbl">
+        <table data-source="upcoming" data-row-key="game_id">
+          <thead><tr>
+            <th data-field="game_id">Game</th><th data-field="date">Date</th><th data-field="kickoff">ET</th>
+            <th data-field="spread">Spread</th><th data-field="total">Total</th>
+            <th data-field="pick">Side</th><th data-field="pick_pts">Auto pts /9</th><th data-field="verdict">Verdict</th>
+            <th data-field="c1">C1 rush</th><th data-field="c2">C2 run</th><th data-field="c3">C3 TOs</th><th data-field="c4">C4 RZ D</th><th data-field="c5">C5 spot</th>
+            <th data-field="pass_rules">Pass rule</th><th data-field="away_qb">Away QB</th><th data-field="home_qb">Home QB</th><th data-field="venue_rest">Venue and rest</th>
+          </tr></thead>
+          <tbody data-draw="slate_rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule" data-tab-panel="schedule" hidden>
+    <div class="card">
+      <h2>Rest of the regular season</h2>
+      <p class="note">Same auto scoring for every remaining game. Lines only post a week out, so later weeks show the side and score without a spread; re-check them once injuries and lines are in.</p>
+      <div class="bar"><input type="search" id="nb-search" placeholder="Filter by team or verdict" aria-label="Filter games"></div>
+      <div class="tbl">
+        <table data-source="upcoming" data-row-key="game_id">
+          <thead><tr>
+            <th data-field="week">Wk</th><th data-field="game_id">Game</th><th data-field="date">Date</th><th data-field="spread">Spread</th>
+            <th data-field="pick">Side</th><th data-field="pick_pts">Auto pts /9</th><th data-field="verdict">Verdict</th>
+            <th data-field="c1">C1</th><th data-field="c2">C2</th><th data-field="c3">C3</th><th data-field="c4">C4</th><th data-field="c5">C5</th>
+            <th data-field="pass_rules">Pass rule</th><th data-field="check8">Check 8</th>
+          </tr></thead>
+          <tbody data-draw="sched_rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="teams" data-tab-panel="teams" hidden>
+    <div class="card">
+      <h2>Team inputs behind each check</h2>
+      <p class="note">Season to date, regular season. Click a header to sort. Pressure rate = sacks plus QB hits per dropback. RZ = drives reaching the opponent's 20.</p>
+      <div class="tbl">
+        <table data-source="team_stats" data-row-key="team">
+          <thead><tr>
+            <th class="sortable" data-field="team" data-sort="team">Team</th>
+            <th class="sortable" data-field="record" data-sort="wins">Record</th>
+            <th class="sortable" data-field="home_rec" data-sort="home_w">Home</th>
+            <th class="sortable" data-field="road_rec" data-sort="road_w">Road</th>
+            <th class="sortable" data-field="def_sacks_pg" data-sort="def_sacks_pg">Sacks/g</th>
+            <th class="sortable" data-field="def_pressure_rate" data-sort="def_pressure_rate">Pressure %</th>
+            <th class="sortable" data-field="off_sacks_allowed_pg" data-sort="off_sacks_allowed_pg">Sacks allowed/g</th>
+            <th class="sortable" data-field="qb_rush_ypg" data-sort="qb_rush_ypg">QB rush yds/g</th>
+            <th class="sortable" data-field="off_ypc" data-sort="off_ypc">Rush YPC</th>
+            <th class="sortable" data-field="off_ypc_l3" data-sort="off_ypc_l3">YPC last 3</th>
+            <th class="sortable" data-field="def_ypc" data-sort="def_ypc">YPC allowed</th>
+            <th class="sortable" data-field="takeaways_pg" data-sort="takeaways_pg">Takeaways/g</th>
+            <th class="sortable" data-field="giveaways_pg" data-sort="giveaways_pg">Giveaways/g</th>
+            <th class="sortable" data-field="off_rz_td_pct" data-sort="off_rz_td_pct">RZ TD %</th>
+            <th class="sortable" data-field="def_rz_trips_pg" data-sort="def_rz_trips_pg">RZ trips allowed/g</th>
+            <th class="sortable" data-field="def_rz_td_pct" data-sort="def_rz_td_pct">RZ TD % allowed</th>
+            <th class="sortable" data-field="def_3rd_pct" data-sort="def_3rd_pct">3rd down % allowed</th>
+            <th class="sortable" data-field="pf_pg" data-sort="pf_pg">Pts/g</th>
+            <th class="sortable" data-field="pa_pg" data-sort="pa_pg">Pts allowed/g</th>
+          </tr></thead>
+          <tbody data-draw="team_rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="record" data-tab-panel="record" hidden>
+    <div class="card">
+      <h2>How the auto score did, Weeks 4–8</h2>
+      <p class="note">Each game re-scored using only stats from the weeks before it, then graded against the closing spread. The dashed line is 52.4%, break-even at -110. Higher auto scores pick winners, but the spread already prices that in, which is why the handle and line reads matter.</p>
+      <div class="chart" data-draw="bt_chart" data-source="backtest_summary"></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2>Record by group</h2>
+        <div class="tbl">
+          <table data-source="backtest_summary" data-row-key="tier">
+            <thead><tr><th data-field="tier">Group</th><th data-field="games">Games</th><th data-field="ats_w">W vs number</th><th data-field="ats_l">L vs number</th><th data-field="ats_pct">Win %</th><th data-field="su_w">SU W</th><th data-field="su_l">SU L</th></tr></thead>
+            <tbody data-draw="bt_sum_rows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Graded games</h2>
+        <div class="tbl">
+          <table data-source="backtest_games" data-row-key="game_id">
+            <thead><tr><th data-field="week">Wk</th><th data-field="game_id">Game</th><th data-field="spread">Spread</th><th data-field="pick">Side</th><th data-field="pick_pts">Pts</th><th data-field="away_score">Away</th><th data-field="home_score">Home</th><th data-field="su">SU</th><th data-field="ats">ATS</th><th data-field="total_lean">Total lean</th><th data-field="total_result">Total</th></tr></thead>
+            <tbody data-draw="bt_rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" data-tab-panel="how" hidden>
+    <div class="card">
+      <h2>How each check is scored here</h2>
+      <ol class="how" start="0">
+        <li><b>Money handle (3):</b> manual. Use DraftKings Betting Splits about an hour before kickoff. Money % 10+ points above bet % on a side = 3 points to that side.</li>
+        <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Halved when the QB runs for 20+ yards a game. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
+        <li><b>Run game (2):</b> rushing YPC (two-thirds season, one-third last 3 games) above league average plus the opponent's YPC allowed above average. Edge must exceed 0.25 yards a carry.</li>
+        <li><b>Turnovers (2):</b> your takeaways/g plus their giveaways/g, minus the reverse. Edge must exceed 0.4 a game.</li>
+        <li><b>Red zone defense (2):</b> RZ trips allowed/g and RZ TD % allowed, both standardized. Linebacker health isn't scored; split 1–1 by hand if a starting LB is out.</li>
+        <li><b>Situational spot (1):</b> home team's home win % vs road team's road win % (15-point gap), and a 2+ day rest edge. If they disagree, rest wins.</li>
+        <li><b>Line move (1):</b> manual. Point to the side the line moved toward with no news; to the other side if the move followed one big result.</li>
+      </ol>
+      <p class="note">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
+      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed (nfl.com blocks automated downloads). Refreshes automatically every Tuesday and Saturday.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+window.nb = window.nb || { week: null, teamSort: { key: 'wins', dir: -1 } };
+const nb = window.nb;
+const num = (v) => (v === '' || v == null ? NaN : Number(v));
+const f1 = d3.format('.1f'), f2 = d3.format('.2f'), pct = d3.format('.1%');
+
+dash.calc('week_counts', {
+  inputs: ['upcoming'],
+  title: 'Slate counts by week',
+  description: 'Games per week and how many land in each verdict.',
+  fn: (upcoming) => Array.from(d3.group(upcoming, (g) => Number(g.week)), ([week, gs]) => ({
+    week,
+    games: gs.length,
+    bet: gs.filter((g) => g.verdict === 'Bet if money agrees').length,
+    handle: gs.filter((g) => g.verdict === 'Needs the handle').length,
+    killed: gs.filter((g) => g.verdict === 'Pass rule').length,
+  })),
+});
+
+const curWeek = () => {
+  const u = dash.data('upcoming');
+  if (nb.week == null && u.status === 'ok') {
+    const counts = d3.rollups(u.data, (v) => v.length, (g) => Number(g.week)).sort((a, b) => a[0] - b[0]);
+    const full = counts.find(([, n]) => n >= 10);
+    nb.week = (full || counts[0])[0];
+  }
+  return nb.week;
+};
+const weekGames = () => {
+  const u = dash.data('upcoming');
+  return u.status === 'ok' ? u.data.filter((g) => Number(g.week) === curWeek()) : [];
+};
+const vclass = (v) => (v === 'Bet if money agrees' ? 'v-bet' : v === 'Needs the handle' || v === 'Needs handle + line' ? 'v-handle' : v === 'Pass rule' || v === 'Pass' ? 'v-pass' : '');
+
+// Tabs
+document.querySelectorAll('.nb .tabs button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('.nb .tabs button').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
+  document.querySelectorAll('.nb [data-tab-panel]').forEach((s) => { s.hidden = s.dataset.tabPanel !== b.dataset.tab; });
+  dash.setLink(b.dataset.tab);
+}));
+const named = document.querySelector(`.nb .tabs button[data-tab="${location.hash.slice(1)}"]`);
+if (named) named.click();
+
+dash.draw('weeksel', (sel) => {
+  const u = dash.data('upcoming');
+  if (u.status !== 'ok') { sel.replaceChildren(); return; }
+  const counts = d3.rollups(u.data, (v) => v.length, (g) => Number(g.week)).sort((a, b) => a[0] - b[0]);
+  sel.replaceChildren(...counts.map(([w, n]) => new Option(`Week ${w} (${n} game${n === 1 ? '' : 's'})`, String(w))));
+  sel.value = String(curWeek());
+  sel.onchange = () => { nb.week = Number(sel.value); ['t_games', 't_bet', 't_handle', 't_killed', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n)); };
+});
+
+const tile = (field) => (el) => {
+  const c = dash.data('week_counts');
+  const w = curWeek();
+  el.setAttribute('data-where', `week=${w}`);
+  const row = c.status === 'ok' ? c.data.find((r) => r.week === w) : null;
+  el.textContent = row ? String(row[field]) : '—';
+};
+dash.draw('t_games', tile('games'));
+dash.draw('t_bet', tile('bet'));
+dash.draw('t_handle', tile('handle'));
+dash.draw('t_killed', tile('killed'));
+
+const ptsCell = (td, p) => {
+  const wrap = document.createElement('span'); wrap.className = 'pts';
+  const t = document.createElement('span'); t.textContent = String(p);
+  const i = document.createElement('i'); const b = document.createElement('b'); b.style.width = `${(num(p) / 9) * 100}%`; i.append(b);
+  wrap.append(t, i); td.replaceChildren(wrap);
+};
+const chip = (td, v) => { const s = document.createElement('span'); s.className = `chip ${vclass(v)}`; s.textContent = v; td.replaceChildren(s); };
+const line = (parent, cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; parent.append(d); return d; };
+
+dash.draw('spots', (el) => {
+  const gs = weekGames().filter((g) => g.pick && g.verdict !== 'Pass rule' && g.verdict !== 'Pass')
+    .sort((a, b) => num(b.pick_pts) - num(a.pick_pts)).slice(0, 6);
+  if (!gs.length) { el.textContent = dash.data('upcoming').status === 'ok' ? 'No side clears the auto bar this week.' : '—'; return; }
+  el.replaceChildren();
+  gs.forEach((g) => {
+    const s = document.createElement('div'); s.className = 'spot';
+    const r1 = document.createElement('div'); r1.className = 'row1';
+    const m = document.createElement('span'); m.className = 'm'; m.textContent = `Take ${g.pick} · ${g.matchup}${g.spread ? ` (${g.spread})` : ''}`;
+    const c = document.createElement('span'); c.className = `chip ${vclass(g.verdict)}`; c.textContent = `${g.pick_pts}/9`;
+    r1.append(m, c); s.append(r1);
+    const won = ['c1', 'c2', 'c3', 'c4', 'c5'].filter((k) => g[k] === g.pick).map((k) => ({ c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' }[k]));
+    line(s, 'why', `${g.verdict}. Needs ${g.manual_pts_needed} of 4 manual pts. Wins: ${won.join(', ') || 'none'}.`);
+    el.append(s);
+  });
+});
+
+dash.draw('totals', (el) => {
+  const gs = weekGames().filter((g) => g.total_lean || g.check8);
+  if (!gs.length) { el.textContent = dash.data('upcoming').status === 'ok' ? 'No total or team-total angles this week.' : '—'; return; }
+  el.replaceChildren();
+  gs.forEach((g) => {
+    const s = document.createElement('div'); s.className = 'spot';
+    const r1 = document.createElement('div'); r1.className = 'row1';
+    const m = document.createElement('span'); m.className = 'm'; m.textContent = `${g.matchup}${g.total ? ` · O/U ${g.total}` : ''}`;
+    r1.append(m);
+    if (g.total_lean) { const c = document.createElement('span'); c.className = 'chip'; c.textContent = g.total_lean; r1.append(c); }
+    s.append(r1);
+    if (g.total_lean) line(s, 'why', g.total_lean === 'Under' ? g.under_reasons : g.over_reasons);
+    if (g.check8) line(s, 'why', `Check 8: ${g.check8}`);
+    el.append(s);
+  });
+});
+
+const gameRow = (g, cols) => {
+  const tr = document.createElement('tr'); tr.dataset.key = g.game_id;
+  cols.forEach((c) => {
+    const td = document.createElement('td');
+    if (c === 'game_id') td.textContent = g.matchup;
+    else if (c === 'pick_pts') ptsCell(td, g.pick_pts);
+    else if (c === 'verdict') chip(td, g.verdict);
+    else { td.textContent = g[c] ?? ''; if (c === 'pass_rules' || c === 'check8' || c === 'venue_rest') td.className = 'wrap'; }
+    tr.append(td);
+  });
+  return tr;
+};
+const SLATE_COLS = ['game_id', 'date', 'kickoff', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest'];
+dash.draw('slate_rows', (tb) => {
+  const gs = weekGames().slice().sort((a, b) => num(b.pick_pts) - num(a.pick_pts));
+  tb.replaceChildren(...gs.map((g) => gameRow(g, SLATE_COLS)));
+});
+
+const SCHED_COLS = ['week', 'game_id', 'date', 'spread', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'check8'];
+dash.draw('sched_rows', (tb) => {
+  const u = dash.data('upcoming');
+  const q = (document.getElementById('nb-search')?.value || '').trim().toLowerCase();
+  const gs = (u.status === 'ok' ? u.data : []).filter((g) => !q || `${g.matchup} ${g.verdict} ${g.pick}`.toLowerCase().includes(q));
+  tb.replaceChildren(...gs.map((g) => gameRow(g, SCHED_COLS)));
+});
+document.querySelectorAll('#nb-search').forEach((i) => i.addEventListener('input', () => dash.draw('sched_rows')));
+
+const TEAM_COLS = ['team', 'record', 'home_rec', 'road_rec', 'def_sacks_pg', 'def_pressure_rate', 'off_sacks_allowed_pg', 'qb_rush_ypg', 'off_ypc', 'off_ypc_l3', 'def_ypc', 'takeaways_pg', 'giveaways_pg', 'off_rz_td_pct', 'def_rz_trips_pg', 'def_rz_td_pct', 'def_3rd_pct', 'pf_pg', 'pa_pg'];
+const PCT = new Set(['def_pressure_rate', 'off_rz_td_pct', 'def_rz_td_pct', 'def_3rd_pct']);
+dash.draw('team_rows', (tb) => {
+  const t = dash.data('team_stats');
+  const { key, dir } = nb.teamSort;
+  const rows = (t.status === 'ok' ? t.data : []).slice().sort((a, b) => {
+    const x = num(a[key]), y = num(b[key]);
+    return (isNaN(x) || isNaN(y)) ? dir * String(a[key]).localeCompare(String(b[key])) : dir * (x - y);
+  });
+  tb.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr');
+    TEAM_COLS.forEach((c) => {
+      const td = document.createElement('td');
+      const v = r[c];
+      td.textContent = PCT.has(c) ? pct(num(v)) : (['record', 'home_rec', 'road_rec', 'team'].includes(c) ? v : f2(num(v)));
+      tr.append(td);
+    });
+    return tr;
+  }));
+});
+document.querySelectorAll('#teams th.sortable').forEach((th) => th.addEventListener('click', () => {
+  const k = th.dataset.sort;
+  nb.teamSort = { key: k, dir: nb.teamSort.key === k ? -nb.teamSort.dir : (k === 'team' ? 1 : -1) };
+  document.querySelectorAll('#teams th.sortable').forEach((x) => x.setAttribute('aria-sort', x === th ? (nb.teamSort.dir > 0 ? 'ascending' : 'descending') : 'none'));
+  dash.draw('team_rows');
+}));
+
+dash.draw('bt_sum_rows', (tb) => {
+  const s = dash.data('backtest_summary');
+  tb.replaceChildren(...(s.status === 'ok' ? s.data : []).map((r) => {
+    const tr = document.createElement('tr');
+    ['tier', 'games', 'ats_w', 'ats_l', 'ats_pct', 'su_w', 'su_l'].forEach((c) => {
+      const td = document.createElement('td');
+      td.textContent = c === 'ats_pct' ? pct(num(r[c])) : (r[c] === '' || r[c] == null ? '' : String(r[c]).replace(/[.]0$/, ''));
+      tr.append(td);
+    });
+    return tr;
+  }));
+});
+
+dash.draw('bt_rows', (tb) => {
+  const b = dash.data('backtest_games');
+  tb.replaceChildren(...(b.status === 'ok' ? b.data : []).map((r) => {
+    const tr = document.createElement('tr');
+    ['week', 'game_id', 'spread', 'pick', 'pick_pts', 'away_score', 'home_score', 'su', 'ats', 'total_lean', 'total_result'].forEach((c) => {
+      const td = document.createElement('td');
+      td.textContent = c === 'game_id' ? r.game_id : (r[c] ?? '');
+      if ((c === 'ats' || c === 'total_result' || c === 'su') && r[c]) td.style.color = r[c] === 'Win' ? 'var(--color-ok)' : r[c] === 'Loss' ? 'var(--color-bad)' : '';
+      tr.append(td);
+    });
+    return tr;
+  }));
+});
+
+const BREAKEVEN = 0.524;
+dash.draw('bt_chart', (el) => {
+  const s = dash.data('backtest_summary');
+  el.replaceChildren();
+  if (s.status !== 'ok') return;
+  const rows = s.data.map((r) => ({ tier: r.tier, p: num(r.ats_pct), w: num(r.ats_w), l: num(r.ats_l) }));
+  const W = Math.max(el.clientWidth, 300), rowH = 30;
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${rows.length * rowH + 30}`);
+  const lbl = svg.append('g').selectAll('text').data(rows).join('text').text((d) => d.tier)
+    .attr('font-size', 12).attr('fill', 'var(--color-fg)').attr('dominant-baseline', 'middle');
+  const lw = d3.max(lbl.nodes(), (n) => n.getComputedTextLength()) + 12;
+  const x = d3.scaleLinear([0, 1], [lw, W - 56]);
+  const y = d3.scaleBand(rows.map((d) => d.tier), [4, rows.length * rowH + 4]).padding(0.3);
+  lbl.attr('x', 0).attr('y', (d) => y(d.tier) + y.bandwidth() / 2);
+  svg.append('g').attr('transform', `translate(0,${rows.length * rowH + 6})`).call(d3.axisBottom(x).ticks(5, '.0%'))
+    .attr('font-size', null).attr('font-family', null).call((g) => g.select('.domain').attr('stroke', 'var(--cds-chart-axis)'))
+    .call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)')).call((g) => g.selectAll('line').attr('stroke', 'var(--cds-chart-axis)'));
+  const tip = d3.select(el).append('div').attr('class', 'tip').style('opacity', 0);
+  svg.append('g').selectAll('rect').data(rows).join('rect')
+    .attr('x', x(0)).attr('y', (d) => y(d.tier)).attr('height', Math.min(y.bandwidth(), 32)).attr('rx', 3)
+    .attr('width', (d) => Math.max(0, x(d.p) - x(0)))
+    .attr('fill', (d) => (d.p >= BREAKEVEN ? 'var(--color-ok)' : 'var(--cds-chart-muted)'))
+    .on('mousemove', (ev, d) => {
+      const [mx, my] = d3.pointer(ev, el);
+      tip.style('opacity', 1).style('left', `${Math.min(mx + 10, el.clientWidth - 170)}px`).style('top', `${my - 10}px`)
+        .text(`${d.tier}: ${d.w}-${d.l} (${pct(d.p)})`);
+    }).on('mouseleave', () => tip.style('opacity', 0));
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d.p) + 6).attr('y', (d) => y(d.tier) + y.bandwidth() / 2)
+    .attr('dominant-baseline', 'middle').attr('font-size', 12).attr('fill', 'var(--color-fg-muted)').text((d) => pct(d.p));
+  svg.append('line').attr('x1', x(BREAKEVEN)).attr('x2', x(BREAKEVEN)).attr('y1', 0).attr('y2', rows.length * rowH + 6)
+    .attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+});
+});
+</script>
+</div></body></html>

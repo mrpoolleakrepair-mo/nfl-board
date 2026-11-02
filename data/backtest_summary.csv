@@ -1,0 +1,9 @@
+tier,games,ats_w,ats_l,ats_pct,su_w,su_l,su_pct
+9 of 9 auto,8,4,4,0.5,7.0,1.0,0.875
+7-8 auto,17,7,8,0.467,11.0,6.0,0.647
+5-6 auto,30,14,15,0.483,18.0,11.0,0.621
+0-4 auto,10,4,6,0.4,3.0,7.0,0.3
+Pass rule fired,5,3,2,0.6,3.0,2.0,0.6
+Total leans (Check 7),37,15,22,0.405,,,
+Bad dog that can run (ATS),16,6,8,0.429,,,
+Dog team total under,29,15,13,0.536,,,

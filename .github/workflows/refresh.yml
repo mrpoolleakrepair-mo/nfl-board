@@ -1,0 +1,28 @@
+name: Refresh NFL data
+on:
+  schedule:
+    - cron: "0 14 * * 2"   # Tuesday 14:00 UTC, after Monday Night Football
+    - cron: "0 14 * * 6"   # Saturday 14:00 UTC, catches line and QB changes
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pandas pyarrow
+      - name: Download nflverse data
+        run: |
+          mkdir -p raw
+          curl -sSfL -o raw/games.csv https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv
+          curl -sSfL -o raw/pbp_2026.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet
+      - run: python model.py raw data
+      - name: Commit updated data
+        run: |
+          git config user.name "nfl-board-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || (git commit -m "Refresh data $(date -u +%F)" && git push)

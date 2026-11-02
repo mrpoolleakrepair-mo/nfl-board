@@ -1,0 +1,214 @@
+[
+ {
+  "event_id": "nfl_cardinals_seahawks_2026-11-08_b2",
+  "event_uuid": "54895eec907b4aee",
+  "canonical_event_id": "nfl_cardinals_seahawks_2026-11-08_b2",
+  "event_start_time": "2026-11-08T21:25:00Z",
+  "sport": "football",
+  "league": "nfl",
+  "sportsbook": "draftkings",
+  "away_team": "ARI Cardinals",
+  "home_team": "SEA Seahawks",
+  "spread": {
+   "away_line": null,
+   "away_odds": null,
+   "bets_pct": {
+    "away": null,
+    "home": null
+   },
+   "handle_pct": {
+    "away": null,
+    "home": null
+   },
+   "home_line": null,
+   "home_odds": null
+  },
+  "total": {
+   "bets_pct": {
+    "over": null,
+    "under": null
+   },
+   "handle_pct": {
+    "over": null,
+    "under": null
+   },
+   "line": null
+  },
+  "moneyline": {
+   "away_odds": null,
+   "bets_pct": {
+    "away": null,
+    "home": null
+   },
+   "handle_pct": {
+    "away": null,
+    "home": null
+   },
+   "home_odds": null
+  },
+  "fetched_at": "2026-11-02T21:56:01.836145+00:00",
+  "available_metrics": [
+   "bets_pct",
+   "handle_pct"
+  ]
+ },
+ {
+  "event_id": "nfl_bears_seahawks_2026-11-02_b3",
+  "event_uuid": "7ecd3921004b6a71",
+  "canonical_event_id": "nfl_bears_seahawks_2026-11-02_b3",
+  "event_start_time": "2026-11-03T01:15:00Z",
+  "sport": "football",
+  "league": "nfl",
+  "sportsbook": "circa",
+  "away_team": "Bears",
+  "home_team": "Seahawks",
+  "spread": {
+   "away_line": null,
+   "away_odds": null,
+   "bets_pct": {
+    "away": 0.45,
+    "home": 0.55
+   },
+   "handle_pct": {
+    "away": 0.52,
+    "home": 0.48
+   },
+   "home_line": null,
+   "home_odds": null
+  },
+  "total": {
+   "bets_pct": {
+    "over": 0.42,
+    "under": 0.58
+   },
+   "handle_pct": {
+    "over": 0.53,
+    "under": 0.47
+   },
+   "line": null
+  },
+  "moneyline": {
+   "away_odds": null,
+   "bets_pct": {
+    "away": 0.53,
+    "home": 0.47
+   },
+   "handle_pct": {
+    "away": 0.13,
+    "home": 0.87
+   },
+   "home_odds": null
+  },
+  "fetched_at": "2026-11-02T21:55:28.024285+00:00",
+  "available_metrics": [
+   "bets_pct",
+   "handle_pct"
+  ]
+ },
+ {
+  "event_id": "nfl_broncos_panthers_2026-11-08_b2",
+  "event_uuid": "61d541f550e91533",
+  "canonical_event_id": "nfl_broncos_panthers_2026-11-08_b2",
+  "event_start_time": "2026-11-08T18:00:00Z",
+  "sport": "football",
+  "league": "nfl",
+  "sportsbook": "circa",
+  "away_team": "Broncos",
+  "home_team": "Panthers",
+  "spread": {
+   "away_line": null,
+   "away_odds": null,
+   "bets_pct": {
+    "away": 0.2,
+    "home": 0.8
+   },
+   "handle_pct": {
+    "away": 0.03,
+    "home": 0.97
+   },
+   "home_line": null,
+   "home_odds": null
+  },
+  "total": {
+   "bets_pct": {
+    "over": null,
+    "under": null
+   },
+   "handle_pct": {
+    "over": null,
+    "under": null
+   },
+   "line": null
+  },
+  "moneyline": {
+   "away_odds": null,
+   "bets_pct": {
+    "away": null,
+    "home": null
+   },
+   "handle_pct": {
+    "away": null,
+    "home": null
+   },
+   "home_odds": null
+  },
+  "fetched_at": "2026-11-02T21:55:28.024422+00:00",
+  "available_metrics": [
+   "bets_pct",
+   "handle_pct"
+  ]
+ },
+ {
+  "event_id": "nfl_bears_buccaneers_2026-11-08_b3",
+  "event_uuid": "97ec26c58a490e41",
+  "canonical_event_id": "nfl_bears_buccaneers_2026-11-08_b3",
+  "event_start_time": "2026-11-09T01:20:00Z",
+  "sport": "football",
+  "league": "nfl",
+  "sportsbook": "circa",
+  "away_team": "Buccaneers",
+  "home_team": "Bears",
+  "spread": {
+   "away_line": null,
+   "away_odds": null,
+   "bets_pct": {
+    "away": 0.5,
+    "home": 0.5
+   },
+   "handle_pct": {
+    "away": 0.95,
+    "home": 0.05
+   },
+   "home_line": null,
+   "home_odds": null
+  },
+  "total": {
+   "bets_pct": {
+    "over": null,
+    "under": null
+   },
+   "handle_pct": {
+    "over": null,
+    "under": null
+   },
+   "line": null
+  },
+  "moneyline": {
+   "away_odds": null,
+   "bets_pct": {
+    "away": null,
+    "home": null
+   },
+   "handle_pct": {
+    "away": null,
+    "home": null
+   },
+   "home_odds": null
+  },
+  "fetched_at": "2026-11-02T21:55:28.024395+00:00",
+  "available_metrics": [
+   "bets_pct",
+   "handle_pct"
+  ]
+ }
+]

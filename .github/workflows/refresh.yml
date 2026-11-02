@@ -5,7 +5,12 @@ on:
     # run at both and let the guard below keep only the one that lands at 7am Chicago time.
     - cron: "5 12 * * *"
     - cron: "5 13 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "Also backfill opening/closing lines for played games (The Odds API paid plan)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 jobs:
@@ -32,6 +37,13 @@ jobs:
           curl -sSfL -o raw/games.csv https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv
           curl -sSfL -o raw/pbp_2026.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet
           curl -sSfL -o raw/pbp_2025.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet
+      - name: Pull sportsbook lines (skips if no ODDS_API_KEY secret)
+        if: steps.guard.outputs.go == '1'
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          python odds.py daily raw data || echo "odds pull failed, continuing"
+          if [ "${{ inputs.backfill }}" = "true" ]; then python odds.py backfill raw data || echo "backfill failed, continuing"; fi
       - run: python model.py raw data
         if: steps.guard.outputs.go == '1'
       - name: Commit updated data

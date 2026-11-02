@@ -151,6 +151,52 @@ table.sc .totrow td { font-family: var(--head); font-size: 16px; border-top: 2px
 .tag { font-family: var(--head); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; background: #26385e; color: var(--gold); padding: 1px 6px; border-radius: 3px; margin-left: 8px; }
 .calc-notes { display: grid; gap: 8px; margin-top: 14px; font-size: 13px; }
 .calc-notes .why b { color: var(--gold); } .calc-notes .why.bad, .calc-notes .why.bad b { color: #ff8a95; }
+.btns { display: inline-flex; gap: 6px; }
+td.clk { cursor: pointer; } td.clk:hover .tm { outline: 2px solid var(--gold); }
+.insights { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.insights li { padding: 12px 14px 12px 46px; border-radius: 8px; background: #0a1427; border: 1px solid var(--line); position: relative; line-height: 1.5; color: #dbe2f0; }
+.insights li::before { position: absolute; left: 14px; top: 11px; font-size: 18px; }
+.insights li.win::before { content: "✔"; color: var(--green); } .insights li.loss::before { content: "✖"; color: var(--red); }
+.insights li.info::before { content: "★"; color: var(--gold); } .insights li.tip::before { content: "➜"; color: #3d8bff; }
+.insights b { color: #fff; }
+.why-modal { position: fixed; inset: 0; z-index: 50; background: rgba(3,8,18,.78); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 24px 12px; }
+.why-modal[hidden] { display: none; }
+.why-box { position: relative; width: min(860px, 100%); background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 12px; padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.why-box .x { position: absolute; top: 10px; right: 12px; background: none; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; }
+.why-head { display: grid; grid-template-columns: 1fr auto 1fr; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); margin-top: 14px; }
+.why-head .side .big { font-family: var(--head); font-weight: 700; font-size: 40px; line-height: 1; color: var(--gold); margin-top: 6px; }
+.why-head .mid { gap: 6px; }
+.strip { display: flex; height: 30px; border-radius: 6px; overflow: hidden; margin: 14px 0 8px; gap: 2px; }
+.strip .seg { display: flex; align-items: center; justify-content: center; font-family: var(--head); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); white-space: nowrap; overflow: hidden; }
+.why-sum { color: #dbe2f0; margin: 6px 0 14px; line-height: 1.5; }
+.why-pass { background: rgba(224,23,43,.15); border: 1px solid var(--red); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; color: #ffb3ba; }
+.ck { background: #0a1427; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: grid; gap: 10px; }
+.ck-head { display: flex; align-items: center; gap: 10px; }
+.ck-n { font-family: var(--head); font-weight: 700; color: var(--gold); font-size: 18px; }
+.ck-t { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; flex: 1; }
+.tug-key { font-size: 11px; color: var(--muted); margin-top: -4px; }
+.ck-s { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.tug { position: relative; height: 26px; overflow: visible; background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.08) 50%, rgba(255,255,255,.04)); border-radius: 13px; }
+.tug .tz { position: absolute; top: 0; bottom: 0; background: rgba(147,161,191,.16); }
+.tug .tc { position: absolute; left: 50%; top: 3px; bottom: 3px; width: 2px; background: #93a1bf; }
+.tug .dot { position: absolute; top: 3px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,.5); transition: left .4s; }
+.tug .tl, .tug .tr2 { position: absolute; top: 4px; font-family: var(--head); font-size: 12px; color: var(--muted); }
+.tug .tl { left: 10px; } .tug .tr2 { right: 10px; }
+.mrow { display: grid; grid-template-columns: 74px 1fr minmax(120px, 190px) 1fr 74px; align-items: center; gap: 8px; font-size: 13px; }
+.mval { display: grid; line-height: 1.15; } .mval.h { text-align: right; }
+.mval b { font-family: var(--head); font-size: 17px; } .mval span { font-size: 11px; color: var(--muted); }
+.mbar { height: 12px; background: rgba(255,255,255,.05); border-radius: 6px; display: flex; overflow: hidden; }
+.mbar.a { justify-content: flex-end; } .mbar i { display: block; height: 100%; border-radius: 6px; }
+.mlab { text-align: center; color: #dbe2f0; font-size: 12px; }
+@media (max-width: 560px) { .mrow { grid-template-columns: 52px 1fr 96px 1fr 52px; gap: 6px; } .mlab { font-size: 11px; } .why-head .side .big { font-size: 30px; } }
+.mc-lines { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 7px 14px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+.mc-lines b { color: var(--gold); font-weight: 600; } .mc-lines .cz { color: #9cc3ff; }
+.bars { display: grid; gap: 10px; }
+.brow { display: grid; grid-template-columns: minmax(150px, 280px) 1fr auto; gap: 12px; align-items: center; font-size: 13px; }
+.btrack { position: relative; height: 14px; background: rgba(255,255,255,.05); border-radius: 7px; }
+.btrack i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; }
+.btrack b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--red); }
+.bv { font-family: var(--head); font-size: 14px; white-space: nowrap; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -200,9 +246,9 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     </div>
     <div class="card">
       <h2>Full slate</h2>
-      <p class="note">Which team won each check (dashed = too close to call). Spreads and totals are current consensus lines. Times Central.</p>
+      <p class="note">Tap any matchup to see why. Which team won each check (dashed = too close to call). Spreads and totals are current consensus lines. Times Central.</p>
       <div class="tbl"><table>
-        <thead><tr><th>Matchup</th><th>Kickoff</th><th>Spread</th><th>Total</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1 Rush</th><th>C2 Run</th><th>C3 TO</th><th>C4 RZ D</th><th>C5 Spot</th><th>Pass rule</th><th>Away QB</th><th>Home QB</th><th>Venue &amp; rest</th><th></th></tr></thead>
+        <thead><tr><th>Matchup</th><th>Kickoff</th><th>Spread</th><th>Total</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1 Rush</th><th>C2 Run</th><th>C3 TO</th><th>C4 RZ D</th><th>C5 Spot</th><th>Pass rule</th><th>Away QB</th><th>Home QB</th><th>Venue &amp; rest</th><th>Line open → now</th><th>Caesars 1Q</th><th>Caesars 1H</th><th></th></tr></thead>
         <tbody data-draw="slate_rows"></tbody>
       </table></div>
     </div>
@@ -291,6 +337,16 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
   <section id="record" data-tab-panel="record" hidden>
     <div class="tiles" data-draw="season_tiles"></div>
     <div class="card">
+      <h2>What the results say</h2>
+      <ul class="insights" data-draw="insights"></ul>
+    </div>
+    <div class="card">
+      <h2>Does a higher score mean a better bet?</h2>
+      <p class="note">Every graded game, grouped by the auto score of the side the board picked. Gold climbing to the right means the score picks winners. Blue staying under the red line means the spread already accounts for it.</p>
+      <div class="legend"><span><i style="background:#ffc72c"></i>Side won straight up</span><span><i style="background:#3d8bff"></i>Side covered the spread</span><span><i style="background:#e0172b;height:3px"></i>52.4% break-even</span></div>
+      <div class="chart" data-draw="calib_chart"></div>
+    </div>
+    <div class="card">
       <h2>Week by week</h2>
       <p class="note">Every game this season, scored using only what was known before kickoff. Weeks 1–4 blend in the last 8 weeks of 2025 because there isn't enough 2026 data yet. Dashed line = 52.4%, break-even against the spread at -110.</p>
       <div class="legend"><span><i style="background:#ffc72c"></i>Side won straight up</span><span><i style="background:#3d8bff"></i>Side covered the spread</span></div>
@@ -299,7 +355,8 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     <div class="grid">
       <div class="card">
         <h2>Each check on its own</h2>
-        <p class="note">When a team wins this check, how often it wins the game and covers.</p>
+        <p class="note">When a team wins this check, how often it wins the game (gold) and covers (blue). Right of the red line beats -110.</p>
+        <div class="chart" data-draw="ck_chart" style="min-height:250px"></div>
         <div class="tbl"><table>
           <thead><tr><th>Check</th><th>Games</th><th>Won game</th><th>%</th><th>Covered</th><th>%</th></tr></thead>
           <tbody data-draw="ck_rows"></tbody>
@@ -314,6 +371,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
           <tbody data-draw="bt_sum_rows"></tbody>
         </table></div>
       </div>
+    </div>
+    <div class="card">
+      <h2>Line tests: Check 6 and quarter/half lines</h2>
+      <p class="note">Uses opening and closing lines (including Caesars 1Q and 1H) from The Odds API, graded against real quarter and half scores.</p>
+      <div data-draw="lines_tests"></div>
     </div>
     <div class="card">
       <h2>Every game this season</h2>
@@ -341,10 +403,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
         <li><b>Line move (1):</b> manual. Point to the side the line moved toward with no news; to the other side if the move followed one big result.</li>
       </ol>
       <p class="note" style="margin-top:16px">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
-      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed. Refreshes automatically every day at 7am Central.</p>
+      <p class="note">Schedule, closing lines and play-by-play come from nflverse, which mirrors the NFL's official game feed. Live and historical sportsbook lines (Caesars, DraftKings, FanDuel, BetMGM, plus Caesars 1Q and 1H) come from The Odds API once its key is added. Refreshes automatically every day at 7am Central.</p>
     </div>
   </section>
 </main>
+<div id="why" class="why-modal" hidden><div class="why-box" role="dialog" aria-label="Why this pick"><button class="x" aria-label="Close">✕</button><div id="why-body"></div></div></div>
 <footer>For research and entertainment. Not affiliated with the NFL. Bet responsibly.</footer>
 
 <script>
@@ -358,11 +421,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     calc: (id, c) => { calcs[id] = c; },
     setLink: (n) => { history.replaceState(null, '', '#' + n); setTimeout(runAll, 0); },
   };
-  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv', backtest_weekly: 'backtest_weekly.csv', backtest_checks: 'backtest_checks.csv' };
+  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv', backtest_weekly: 'backtest_weekly.csv', backtest_checks: 'backtest_checks.csv', lines_results: 'lines_results.csv' };
   const v = Date.now();
   window.addEventListener('DOMContentLoaded', () => {
     Promise.all([
-      ...Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${v}`).then((rows) => { DS[id] = { status: 'ok', data: rows }; })),
+      ...Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${v}`).then((rows) => { DS[id] = { status: 'ok', data: rows }; }).catch(() => { DS[id] = { status: 'ok', data: [] }; })),
       fetch(`data/teams.json?v=${v}`).then((r) => r.json()).then((t) => { window.TEAMS = t; }).catch(() => {}),
     ]).then(() => {
       Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
@@ -450,6 +513,7 @@ dash.draw('t_killed', tile((g) => g.verdict === 'Pass rule'));
 
 const CHECKS = { c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' };
 const calcBtn = (g) => { const b = el('button', 'btn sm', 'Score it ▸'); b.addEventListener('click', () => { window.loadCalc(g); showTab('calc'); window.scrollTo({ top: 0, behavior: 'smooth' }); }); return b; };
+const whyBtn = (g) => { const b = el('button', 'btn sm ghost', 'Why? ▸'); b.addEventListener('click', () => window.openWhy(g)); return b; };
 const gameCard = (g, opts = {}) => {
   const card = el('div', `mc${num(g.pick_pts) >= 9 ? ' hot' : ''}`);
   const side = (ab, cls) => {
@@ -461,12 +525,22 @@ const gameCard = (g, opts = {}) => {
   const sc = el('div', 'score', String(g.pick_pts)); sc.append(el('small', null, '/9'));
   const pips = el('div', 'pips');
   Object.keys(CHECKS).forEach((k) => { const p = el('span', `pip ${g[k] === g.pick ? 'w' : g[k] === 'Even' ? '' : 'l'}`); p.title = CHECKS[k]; pips.append(p); });
-  mid.append(sc, pips, el('span', 'sp', g.spread || 'No line'));
+  mid.append(sc, pips, el('span', 'sp', g.line_now || g.spread || 'No line'));
   const foot = el('div', 'mc-foot');
   const won = Object.keys(CHECKS).filter((k) => g[k] === g.pick).map((k) => CHECKS[k]);
-  const left = el('span', 'fl'); left.append(verdict(g.verdict), el('span', null, opts.when ? kick(g) : `Needs ${g.manual_pts_needed} of 4 manual`));
-  foot.append(left, el('span', null, `★ ${g.pick || '—'} wins ${won.join(', ') || 'none'}`), calcBtn(g));
+  const left = el('span', 'fl'); left.append(verdict(g.verdict), el('span', null, opts.when ? kick(g) : num(g.manual_pts_needed) > 4 ? 'Can\'t reach 10' : `Needs ${g.manual_pts_needed} of 4 manual`));
+  const btns = el('span', 'btns'); btns.append(whyBtn(g), calcBtn(g));
+  foot.append(left, el('span', null, `★ ${g.pick || '—'} wins ${won.join(', ') || 'none'}`), btns);
   card.append(side(g.away, 'away'), mid, side(g.home, 'home'), foot);
+  if (g.line_now) {
+    const ln = el('div', 'mc-lines');
+    ln.append(el('span', null, `Line ${g.line_open} → ${g.line_now}`));
+    if (g.move_toward) { const mv = el('b', null, `moved ${g.move_pts} toward ${g.move_toward}`); ln.append(mv); }
+    if (g.total_now) ln.append(el('span', null, `Total ${g.total_open} → ${g.total_now}`));
+    if (g.cz_q1) ln.append(el('span', 'cz', `Caesars 1Q ${g.cz_q1}`));
+    if (g.cz_h1) ln.append(el('span', 'cz', `1H ${g.cz_h1}`));
+    card.append(ln);
+  }
   return card;
 };
 
@@ -503,19 +577,20 @@ dash.draw('totals', (box) => {
 const gameRow = (g, cols) => {
   const tr = el('tr');
   cols.forEach((c) => {
-    if (c === 'matchup') tr.append(td(matchup(g)));
+    if (c === 'matchup') { const cell = td(matchup(g), 'clk'); cell.title = 'Why this pick?'; cell.addEventListener('click', () => window.openWhy(g)); tr.append(cell); }
     else if (c === 'when') tr.append(td(kick(g)));
     else if (c === 'pick') tr.append(td(g.pick ? team(g.pick) : ''));
     else if (/^c[1-5]$/.test(c)) tr.append(td(team(g[c])));
     else if (c === 'pick_pts') tr.append(td(meter(g.pick_pts)));
     else if (c === 'verdict') tr.append(td(verdict(g.verdict)));
     else if (c === 'calc') tr.append(td(calcBtn(g)));
+    else if (c === 'linemove') tr.append(td(g.line_now ? `${g.line_open} → ${g.line_now}` : ''));
     else tr.append(td(g[c], ['pass_rules', 'check8', 'venue_rest'].includes(c) ? 'wrap' : null));
   });
   return tr;
 };
 dash.draw('slate_rows', (tb) => {
-  tb.replaceChildren(...slate().map((g) => gameRow(g, ['matchup', 'when', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest', 'calc'])));
+  tb.replaceChildren(...slate().map((g) => gameRow(g, ['matchup', 'when', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest', 'linemove', 'cz_q1', 'cz_h1', 'calc'])));
 });
 dash.draw('sched_rows', (tb) => {
   const q = (document.getElementById('nb-search').value || '').trim().toLowerCase();
@@ -653,7 +728,7 @@ const FIELDS = ['f-away', 'f-home', 'f-fav', 'f-spread', 'f-total', 'f-arest', '
 const getForm = () => Object.fromEntries(FIELDS.map((f) => [f, $(f).type === 'checkbox' ? $(f).checked : $(f).value]));
 const setForm = (o) => FIELDS.forEach((f) => { if (o[f] === undefined) return; if ($(f).type === 'checkbox') $(f).checked = !!o[f]; else $(f).value = o[f]; });
 
-const scoreGame = (f, rows) => {
+const scoreGame = window.scoreGame = (f, rows) => {
   const T = Object.fromEntries(rows.map((r) => [r.team, r]));
   const a = f['f-away'], h = f['f-home']; const A = T[a], H = T[h];
   if (!A || !H || a === h) return null;
@@ -717,7 +792,8 @@ const scoreGame = (f, rows) => {
     if (fe > 0.6) c8 = `${tm[dog]} team total under${num(dT.wins) > num(dT.losses) ? ' (winning-record dog: strongest)' : ''}`;
     else if (c.c2 === dog && num(dT.wins) < num(dT.losses)) c8 = `${tm[dog]} is a bad team that can run: dog/ML look`;
   }
-  return { a, h, c, W, pts, auto, lead, tm, passes, v, lp, under, over, tl, c8 };
+  const edges = { c1: [rush(a, h), rush(h, a)], c2: [r2a, r2h], c3: [e3, -e3], c4: [rz(a), rz(h)] };
+  return { a, h, A, H, c, W, pts, auto, lead, tm, passes, v, lp, under, over, tl, c8, edges, rd, venue, rest };
 };
 
 const CK_ROWS = [['c0', 'Money handle', 'manual'], ['c1', 'Pass rush vs protection'], ['c2', 'Run offense vs run defense'], ['c3', 'Turnovers'], ['c4', 'Red zone defense'], ['c5', 'Home/road split and rest'], ['c6', 'Line movement read', 'manual']];
@@ -785,9 +861,189 @@ window.loadCalc = (g) => {
   const sl = num(g.spread_line);
   setForm({ 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': isNaN(sl) ? '' : Math.abs(sl), 'f-total': g.total || '',
     'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof), 'f-neutral': false,
-    'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': false });
+    'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': g.move_toward ? (g.move_toward === g.home ? 'home' : 'away') : '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': Math.abs(num(g.total_move)) >= 3 });
   render();
 };
+
+// ---------- "Why this pick" explainer ----------
+const METRICS = {
+  c1: { title: 'Pass rush vs protection', pts: 2, rows: [['Sacks per game', 'def_sacks_pg', 'hi'], ['Pressure rate', 'def_pressure_rate', 'hi', '%'], ['Sacks allowed per game', 'off_sacks_allowed_pg', 'lo'], ['QB rush yards per game', 'qb_rush_ypg', 'hi']] },
+  c2: { title: 'Run game and the trenches', pts: 2, rows: [['Rush yards per carry', 'off_ypc', 'hi'], ['YPC, last 3 games', 'off_ypc_l3', 'hi'], ['YPC allowed on defense', 'def_ypc', 'lo']] },
+  c3: { title: 'Turnover profile', pts: 2, rows: [['Takeaways per game', 'takeaways_pg', 'hi'], ['Giveaways per game', 'giveaways_pg', 'lo']] },
+  c4: { title: 'Red zone defense', pts: 2, rows: [['Red zone trips allowed per game', 'def_rz_trips_pg', 'lo'], ['Red zone TD % allowed', 'def_rz_td_pct', 'lo', '%'], ['3rd down % allowed', 'def_3rd_pct', 'lo', '%']] },
+  c5: { title: 'Situational spot', pts: 1, rows: [] },
+};
+const THR = { c1: 0.35, c2: 0.25, c3: 0.4, c4: 0.4 };
+const ord = (n) => `${n}${['th', 'st', 'nd', 'rd'][(n % 100 > 10 && n % 100 < 14) ? 0 : n % 10] || 'th'}`;
+const fmtV = (v, p) => (p ? pct0(v) : d3.format('.2~f')(v));
+
+const metricRow = (r, A, H, rows, [label, key, dir, p], ta, th) => {
+  const vals = rows.map((x) => num(x[key])); const max = d3.max(vals) || 1;
+  const rank = (t) => 1 + vals.filter((v) => (dir === 'hi' ? v > num(t[key]) : v < num(t[key]))).length;
+  const va = num(A[key]), vh = num(H[key]);
+  const better = va === vh ? null : (dir === 'hi') === (va > vh) ? 'a' : 'h';
+  const wrap = el('div', 'mrow');
+  const cell = (v, t, side) => { const c = el('div', `mval ${side}`); c.append(el('b', null, fmtV(v, p)), el('span', null, `${ord(rank(t))} of 32`)); return c; };
+  const bar = (v, side, tc) => { const b = el('div', `mbar ${side}`); const f = el('i'); f.style.width = `${Math.max(4, (v / max) * 100)}%`; f.style.background = tc; if (better !== side[0]) f.style.opacity = '.35'; b.append(f); return b; };
+  wrap.append(cell(va, A, 'a'), bar(va, 'a', ta), el('div', 'mlab', label), bar(vh, 'h', th), cell(vh, H, 'h'));
+  return wrap;
+};
+
+const tug = (r, k, ta, th) => {
+  const [ea, eh] = r.edges[k]; const thr = THR[k]; const span = thr * 4;
+  const d = Math.max(-1, Math.min(1, (eh - ea) / span));
+  const t = el('div', 'tug');
+  const zone = el('i', 'tz'); zone.style.left = `${50 - (thr / span) * 50}%`; zone.style.width = `${(thr / span) * 100}%`;
+  const dot = el('b', 'dot'); dot.style.left = `${50 + d * 40}%`; dot.style.background = r.c[k] === 'away' ? ta : r.c[k] === 'home' ? th : '#93a1bf';
+  t.append(zone, el('i', 'tc'), el('span', 'tl', `◀ ${r.a}`), el('span', 'tr2', `${r.h} ▶`), dot);
+  return t;
+};
+
+const sentence = (k, r) => {
+  const { A, H, a, h } = r; const n = (x, p) => fmtV(num(x), p);
+  if (k === 'c1') {
+    let s = `${a}'s rush gets pressure on ${n(A.def_pressure_rate, 1)} of dropbacks against a ${h} line allowing ${n(H.off_sacks_allowed_pg)} sacks a game. ${h}'s rush gets ${n(H.def_pressure_rate, 1)} against a ${a} line allowing ${n(A.off_sacks_allowed_pg)}.`;
+    const mob = [[a, A], [h, H]].filter(([, T]) => num(T.qb_rush_ypg) >= 20).map(([t, T]) => `${t}'s QB runs for ${n(T.qb_rush_ypg)} yds a game, which cuts the rush edge against him in half.`);
+    return [s, ...mob].join(' ');
+  }
+  if (k === 'c2') return `${a} runs for ${n(A.off_ypc)} a carry (${n(A.off_ypc_l3)} last 3) into a defense allowing ${n(H.def_ypc)}. ${h} runs for ${n(H.off_ypc)} (${n(H.off_ypc_l3)} last 3) into one allowing ${n(A.def_ypc)}. The team that out-rushed its opponent won 6 of 7 in your Week 8 sample.`;
+  if (k === 'c3') { const e = r.edges.c3[0]; return `${a} forces ${n(A.takeaways_pg)} turnovers a game and gives away ${n(A.giveaways_pg)}. ${h} forces ${n(H.takeaways_pg)} and gives away ${n(H.giveaways_pg)}. Matched up, that's a ${d3.format('.2f')(Math.abs(e))}-a-game edge to ${e >= 0 ? a : h}.`; }
+  if (k === 'c4') return `${a}'s defense allows ${n(A.def_rz_trips_pg)} red zone trips a game and a TD on ${n(A.def_rz_td_pct, 1)} of them. ${h}'s allows ${n(H.def_rz_trips_pg)} trips and ${n(H.def_rz_td_pct, 1)} TDs. Under 3 trips and under 50% is strong. Linebacker health isn't scored, so check the injury report.`;
+  if (k === 'c5') return `${h} is ${H.home_rec} at home and ${a} is ${A.road_rec} on the road${r.venue ? `, an edge to ${r.tm[r.venue]}` : ', too close to matter'}. Rest: ${a} ${r.restA} days, ${h} ${r.restH} days${r.rest ? `, an edge to ${r.tm[r.rest]}` : ''}.`;
+  return '';
+};
+
+window.openWhy = (g) => {
+  const t = dash.data('team_stats'); if (t.status !== 'ok') return;
+  const sl = num(g.spread_line);
+  const f = { 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': Math.abs(sl), 'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof) };
+  const r = scoreGame(f, t.data); if (!r) return;
+  r.restA = f['f-arest']; r.restH = f['f-hrest'];
+  const ta = (window.TEAMS[r.a] || {}).c1 || '#556', th = (window.TEAMS[r.h] || {}).c1 || '#556';
+  const body = $('why-body');
+  // Header
+  const head = el('div', 'why-head');
+  const side = (ab, cls, tc, p) => { const s = el('div', `side ${cls}${g.pick === ab ? ' pick' : ''}`); s.style.setProperty('--tc', tc); s.append(el('span', 'ab', ab), el('span', 'nm', (window.TEAMS[ab] || {}).name || ''), el('span', 'big', `${p}`)); return s; };
+  head.append(side(r.a, 'away', ta, r.auto.away), (() => { const m = el('div', 'mid'); m.append(el('span', 'sp', g.spread || 'No line'), el('span', 'sp dim', kick(g)), verdict(g.verdict)); return m; })(), side(r.h, 'home', th, r.auto.home));
+  // Points strip
+  const strip = el('div', 'strip');
+  Object.keys(METRICS).forEach((k) => {
+    const w = r.c[k]; const seg = el('div', 'seg'); seg.style.flex = METRICS[k].pts;
+    seg.style.background = w === 'away' ? ta : w === 'home' ? th : '#22324f';
+    seg.append(el('span', null, `C${k.slice(1)} ${w ? r.tm[w] : 'even'}`)); strip.append(seg);
+  });
+  const summary = el('p', 'why-sum', g.pick
+    ? `${g.pick} wins ${Object.keys(METRICS).filter((k) => r.tm[r.c[k]] === g.pick).length} of 5 checks for ${g.pick_pts} of 9 automatic points. ${num(g.manual_pts_needed) <= 4 ? `It needs ${g.manual_pts_needed} more from your handle (3) and line (1) reads to reach 10.` : 'Even with the handle and line it can\'t reach 10: pass.'}`
+    : 'Neither side wins more checks. Pass.');
+  body.replaceChildren(head, strip, summary);
+  if (g.pass_rules) { const p = el('div', 'why-pass'); p.append(el('b', null, 'Pass rule fires: '), document.createTextNode(g.pass_rules)); body.append(p); }
+  // Each check
+  Object.entries(METRICS).forEach(([k, m]) => {
+    const card = el('div', 'ck');
+    const hd = el('div', 'ck-head'); hd.append(el('span', 'ck-n', `C${k.slice(1)}`), el('span', 'ck-t', `${m.title} · ${m.pts} pt${m.pts > 1 ? 's' : ''}`), r.c[k] ? team(r.tm[r.c[k]]) : team('Even'));
+    card.append(hd);
+    if (k !== 'c5') { card.append(tug(r, k, ta, th)); card.append(el('div', 'tug-key', 'Dot shows who has the edge. Inside the grey band = too close to call.')); }
+    m.rows.forEach((row) => card.append(metricRow(r, r.A, r.H, t.data, row, ta, th)));
+    if (k === 'c5') {
+      const rec = (w, l) => num(w) / Math.max(num(w) + num(l), 1);
+      card.append(metricRow(r, { hv: rec(r.A.road_w, r.A.road_l) }, { hv: rec(r.H.home_w, r.H.home_l) }, [{ hv: 1 }], ['Road win % (away) vs home win % (home)', 'hv', 'hi', '%'], ta, th));
+      card.append(metricRow(r, { rd: num(r.restA) }, { rd: num(r.restH) }, [{ rd: 14 }], ['Days of rest', 'rd', 'hi'], ta, th));
+      card.querySelectorAll('.mval span').forEach((s) => s.remove());
+    }
+    card.append(el('p', 'ck-s', sentence(k, r)));
+    body.append(card);
+  });
+  if (g.line_now) {
+    const lc = el('div', 'ck'); const hd = el('div', 'ck-head'); hd.append(el('span', 'ck-n', 'C6'), el('span', 'ck-t', 'Line move · 1 pt · you decide'), g.move_toward ? team(g.move_toward) : team('Even'));
+    lc.append(hd, el('p', 'ck-s', `Consensus line ${g.line_open} when first seen, ${g.line_now} now${g.move_toward ? `: ${g.move_pts} points toward ${g.move_toward}. If no injury or weather news explains it, that point goes to ${g.move_toward}. If it came right after one big result, it goes to the other side.` : '. No real move yet.'} Total ${g.total_open} → ${g.total_now}${Math.abs(num(g.total_move)) >= 3 ? ', a 3+ point move: skip the total.' : '.'}${g.cz_q1 ? ` Caesars 1Q ${g.cz_q1}; 1H ${g.cz_h1}.` : ''}`));
+    body.append(lc);
+  }
+  const go = el('button', 'btn', 'Add my handle & line read ▸'); go.addEventListener('click', () => { closeWhy(); window.loadCalc(g); showTab('calc'); window.scrollTo({ top: 0 }); });
+  body.append(go);
+  $('why').hidden = false; document.body.style.overflow = 'hidden';
+};
+const closeWhy = () => { $('why').hidden = true; document.body.style.overflow = ''; };
+$('why').addEventListener('click', (e) => { if (e.target.id === 'why' || e.target.classList.contains('x')) closeWhy(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWhy(); });
+
+// ---------- Line tests ----------
+dash.draw('lines_tests', (box) => {
+  const d = dash.data('lines_results'); if (d.status !== 'ok') return;
+  const rows = d.data.filter((r) => num(r.games) > 0);
+  if (!rows.length) { box.replaceChildren(el('p', 'empty', 'No line history yet. Once the odds feed is connected, the daily run starts logging lines, and a one-time backfill (paid plan) fills in Weeks 1 to now.')); return; }
+  const wrap = el('div', 'bars');
+  rows.forEach((r) => {
+    const p = num(r.ats_pct); const row = el('div', 'brow');
+    const bar = el('div', 'btrack'); const f = el('i'); f.style.width = `${p * 100}%`; f.style.background = p >= 0.524 ? 'var(--gold)' : '#3a4e78'; const be = el('b'); be.style.left = '52.4%'; bar.append(f, be);
+    row.append(el('span', 'bl', r.tier), bar, el('span', 'bv', `${rec(r.ats_w, r.ats_l)} · ${pct0(p)}`));
+    wrap.append(row);
+  });
+  box.replaceChildren(wrap);
+});
+
+// ---------- Season results: plain-English read + visuals ----------
+dash.draw('insights', (box) => {
+  const s = dash.data('backtest_summary'), c = dash.data('backtest_checks'), g = dash.data('backtest_games');
+  if (s.status !== 'ok' || c.status !== 'ok' || g.status !== 'ok') return;
+  const by = Object.fromEntries(s.data.map((r) => [r.tier, r]));
+  const all = by['All picks'], top = by['9 of 9 auto'], low = by['0-4 auto'], tot = by['Total leans (Check 7)'];
+  const best = c.data.slice().sort((x, y) => num(y.su_pct) - num(x.su_pct))[0];
+  const bestAts = c.data.slice().sort((x, y) => num(y.ats_pct) - num(x.ats_pct))[0];
+  const items = [
+    ['win', `<b>It picks winners.</b> The side the board liked won ${pct0(num(all.su_pct))} of games straight up (${rec(num(all.su_w), num(all.su_l))}). The higher the score, the better: ${top ? pct0(num(top.su_pct)) : '—'} at 9 of 9 versus ${low ? pct0(num(low.su_pct)) : '—'} at 0–4.`],
+    ['loss', `<b>It doesn't beat the spread on its own.</b> Against the number it's ${rec(all.ats_w, all.ats_l)} (${pct0(num(all.ats_pct))}). You need 52.4% to profit at -110. The books already price in what these five checks see.`],
+    ['info', `<b>Strongest check: ${best.check}.</b> When a team wins it, that team wins the game ${pct0(num(best.su_pct))} of the time. Best against the spread is ${bestAts.check} at ${pct0(num(bestAts.ats_pct))}, which is still below break-even.`],
+    ['loss', `<b>Totals leans are a fade so far.</b> Check 7 leans went ${rec(tot.ats_w, tot.ats_l)} (${pct0(num(tot.ats_pct))}).`],
+    ['tip', `<b>How to use it:</b> treat the auto score as a shortlist of sides worth a look, then let your money handle (Check 0) and line move (Check 6) decide. Those two can't be backtested from free data, so log them every week.`],
+  ];
+  box.replaceChildren(...items.map(([cls, html]) => { const li = el('li', cls); li.innerHTML = html; return li; }));
+});
+
+dash.draw('calib_chart', (box) => {
+  const g = dash.data('backtest_games'); box.replaceChildren(); if (g.status !== 'ok' || !box.clientWidth) return;
+  const rows = d3.rollups(g.data, (v) => ({ n: v.length, su: v.filter((r) => r.su === 'Win').length / Math.max(1, v.filter((r) => r.su === 'Win' || r.su === 'Loss').length), ats: v.filter((r) => r.ats === 'Win').length / Math.max(1, v.filter((r) => r.ats === 'Win' || r.ats === 'Loss').length) }), (r) => num(r.pick_pts))
+    .sort((a, b) => a[0] - b[0]).map(([p, v]) => ({ p, ...v }));
+  const W = Math.max(box.clientWidth, 300), H = 260, m = { t: 22, r: 10, b: 40, l: 48 };
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const x = d3.scaleBand(rows.map((d) => d.p), [m.l, W - m.r]).padding(0.22);
+  const x2 = d3.scaleBand(['su', 'ats'], [0, x.bandwidth()]).padding(0.1);
+  const y = d3.scaleLinear([0, 1], [H - m.b, m.t]);
+  [0.25, 0.5, 0.75, 1].forEach((v) => svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', '#1f3054'));
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4, '.0%').tickSize(0)).call((q) => q.select('.domain').remove()).attr('font-size', null).attr('font-family', null).call((q) => q.selectAll('text').attr('fill', '#93a1bf'));
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSize(0).tickFormat((d) => `${d}/9`)).call((q) => q.select('.domain').remove()).attr('font-size', null).attr('font-family', null).call((q) => q.selectAll('text').attr('fill', '#dbe2f0').attr('dy', '1.1em'));
+  svg.append('text').attr('x', (m.l + W - m.r) / 2).attr('y', H - 4).attr('text-anchor', 'middle').attr('fill', '#93a1bf').attr('font-size', 12).text('Auto score of the side the board picked');
+  const tip = d3.select(box).append('div').attr('class', 'tip').style('opacity', 0);
+  const C = { su: '#ffc72c', ats: '#3d8bff' };
+  const gg = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (d) => `translate(${x(d.p)},0)`);
+  gg.selectAll('rect').data((d) => [{ k: 'su', v: d.su, d }, { k: 'ats', v: d.ats, d }]).join('rect')
+    .attr('x', (e) => x2(e.k)).attr('width', x2.bandwidth()).attr('y', (e) => y(e.v)).attr('height', (e) => y(0) - y(e.v)).attr('rx', 3).attr('fill', (e) => C[e.k])
+    .on('mousemove', (ev, e) => { const [mx, my] = d3.pointer(ev, box); tip.style('opacity', 1).style('left', `${Math.min(mx + 12, box.clientWidth - 220)}px`).style('top', `${my - 14}px`).text(`Score ${e.d.p}/9 · ${e.d.n} games · won ${pct0(e.d.su)} · covered ${pct0(e.d.ats)}`); })
+    .on('mouseleave', () => tip.style('opacity', 0));
+  gg.append('text').attr('x', x.bandwidth() / 2).attr('y', m.t - 8).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', '#93a1bf').text((d) => `n=${d.n}`);
+  svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0.524)).attr('y2', y(0.524)).attr('stroke', '#e0172b').attr('stroke-width', 2).attr('stroke-dasharray', '5 4');
+});
+
+dash.draw('ck_chart', (box) => {
+  const c = dash.data('backtest_checks'); box.replaceChildren(); if (c.status !== 'ok' || !box.clientWidth) return;
+  const rows = c.data.map((r) => ({ name: r.check, su: num(r.su_pct), ats: num(r.ats_pct), r }));
+  const W = Math.max(box.clientWidth, 300), rowH = 44, H = rows.length * rowH + 30;
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const lbl = svg.append('g').selectAll('text').data(rows).join('text').text((d) => d.name).attr('font-size', 13).attr('fill', '#dbe2f0').attr('dominant-baseline', 'middle');
+  const lw = d3.max(lbl.nodes(), (n) => n.getComputedTextLength()) + 16;
+  const x = d3.scaleLinear([0.3, 0.8], [lw, W - 20]);
+  const y = (i) => 10 + i * rowH + rowH / 2;
+  lbl.attr('x', 0).attr('y', (d, i) => y(i));
+  [0.3, 0.4, 0.5, 0.6, 0.7, 0.8].forEach((v) => { svg.append('line').attr('x1', x(v)).attr('x2', x(v)).attr('y1', 4).attr('y2', H - 22).attr('stroke', '#1f3054'); svg.append('text').attr('x', x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', '#93a1bf').text(pct0(v)); });
+  svg.append('line').attr('x1', x(0.524)).attr('x2', x(0.524)).attr('y1', 4).attr('y2', H - 22).attr('stroke', '#e0172b').attr('stroke-width', 2).attr('stroke-dasharray', '5 4');
+  const tip = d3.select(box).append('div').attr('class', 'tip').style('opacity', 0);
+  const g = svg.append('g').selectAll('g').data(rows).join('g');
+  g.append('line').attr('x1', (d) => x(d.ats)).attr('x2', (d) => x(d.su)).attr('y1', (d, i) => y(i)).attr('y2', (d, i) => y(i)).attr('stroke', '#3a4e78').attr('stroke-width', 4);
+  g.append('circle').attr('cx', (d) => x(d.ats)).attr('cy', (d, i) => y(i)).attr('r', 8).attr('fill', '#3d8bff');
+  g.append('circle').attr('cx', (d) => x(d.su)).attr('cy', (d, i) => y(i)).attr('r', 8).attr('fill', '#ffc72c');
+  g.append('rect').attr('x', lw).attr('width', W - lw).attr('y', (d, i) => y(i) - rowH / 2).attr('height', rowH).attr('fill', 'transparent')
+    .on('mousemove', (ev, d) => { const [mx, my] = d3.pointer(ev, box); tip.style('opacity', 1).style('left', `${Math.min(mx + 12, box.clientWidth - 240)}px`).style('top', `${my - 14}px`).text(`${d.name}: won ${rec(d.r.su_w, d.r.su_l)} (${pct0(d.su)}) · covered ${rec(d.r.ats_w, d.r.ats_l)} (${pct0(d.ats)})`); })
+    .on('mouseleave', () => tip.style('opacity', 0));
+});
 });
 </script>
 </body></html>

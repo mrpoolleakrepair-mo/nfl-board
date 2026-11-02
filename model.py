@@ -249,7 +249,7 @@ upcoming, S = build(G, P, list(range(last_done + 1, 19)), 18)
 cur_unplayed = G[(G.week == last_done) & G.result.isna()]
 if len(cur_unplayed):
     u2, _ = build(G, P, [last_done], 18)
-    upcoming = pd.concat([u2[u2.game_id.isin(cur_unplayed.game_id)], upcoming])
+    upcoming = pd.concat([u2[u2.game_id.isin(cur_unplayed.game_id)], upcoming], ignore_index=True)
 
 # Backtest: weeks 4..last_done, stats from prior weeks only
 bt = []
@@ -305,6 +305,93 @@ T["home_rec"] = T.apply(lambda r: f"{int(r.home_w)}-{int(r.home_l)}", axis=1)
 T["road_rec"] = T.apply(lambda r: f"{int(r.road_w)}-{int(r.road_l)}", axis=1)
 for c in T.columns:
     if T[c].dtype.kind == "f": T[c] = T[c].round(3)
+
+
+# ---------- Odds feed (The Odds API), when present ----------
+def med_point(df, market, outcome):
+    x = df[(df.market == market) & (df.outcome == outcome)].point.dropna()
+    return float(x.median()) if len(x) else None
+
+def fmt_line(home_pt, a, h):
+    if home_pt is None: return ""
+    if home_pt == 0: return "PK"
+    return f"{h} {home_pt:+g}".replace("+", "+") if home_pt < 0 else f"{a} {-home_pt:+g}"
+
+line_cols = ["line_open", "line_now", "move_toward", "move_pts", "total_open", "total_now", "total_move", "cz_spread", "cz_total", "cz_q1", "cz_h1", "lines_seen"]
+for c in line_cols: upcoming[c] = pd.Series([""] * len(upcoming), index=upcoming.index, dtype=object)
+snap_path, per_path = f"{OUT}/odds_snapshots.csv", f"{OUT}/caesars_periods.csv"
+if os.path.exists(snap_path):
+    sn = pd.read_csv(snap_path)
+    pr = pd.read_csv(per_path) if os.path.exists(per_path) else sn.iloc[0:0]
+    for i, r in upcoming.iterrows():
+        x = sn[sn.game_id == r.game_id]
+        if not len(x): continue
+        first, last = x[x.ts == x.ts.min()], x[x.ts == x.ts.max()]
+        so, sc = med_point(first, "spreads", "home"), med_point(last, "spreads", "home")
+        to, tc = med_point(first, "totals", "over"), med_point(last, "totals", "over")
+        cz = last[last.book == "williamhill_us"]
+        upcoming.at[i, "line_open"], upcoming.at[i, "line_now"] = fmt_line(so, r.away, r.home), fmt_line(sc, r.away, r.home)
+        if so is not None and sc is not None and abs(sc - so) >= 0.5:
+            upcoming.at[i, "move_toward"] = r.home if sc < so else r.away
+            upcoming.at[i, "move_pts"] = abs(sc - so)
+        upcoming.at[i, "total_open"], upcoming.at[i, "total_now"] = to if to is not None else "", tc if tc is not None else ""
+        if to is not None and tc is not None:
+            upcoming.at[i, "total_move"] = tc - to
+            if abs(tc - to) >= 3 and r.total_lean:
+                upcoming.at[i, "total_lean"] = ""
+                upcoming.at[i, "under_reasons"] = upcoming.at[i, "over_reasons"] = f"Total moved {tc - to:+g} since first seen: skip it (pass rule)"
+        upcoming.at[i, "cz_spread"] = fmt_line(med_point(cz, "spreads", "home"), r.away, r.home)
+        czt = med_point(cz, "totals", "over"); upcoming.at[i, "cz_total"] = czt if czt is not None else ""
+        p = pr[pr.game_id == r.game_id]
+        if len(p):
+            p = p[p.ts == p.ts.max()]
+            q1s, q1t, h1s, h1t = med_point(p, "spreads_q1", "home"), med_point(p, "totals_q1", "over"), med_point(p, "spreads_h1", "home"), med_point(p, "totals_h1", "over")
+            upcoming.at[i, "cz_q1"] = " · ".join(v for v in [fmt_line(q1s, r.away, r.home), f"O/U {q1t:g}" if q1t is not None else ""] if v)
+            upcoming.at[i, "cz_h1"] = " · ".join(v for v in [fmt_line(h1s, r.away, r.home), f"O/U {h1t:g}" if h1t is not None else ""] if v)
+        upcoming.at[i, "lines_seen"] = f"{x.ts.min()[:10]} to {x.ts.max()[:10]}"
+    print("odds merged for", (upcoming.line_now != "").sum(), "games")
+
+# Played games with stored open/close lines: test Check 6 and the 1Q/1H theories
+cl_path = f"{OUT}/closing_lines.csv"
+per_rows = []
+if os.path.exists(cl_path):
+    cl = pd.read_csv(cl_path)
+    q = P.groupby(["game_id", "qtr"])[["total_home_score", "total_away_score"]].max().reset_index()
+    def score_at(gid, qtr):
+        x = q[(q.game_id == gid) & (q.qtr <= qtr)]
+        return (x.total_away_score.max(), x.total_home_score.max()) if len(x) else (None, None)
+    def tally(name, res):
+        w, l = res.count("Win"), res.count("Loss")
+        per_rows.append(dict(tier=name, games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
+    c6, q1won, q1cov, h1cov, q1big = [], [], [], [], []
+    for _, g in G[G.result.notna() & G.game_id.isin(cl.game_id)].iterrows():
+        x = cl[cl.game_id == g.game_id]
+        so, sc = med_point(x[x.ts == "open"], "spreads", "home"), med_point(x[x.ts == "close"], "spreads", "home")
+        m = g.result - g.spread_line
+        if so is not None and sc is not None and abs(sc - so) >= 1 and m != 0:
+            toward_home = sc < so
+            c6.append("Win" if toward_home == (m > 0) else "Loss")
+        cz = x[(x.ts == "close") & (x.book == "williamhill_us")]
+        q1s, h1s = med_point(cz, "spreads_q1", "home"), med_point(cz, "spreads_h1", "home")
+        if q1s is not None and q1s != 0:
+            fav_home = q1s < 0
+            if g.result != 0: q1won.append("Win" if fav_home == (g.result > 0) else "Loss")
+            if abs(q1s) >= 2.5 and g.result != 0: q1big.append("Win" if fav_home == (g.result > 0) else "Loss")
+            a1, h1 = score_at(g.game_id, 1)
+            if a1 is not None:
+                mm = (h1 - a1) + q1s
+                if mm != 0: q1cov.append("Win" if (mm > 0) == fav_home else "Loss")
+        if h1s is not None and h1s != 0:
+            a2, h2 = score_at(g.game_id, 2)
+            if a2 is not None:
+                mm = (h2 - a2) + h1s
+                if mm != 0: h1cov.append("Win" if (mm > 0) == (h1s < 0) else "Loss")
+    tally("Check 6: side the line moved toward (ATS)", c6)
+    tally("1Q favorite won the game", q1won)
+    tally("1Q favorite of 2.5+ won the game", q1big)
+    tally("1Q favorite covered the 1Q spread", q1cov)
+    tally("1H favorite covered the 1H spread", h1cov)
+pd.DataFrame(per_rows, columns=["tier", "games", "ats_w", "ats_l", "ats_pct"]).to_csv(f"{OUT}/lines_results.csv", index=False)
 
 upcoming = upcoming.drop(columns=["away_score", "home_score", "home_margin", "final_total"])
 upcoming.to_csv(f"{OUT}/upcoming_games.csv", index=False)

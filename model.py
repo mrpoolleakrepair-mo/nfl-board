@@ -617,6 +617,8 @@ if os.path.exists(spl_path):
             upcoming.at[i, "c0_note"] = f"DraftKings money on {tm_[side]} runs 10+ pts ahead of its bets ({'spread' if s_sp == side else 'moneyline'})"
         elif s_sp and s_ml and s_sp != s_ml:
             upcoming.at[i, "c0_note"] = "Spread and moneyline money point different ways: 0 pts"
+        elif not len(dk):
+            upcoming.at[i, "c0_note"] = "No DraftKings splits posted yet (Circa shown for reference): 0 pts for now"
         else:
             upcoming.at[i, "c0_note"] = "Money roughly matches bets: 0 pts"
         # Full checklist score with the handle added (line move still yours to add)

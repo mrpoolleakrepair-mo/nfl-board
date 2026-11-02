@@ -46,7 +46,7 @@
    },
    "home_odds": null
   },
-  "fetched_at": "2026-11-02T22:27:49.944857+00:00",
+  "fetched_at": "2026-11-02T22:39:09.326601+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
@@ -99,7 +99,7 @@
    },
    "home_odds": null
   },
-  "fetched_at": "2026-11-02T22:27:12.605762+00:00",
+  "fetched_at": "2026-11-02T22:38:31.232963+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
@@ -152,7 +152,7 @@
    },
    "home_odds": null
   },
-  "fetched_at": "2026-11-02T22:27:12.609125+00:00",
+  "fetched_at": "2026-11-02T22:38:31.233189+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
@@ -205,7 +205,7 @@
    },
    "home_odds": null
   },
-  "fetched_at": "2026-11-02T22:27:12.609071+00:00",
+  "fetched_at": "2026-11-02T22:38:31.233144+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"

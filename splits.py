@@ -112,6 +112,12 @@ def rows_from(item, gid, ts, default_book=None):
     """Handles both shapes: one item per market, or one item per event with markets nested inside."""
     out = []
     book = first(item, "sportsbook", "book", "source") or default_book
+    # SharpAPI shape: each item is one game at one book, with "spread", "moneyline" and "total" blocks
+    blocks = [k for k in ("spread", "moneyline", "total") if isinstance(item.get(k), dict)]
+    if blocks:
+        for k in blocks:
+            out += rows_from(dict(item[k], market=k, sportsbook=book, event_id=item.get("event_id")), gid, ts, book)
+        return out
     nested = first(item, "markets", "splits")
     if isinstance(nested, dict):
         nested = [dict(v, market=k) if isinstance(v, dict) else v for k, v in nested.items()]
@@ -120,12 +126,12 @@ def rows_from(item, gid, ts, default_book=None):
             out += rows_from(dict(sub, event_id=item.get("event_id")), gid, ts, book)
         return out
     mk = norm_market(first(item, "market", "market_type", "type", "bet_type"))
-    bets = first(item, "bet_pct", "bets_pct", "ticket_pct", "tickets_pct", "bet_percent", "bets")
+    bets = first(item, "bets_pct", "bet_pct", "ticket_pct", "tickets_pct", "bet_percent", "bets")
     hand = first(item, "handle_pct", "money_pct", "handle_percent", "money", "handle")
     if not (mk and isinstance(bets, dict) and isinstance(hand, dict)):
         return out
     for side in ("away", "home", "over", "under"):
-        if side in bets or side in hand:
+        if bets.get(side) is not None and hand.get(side) is not None:
             out.append(dict(ts=ts, game_id=gid, book=book, market=mk, side=side, bet_pct=pct(bets.get(side)), handle_pct=pct(hand.get(side))))
     return out
 

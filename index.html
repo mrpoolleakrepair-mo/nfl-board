@@ -197,6 +197,14 @@ td.clk { cursor: pointer; } td.clk:hover .tm { outline: 2px solid var(--gold); }
 .btrack i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; }
 .btrack b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--red); }
 .bv { font-family: var(--head); font-size: 14px; white-space: nowrap; }
+.qbtags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.side.home .qbtags { justify-content: flex-end; }
+.qb { font-family: var(--head); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 1px 7px; border-radius: 3px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.18); color: #dbe2f0; white-space: nowrap; }
+.qb.mob { border-color: #2bd47d; color: #7ef0b3; } .qb.bk { border-color: var(--red); color: #ff9aa4; } .qb.rush { border-color: var(--gold); color: var(--gold); }
+.qbm { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
+.qbc { display: grid; gap: 4px; justify-items: start; } .qbc.home { justify-items: end; text-align: right; }
+.qbn { font-family: var(--head); font-size: 17px; } .qbs { font-size: 12px; color: var(--muted); }
+.vsx { font-family: var(--head); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -292,6 +300,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
         <p class="note">Any matchup, including games not on the schedule (playoffs, flexed or rescheduled games). Hit "Score it" on any game on the board to load it here, or build one from scratch. Add your handle and line reads for the full 13-point score.</p>
         <div class="form">
           <div class="frow"><label>Away team<select id="f-away"></select></label><label>Home team<select id="f-home"></select></label></div>
+          <div class="frow"><label>Away QB<select id="f-aqb"><option value="auto">Auto (team average)</option><option value="pocket">Pocket</option><option value="mobile">Mobile (20+ rush yds/g)</option><option value="backup_pocket">Backup · Pocket</option><option value="backup_mobile">Backup · Mobile</option></select></label><label>Home QB<select id="f-hqb"><option value="auto">Auto (team average)</option><option value="pocket">Pocket</option><option value="mobile">Mobile (20+ rush yds/g)</option><option value="backup_pocket">Backup · Pocket</option><option value="backup_mobile">Backup · Mobile</option></select></label></div>
           <div class="frow">
             <label>Favorite<select id="f-fav"><option value="">No line</option><option value="away">Away team</option><option value="home">Home team</option></select></label>
             <label>Spread<input id="f-spread" type="number" step="0.5" min="0" placeholder="3.5"></label>
@@ -395,7 +404,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       <h2>How each check is scored</h2>
       <ol class="how" start="0">
         <li><b>Money handle (3):</b> manual. Use DraftKings Betting Splits about an hour before kickoff. Money % 10+ points above bet % on a side = 3 points to that side.</li>
-        <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Halved when the QB runs for 20+ yards a game. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
+        <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Uses the listed starting QB: mobile (20+ rush yards a game on designed runs and scrambles) halves the rush edge against him; a pocket passer takes it in full. A backup starter (not the opening-day starter and hasn't started 3 straight) adds to the opposing rush edge. Cards flag Top-10 rush defenses by pressure rate or sacks. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
         <li><b>Run game (2):</b> rushing YPC (two-thirds season, one-third last 3 games) above league average plus the opponent's YPC allowed above average. Edge must exceed 0.25 yards a carry.</li>
         <li><b>Turnovers (2):</b> your takeaways/g plus their giveaways/g, minus the reverse. Edge must exceed 0.4 a game.</li>
         <li><b>Red zone defense (2):</b> RZ trips allowed/g and RZ TD % allowed, both standardized. Linebacker health isn't scored; split 1–1 by hand if a starting LB is out.</li>
@@ -519,7 +528,12 @@ const gameCard = (g, opts = {}) => {
   const side = (ab, cls) => {
     const t = window.TEAMS[ab] || {};
     const s = el('div', `side ${cls}${g.pick === ab ? ' pick' : ''}`); s.style.setProperty('--tc', t.c1 || '#334');
-    s.append(el('span', 'ab', ab), el('span', 'nm', t.name || '')); return s;
+    s.append(el('span', 'ab', ab), el('span', 'nm', t.name || ''));
+    const qn = g[`${cls}_qb`], qt = g[`${cls}_qb_type`];
+    const tags = el('span', 'qbtags');
+    if (qn) tags.append(el('span', `qb ${/Backup/.test(qt) ? 'bk' : /Mobile/.test(qt) ? 'mob' : ''}`, `${qn.split(' ').filter((w) => !/^(Jr\.?|Sr\.?|II|III|IV)$/.test(w)).slice(-1)[0]} · ${qt}`));
+    if (g[`${cls}_rush_top10`] === '1') tags.append(el('span', 'qb rush', 'Top-10 rush D'));
+    s.append(tags); return s;
   };
   const mid = el('div', 'mid');
   const sc = el('div', 'score', String(g.pick_pts)); sc.append(el('small', null, '/9'));
@@ -584,6 +598,7 @@ const gameRow = (g, cols) => {
     else if (c === 'pick_pts') tr.append(td(meter(g.pick_pts)));
     else if (c === 'verdict') tr.append(td(verdict(g.verdict)));
     else if (c === 'calc') tr.append(td(calcBtn(g)));
+    else if (c === 'away_qb' || c === 'home_qb') tr.append(td(g[c] ? `${g[c]} (${g[c + '_type']})` : ''));
     else if (c === 'linemove') tr.append(td(g.line_now ? `${g.line_open} → ${g.line_now}` : ''));
     else tr.append(td(g[c], ['pass_rules', 'check8', 'venue_rest'].includes(c) ? 'wrap' : null));
   });
@@ -724,10 +739,12 @@ dash.draw('bt_chart', (box) => {
 
 // ---------- Calculator: same rules as the daily model ----------
 const $ = (id) => document.getElementById(id);
-const FIELDS = ['f-away', 'f-home', 'f-fav', 'f-spread', 'f-total', 'f-arest', 'f-hrest', 'f-dome', 'f-neutral', 'f-bets', 'f-money', 'f-agg', 'f-move', 'f-bigresult', 'f-qb', 'f-tmove'];
+const FIELDS = ['f-aqb', 'f-hqb', 'f-away', 'f-home', 'f-fav', 'f-spread', 'f-total', 'f-arest', 'f-hrest', 'f-dome', 'f-neutral', 'f-bets', 'f-money', 'f-agg', 'f-move', 'f-bigresult', 'f-qb', 'f-tmove'];
 const getForm = () => Object.fromEntries(FIELDS.map((f) => [f, $(f).type === 'checkbox' ? $(f).checked : $(f).value]));
 const setForm = (o) => FIELDS.forEach((f) => { if (o[f] === undefined) return; if ($(f).type === 'checkbox') $(f).checked = !!o[f]; else $(f).value = o[f]; });
 
+const QBV = { 'Pocket': 'pocket', 'Mobile': 'mobile', 'Backup · Pocket': 'backup_pocket', 'Backup · Mobile': 'backup_mobile' };
+const qbVal = (label) => QBV[label] || 'auto';
 const scoreGame = window.scoreGame = (f, rows) => {
   const T = Object.fromEntries(rows.map((r) => [r.team, r]));
   const a = f['f-away'], h = f['f-home']; const A = T[a], H = T[h];
@@ -737,7 +754,10 @@ const scoreGame = window.scoreGame = (f, rows) => {
   const zdsr = zf('def_sack_rate'), zdpr = zf('def_pressure_rate'), zosr = zf('off_sack_rate'), zrzt = zf('def_rz_trips_pg'), zrzp = zf('def_rz_td_pct');
   const mOff = d3.mean(col('off_ypc')), mDef = d3.mean(col('def_ypc'));
   const side = (ea, eh, thr) => (ea - eh > thr ? 'away' : eh - ea > thr ? 'home' : null);
-  const rush = (d, o) => { let e = (zdsr(d) + zdpr(d)) / 2 + zosr(o); if (num(T[o].qb_rush_ypg) >= 20) e *= 0.5; return e; };
+  const qbType = (t) => f[t === a ? 'f-aqb' : 'f-hqb'] || 'auto';
+  const isMobile = (t) => { const q = qbType(t); return q === 'auto' ? num(T[t].qb_rush_ypg) >= 20 : q.endsWith('mobile'); };
+  const isBackup = (t) => qbType(t).startsWith('backup');
+  const rush = (d, o) => { let e = (zdsr(d) + zdpr(d)) / 2 + zosr(o); if (isBackup(o)) e += 0.5; if (isMobile(o)) e *= 0.5; return e; };
   const run = (o, d) => ((2 * num(T[o].off_ypc) + num(T[o].off_ypc_l3)) / 3 - mOff) + (num(T[d].def_ypc) - mDef);
   const tov = (t, o) => (num(T[t].takeaways_pg) + num(T[o].giveaways_pg)) - (num(T[t].giveaways_pg) + num(T[o].takeaways_pg));
   const rz = (t) => -(zrzt(t) + zrzp(t));
@@ -778,7 +798,7 @@ const scoreGame = window.scoreGame = (f, rows) => {
   const under = [], over = [];
   if (fav && c.c2 === fav) under.push('favorite wins the run game');
   if (Math.max(num(A.off_rz_td_pct_rk), num(H.off_rz_td_pct_rk)) >= 23) under.push('an offense is bottom-10 in RZ TD%');
-  if ((num(H.qb_rush_ypg) < 20 && num(A.def_pressure_rate_rk) <= 10) || (num(A.qb_rush_ypg) < 20 && num(H.def_pressure_rate_rk) <= 10)) under.push('pocket QB vs top-10 pass rush');
+  if ((!isMobile(h) && num(A.def_pressure_rate_rk) <= 10) || (!isMobile(a) && num(H.def_pressure_rate_rk) <= 10)) under.push('pocket QB vs top-10 pass rush');
   if (num(A.unders) > num(A.overs) && num(H.unders) > num(H.overs)) under.push('both teams mostly unders');
   if (num(A.pa_pg_rk) >= 23 && num(H.pa_pg_rk) >= 23) over.push('both defenses bottom-10 in points allowed');
   if (num(A.off_rz_td_pct_rk) <= 12 && num(H.off_rz_td_pct_rk) <= 12) over.push('both offenses top-12 RZ TD%');
@@ -793,7 +813,7 @@ const scoreGame = window.scoreGame = (f, rows) => {
     else if (c.c2 === dog && num(dT.wins) < num(dT.losses)) c8 = `${tm[dog]} is a bad team that can run: dog/ML look`;
   }
   const edges = { c1: [rush(a, h), rush(h, a)], c2: [r2a, r2h], c3: [e3, -e3], c4: [rz(a), rz(h)] };
-  return { a, h, A, H, c, W, pts, auto, lead, tm, passes, v, lp, under, over, tl, c8, edges, rd, venue, rest };
+  return { a, h, A, H, c, W, pts, auto, lead, tm, passes, v, lp, under, over, tl, c8, edges, rd, venue, rest, isMobile, isBackup };
 };
 
 const CK_ROWS = [['c0', 'Money handle', 'manual'], ['c1', 'Pass rush vs protection'], ['c2', 'Run offense vs run defense'], ['c3', 'Turnovers'], ['c4', 'Red zone defense'], ['c5', 'Home/road split and rest'], ['c6', 'Line movement read', 'manual']];
@@ -856,10 +876,10 @@ $('f-save').addEventListener('click', () => {
   store([...saved(), { id: Date.now(), form: f }]); renderSaved();
   $('f-save').textContent = 'Saved ✓'; setTimeout(() => { $('f-save').textContent = 'Save game'; }, 1400);
 });
-$('f-reset').addEventListener('click', () => { setForm({ 'f-away': '', 'f-home': '', 'f-fav': '', 'f-spread': '', 'f-total': '', 'f-arest': 7, 'f-hrest': 7, 'f-dome': false, 'f-neutral': false, 'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': false }); render(); });
+$('f-reset').addEventListener('click', () => { setForm({ 'f-aqb': 'auto', 'f-hqb': 'auto', 'f-away': '', 'f-home': '', 'f-fav': '', 'f-spread': '', 'f-total': '', 'f-arest': 7, 'f-hrest': 7, 'f-dome': false, 'f-neutral': false, 'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': false }); render(); });
 window.loadCalc = (g) => {
   const sl = num(g.spread_line);
-  setForm({ 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': isNaN(sl) ? '' : Math.abs(sl), 'f-total': g.total || '',
+  setForm({ 'f-aqb': qbVal(g.away_qb_type), 'f-hqb': qbVal(g.home_qb_type), 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': isNaN(sl) ? '' : Math.abs(sl), 'f-total': g.total || '',
     'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof), 'f-neutral': false,
     'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': g.move_toward ? (g.move_toward === g.home ? 'home' : 'away') : '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': Math.abs(num(g.total_move)) >= 3 });
   render();
@@ -867,7 +887,7 @@ window.loadCalc = (g) => {
 
 // ---------- "Why this pick" explainer ----------
 const METRICS = {
-  c1: { title: 'Pass rush vs protection', pts: 2, rows: [['Sacks per game', 'def_sacks_pg', 'hi'], ['Pressure rate', 'def_pressure_rate', 'hi', '%'], ['Sacks allowed per game', 'off_sacks_allowed_pg', 'lo'], ['QB rush yards per game', 'qb_rush_ypg', 'hi']] },
+  c1: { title: 'Pass rush vs protection', pts: 2, rows: [['Sacks per game', 'def_sacks_pg', 'hi'], ['Pressure rate', 'def_pressure_rate', 'hi', '%'], ['Sacks allowed per game', 'off_sacks_allowed_pg', 'lo']] },
   c2: { title: 'Run game and the trenches', pts: 2, rows: [['Rush yards per carry', 'off_ypc', 'hi'], ['YPC, last 3 games', 'off_ypc_l3', 'hi'], ['YPC allowed on defense', 'def_ypc', 'lo']] },
   c3: { title: 'Turnover profile', pts: 2, rows: [['Takeaways per game', 'takeaways_pg', 'hi'], ['Giveaways per game', 'giveaways_pg', 'lo']] },
   c4: { title: 'Red zone defense', pts: 2, rows: [['Red zone trips allowed per game', 'def_rz_trips_pg', 'lo'], ['Red zone TD % allowed', 'def_rz_td_pct', 'lo', '%'], ['3rd down % allowed', 'def_3rd_pct', 'lo', '%']] },
@@ -903,8 +923,10 @@ const sentence = (k, r) => {
   const { A, H, a, h } = r; const n = (x, p) => fmtV(num(x), p);
   if (k === 'c1') {
     let s = `${a}'s rush gets pressure on ${n(A.def_pressure_rate, 1)} of dropbacks against a ${h} line allowing ${n(H.off_sacks_allowed_pg)} sacks a game. ${h}'s rush gets ${n(H.def_pressure_rate, 1)} against a ${a} line allowing ${n(A.off_sacks_allowed_pg)}.`;
-    const mob = [[a, A], [h, H]].filter(([, T]) => num(T.qb_rush_ypg) >= 20).map(([t, T]) => `${t}'s QB runs for ${n(T.qb_rush_ypg)} yds a game, which cuts the rush edge against him in half.`);
-    return [s, ...mob].join(' ');
+    const extra = [a, h].flatMap((t) => [
+      r.isBackup(t) ? `${t} starts a backup QB, which adds to the other side's rush edge.` : '',
+      r.isMobile(t) ? `${t}'s QB is mobile, which cuts the rush edge against him in half.` : `${t}'s QB is a pocket passer, so pressure hits full strength.`]).filter(Boolean);
+    return [s, ...extra].join(' ');
   }
   if (k === 'c2') return `${a} runs for ${n(A.off_ypc)} a carry (${n(A.off_ypc_l3)} last 3) into a defense allowing ${n(H.def_ypc)}. ${h} runs for ${n(H.off_ypc)} (${n(H.off_ypc_l3)} last 3) into one allowing ${n(A.def_ypc)}. The team that out-rushed its opponent won 6 of 7 in your Week 8 sample.`;
   if (k === 'c3') { const e = r.edges.c3[0]; return `${a} forces ${n(A.takeaways_pg)} turnovers a game and gives away ${n(A.giveaways_pg)}. ${h} forces ${n(H.takeaways_pg)} and gives away ${n(H.giveaways_pg)}. Matched up, that's a ${d3.format('.2f')(Math.abs(e))}-a-game edge to ${e >= 0 ? a : h}.`; }
@@ -916,7 +938,7 @@ const sentence = (k, r) => {
 window.openWhy = (g) => {
   const t = dash.data('team_stats'); if (t.status !== 'ok') return;
   const sl = num(g.spread_line);
-  const f = { 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': Math.abs(sl), 'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof) };
+  const f = { 'f-aqb': qbVal(g.away_qb_type), 'f-hqb': qbVal(g.home_qb_type), 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': Math.abs(sl), 'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof) };
   const r = scoreGame(f, t.data); if (!r) return;
   r.restA = f['f-arest']; r.restH = f['f-hrest'];
   const ta = (window.TEAMS[r.a] || {}).c1 || '#556', th = (window.TEAMS[r.h] || {}).c1 || '#556';
@@ -942,6 +964,17 @@ window.openWhy = (g) => {
     const card = el('div', 'ck');
     const hd = el('div', 'ck-head'); hd.append(el('span', 'ck-n', `C${k.slice(1)}`), el('span', 'ck-t', `${m.title} · ${m.pts} pt${m.pts > 1 ? 's' : ''}`), r.c[k] ? team(r.tm[r.c[k]]) : team('Even'));
     card.append(hd);
+    if (k === 'c1') {
+      const qm = el('div', 'qbm');
+      const qcard = (ab, side, opp) => {
+        const d = el('div', `qbc ${side}`); const qt = g[`${side}_qb_type`] || (r.isMobile(ab) ? 'Mobile' : 'Pocket');
+        d.append(el('span', 'qbn', g[`${side}_qb`] || `${ab} QB`), el('span', `qb ${/Backup/.test(qt) ? 'bk' : /Mobile/.test(qt) ? 'mob' : ''}`, qt),
+          el('span', 'qbs', `${g[`${side}_qb_ypg`] || '—'} rush yds/g · faces ${g[`${opp}_rush_top10`] === '1' ? 'a top-10 pass rush' : 'an average-or-worse pass rush'}`));
+        return d;
+      };
+      qm.append(qcard(r.a, 'away', 'home'), el('span', 'vsx', 'QB vs rush'), qcard(r.h, 'home', 'away'));
+      card.append(qm);
+    }
     if (k !== 'c5') { card.append(tug(r, k, ta, th)); card.append(el('div', 'tug-key', 'Dot shows who has the edge. Inside the grey band = too close to call.')); }
     m.rows.forEach((row) => card.append(metricRow(r, r.A, r.H, t.data, row, ta, th)));
     if (k === 'c5') {

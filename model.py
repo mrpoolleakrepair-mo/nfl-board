@@ -96,7 +96,35 @@ def z(series):
     return (series - series.mean()) / series.std()
 
 
-def score_game(a, h, S, g):
+def qb_profiles(pbp):
+    """Per-QB rushing (designed runs + scrambles) per game he played, from the same plays the team stats use."""
+    ru = pbp[(pbp.rush_attempt == 1) & (pbp.qb_kneel != 1) & pbp.rusher_player_id.notna()]
+    db = pbp[pbp.passer_player_id.notna()]
+    gp = db.groupby("passer_player_id").game_id.nunique()
+    gp = gp[db.groupby("passer_player_id").size() >= 5]
+    yds = ru.groupby("rusher_player_id").yards_gained.sum()
+    scr = pbp[pbp.qb_scramble == 1].groupby("rusher_player_id").size()
+    dbk = pbp[pbp.qb_dropback == 1].groupby("passer_player_id").size()
+    out = {}
+    for pid, n in gp.items():
+        out[pid] = dict(games=int(n), rush_ypg=float(yds.get(pid, 0)) / n, scramble_rate=float(scr.get(pid, 0)) / max(float(dbk.get(pid, 1)), 1))
+    return out
+
+
+def qb_info(team, qid, qname, S, QB, starters):
+    """Who starts, is he the usual starter, and is he mobile (20+ rush yds a game)."""
+    prof = QB.get(qid) if isinstance(qid, str) else None
+    ypg = prof["rush_ypg"] if prof else float(S.qb_rush_ypg[team])
+    usual = starters.get(team)
+    # Backup = not the opening-day starter and hasn't started 3 straight (an injury fill-in, not a new No. 1)
+    backup = bool(usual and isinstance(qid, str) and qid != usual[0] and usual[1] != {qid})
+    mobile = ypg >= 20.0
+    label = ("Backup · " if backup else "") + ("Mobile" if mobile else "Pocket")
+    return dict(name=qname if isinstance(qname, str) else "", ypg=ypg, mobile=mobile, backup=backup, label=label,
+                games=prof["games"] if prof else 0)
+
+
+def score_game(a, h, S, g, qa=None, qh=None):
     """Auto-score checks 1-5 for away a / home h. Returns dict."""
     za = {c: z(S[c]) for c in ["def_sack_rate", "def_pressure_rate", "off_sack_rate", "def_rz_trips_pg", "def_rz_td_pct"]}
     lg = {c: S[c].mean() for c in ["off_ypc", "def_ypc"]}
@@ -104,9 +132,12 @@ def score_game(a, h, S, g):
     r = {}
 
     # Check 1: pass rush vs protection
+    qbs = {a: qa, h: qh}
     def rush_edge(d, o):
         e = (za["def_sack_rate"][d] + za["def_pressure_rate"][d]) / 2 + za["off_sack_rate"][o]
-        if S.qb_rush_ypg[o] >= mobile_cut: e *= 0.5
+        q = qbs.get(o)
+        if q and q["backup"]: e += 0.5  # backup starter: checklist's biggest pass-rush edge
+        if (q["mobile"] if q else S.qb_rush_ypg[o] >= mobile_cut): e *= 0.5
         return e
     e1a, e1h = rush_edge(a, h), rush_edge(h, a)
     r["c1_edge_away"], r["c1_edge_home"] = e1a, e1h
@@ -172,10 +203,24 @@ def build(G, P, weeks, stats_through):
     if min(weeks) <= PRIOR_WEEKS and len(P25):
         p, g = pd.concat([P25, p], ignore_index=True), pd.concat([G25, g], ignore_index=True)
     S = team_stats(p, g)
+    QB = qb_profiles(p)
+    played = g[g.result.notna() & g.away_qb_id.notna()]
+    st = pd.concat([played[["away_team", "away_qb_id"]].set_axis(["t", "q"], axis=1), played[["home_team", "home_qb_id"]].set_axis(["t", "q"], axis=1)])
+    st = st.assign(w=list(played.week) * 2)
+    starters = {}
+    for t, x in st.sort_values("w").groupby("t"):
+        starters[t] = (x.q.iloc[0], set(x.q.iloc[-3:]) if len(x) >= 3 else set())  # (opening-day starter, QB if he started the last 3)
+    known = G[G.away_qb_id.notna()].sort_values("week")
+    last_qb = {}
+    for _, k in known.iterrows():
+        last_qb[k.away_team] = (k.away_qb_id, k.away_qb_name); last_qb[k.home_team] = (k.home_qb_id, k.home_qb_name)
     rows = []
     for _, g in G[G.week.isin(weeks)].iterrows():
         a, h = g.away_team, g.home_team
-        r = score_game(a, h, S, g)
+        qa_id, qa_nm = (g.away_qb_id, g.away_qb_name) if isinstance(g.away_qb_id, str) else last_qb.get(a, (None, None))
+        qh_id, qh_nm = (g.home_qb_id, g.home_qb_name) if isinstance(g.home_qb_id, str) else last_qb.get(h, (None, None))
+        qa, qh = qb_info(a, qa_id, qa_nm, S, QB, starters), qb_info(h, qh_id, qh_nm, S, QB, starters)
+        r = score_game(a, h, S, g, qa, qh)
         lead = "away" if r["pts_away"] > r["pts_home"] else ("home" if r["pts_home"] > r["pts_away"] else None)
         lt = {"away": a, "home": h}.get(lead)
         opp = {"away": h, "home": a}.get(lead)
@@ -200,7 +245,7 @@ def build(G, P, weeks, stats_through):
         if fav_side and r["c2"] == fav_side: under.append("favorite wins the run game")
         if max(S.off_rz_td_pct_rk[a], S.off_rz_td_pct_rk[h]) >= 23:
             under.append("an offense is bottom-10 in RZ TD%")
-        if (S.qb_rush_ypg[h] < 20 and S.def_pressure_rate_rk[a] <= 10) or (S.qb_rush_ypg[a] < 20 and S.def_pressure_rate_rk[h] <= 10):
+        if (not qh["mobile"] and S.def_pressure_rate_rk[a] <= 10) or (not qa["mobile"] and S.def_pressure_rate_rk[h] <= 10):
             under.append("pocket QB vs top-10 pass rush")
         if S.unders[a] > S.overs[a] and S.unders[h] > S.overs[h]: under.append("both teams mostly unders")
         if S.pa_pg_rk[a] >= 23 and S.pa_pg_rk[h] >= 23: over.append("both defenses bottom-10 in points allowed")
@@ -222,7 +267,10 @@ def build(G, P, weeks, stats_through):
                    away=a, home=h, matchup=f"{a} @ {h}",
                    spread=fmt_spread(g, a, h), total=g.total_line if has_line else None,
                    away_ml=g.away_moneyline, home_ml=g.home_moneyline, roof=g.roof, div_game=int(g.div_game),
-                   away_rest=g.away_rest, home_rest=g.home_rest, away_qb=g.away_qb_name if isinstance(g.away_qb_name, str) else "", home_qb=g.home_qb_name if isinstance(g.home_qb_name, str) else "",
+                   away_rest=g.away_rest, home_rest=g.home_rest, away_qb=qa["name"], home_qb=qh["name"], away_qb_type=qa["label"], home_qb_type=qh["label"],
+                   away_qb_ypg=round(qa["ypg"], 1), home_qb_ypg=round(qh["ypg"], 1), away_qb_backup=int(qa["backup"]), home_qb_backup=int(qh["backup"]),
+                   away_qb_listed=int(isinstance(g.away_qb_id, str)), home_qb_listed=int(isinstance(g.home_qb_id, str)),
+                   away_rush_top10=int(S.def_pressure_rate_rk[a] <= 10 or S.def_sacks_pg_rk[a] <= 10), home_rush_top10=int(S.def_pressure_rate_rk[h] <= 10 or S.def_sacks_pg_rk[h] <= 10),
                    pick=lt or "", pick_pts=lp, opp_pts=min(r["pts_away"], r["pts_home"]) if lead else lp,
                    verdict=v, manual_pts_needed=need,
                    c1=team(r["c1"], a, h), c2=team(r["c2"], a, h), c3=team(r["c3"], a, h), c4=team(r["c4"], a, h), c5=team(r["c5"], a, h),

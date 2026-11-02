@@ -17,6 +17,20 @@ else:
     P25, G25 = P.iloc[0:0], G.iloc[0:0]
 
 
+# True = higher is better for the team; every metric listed gets a league rank column (<name>_rk)
+RANK_DIRS = {
+    "pf_pg": True, "pa_pg": False, "point_diff_pg": True, "tds_pg": True,
+    "off_ypc": True, "off_ypc_l3": True, "off_rush_ypg": True, "def_ypc": False, "def_rush_ypg": False,
+    "off_ypa": True, "off_pass_ypg": True, "def_ypa": False, "def_pass_ypg": False,
+    "def_sacks_pg": True, "def_sack_rate": True, "def_pressure_rate": True, "off_sacks_allowed_pg": False, "off_sack_rate": False,
+    "qb_rush_ypg": True, "takeaways_pg": True, "giveaways_pg": False, "int_rate": False,
+    "off_rz_trips_pg": True, "off_rz_td_pct": True, "def_rz_trips_pg": False, "def_rz_td_pct": False,
+    "off_3rd_pct": True, "def_3rd_pct": False,
+    "pa_vs_mobile": False, "pa_vs_pocket": False, "pressure_vs_mobile": True, "pressure_vs_pocket": True,
+    "ypc_vs_mobile": False, "ypc_vs_pocket": False, "ypa_vs_mobile": False, "ypa_vs_pocket": False,
+}
+
+
 def team_stats(pbp, sched):
     """Season metrics per team from plays/games completed in pbp/sched."""
     done = sched[sched.result.notna()]
@@ -84,11 +98,38 @@ def team_stats(pbp, sched):
     tdg = pbp[(pbp.touchdown == 1) & pbp.td_team.notna()].groupby("td_team").size()
     s["tds_pg"] = (tdg / gp).reindex(teams).fillna(0)
     s = s.astype(float)
-    # ranks (1 = best for that team)
-    hi_good = ["def_sacks_pg", "def_sack_rate", "def_pressure_rate", "off_ypc", "takeaways_pg", "off_rz_td_pct", "pf_pg", "tds_pg"]
-    lo_good = ["off_sacks_allowed_pg", "def_ypc", "giveaways_pg", "def_rz_trips_pg", "def_rz_td_pct", "def_3rd_pct", "pa_pg"]
-    for c in hi_good: s[c + "_rk"] = s[c].rank(ascending=False, method="min")
-    for c in lo_good: s[c + "_rk"] = s[c].rank(ascending=True, method="min")
+    # Passing efficiency (yards per dropback, sacks and scrambles included) and yardage
+    s["off_ypa"] = db.groupby("posteam").yards_gained.mean()
+    s["def_ypa"] = db.groupby("defteam").yards_gained.mean()
+    s["off_pass_ypg"] = db.groupby("posteam").yards_gained.sum() / gp
+    s["def_pass_ypg"] = db.groupby("defteam").yards_gained.sum() / gp
+    s["def_rush_ypg"] = ru.groupby("defteam").yards_gained.sum() / gp
+    s["point_diff_pg"] = s.pf_pg - s.pa_pg
+    # Defense split by the opposing starter: mobile (20+ QB rush yds/g) vs pocket
+    QBp = qb_profiles(pbp)
+    pg = pbp[pbp.defteam.notna()]
+    per = pd.DataFrame({
+        "pressure": pg[pg.qb_dropback == 1].groupby(["game_id", "defteam"]).apply(lambda x: ((x.sack == 1) | (x.qb_hit == 1)).mean(), include_groups=False),
+        "ypc": pg[(pg.rush_attempt == 1) & (pg.qb_kneel != 1)].groupby(["game_id", "defteam"]).yards_gained.mean(),
+        "ypa": pg[pg.qb_dropback == 1].groupby(["game_id", "defteam"]).yards_gained.mean()})
+    sp = []
+    for _, gm in done.iterrows():
+        for d, oq, ot, pa in ((gm.home_team, gm.away_qb_id, gm.away_team, gm.away_score), (gm.away_team, gm.home_qb_id, gm.home_team, gm.home_score)):
+            prof = QBp.get(oq) if isinstance(oq, str) else None
+            ypg = prof["rush_ypg"] if prof else qbr.get(ot, 0)
+            k = (gm.game_id, d)
+            sp.append(dict(team=d, typ="mobile" if ypg >= 20 else "pocket", pa=pa,
+                           pressure=per.pressure.get(k, np.nan), ypc=per.ypc.get(k, np.nan), ypa=per.ypa.get(k, np.nan)))
+    sp = pd.DataFrame(sp)
+    for typ in ("mobile", "pocket"):
+        x = sp[sp.typ == typ].groupby("team")
+        s[f"n_vs_{typ}"] = x.size().reindex(teams).fillna(0)
+        for m in ("pa", "pressure", "ypc", "ypa"):
+            s[f"{m}_vs_{typ}"] = x[m].mean().reindex(teams)
+    s = s.astype(float)
+    # Ranks: 1 = best in the league for that team
+    for c, hi in RANK_DIRS.items():
+        if c in s: s[c + "_rk"] = s[c].rank(ascending=not hi, method="min")
     return s
 
 
@@ -354,6 +395,137 @@ T["road_rec"] = T.apply(lambda r: f"{int(r.road_w)}-{int(r.road_l)}", axis=1)
 for c in T.columns:
     if T[c].dtype.kind == "f": T[c] = T[c].round(3)
 
+
+# ---------- Points projection: each team's score from its offense vs the other defense ----------
+PROJ_FEATS = ["intercept", "pts_scored_pg", "opp_pts_allowed_pg", "run_matchup", "pass_matchup", "redzone_matchup", "turnover_matchup", "home", "dome"]
+
+def proj_feats(T, O, S, home, dome, t_mobile):
+    lg = S.mean(numeric_only=True)
+    typ = "mobile" if t_mobile else "pocket"
+    n, pav = S.at[O, f"n_vs_{typ}"], S.at[O, f"pa_vs_{typ}"]
+    pa = (n * pav + 4 * S.pa_pg[O]) / (n + 4) if n > 0 and pd.notna(pav) else S.pa_pg[O]
+    return [1.0, S.pf_pg[T], pa,
+            (S.off_ypc[T] - lg.off_ypc) + (S.def_ypc[O] - lg.def_ypc),
+            (S.off_ypa[T] - lg.off_ypa) + (S.def_ypa[O] - lg.def_ypa),
+            (S.off_rz_td_pct[T] - lg.off_rz_td_pct) + (S.def_rz_td_pct[O] - lg.def_rz_td_pct),
+            (S.takeaways_pg[T] + S.giveaways_pg[O]) - (S.giveaways_pg[T] + S.takeaways_pg[O]),
+            float(home), float(dome)]
+
+def is_mobile(qid, team, QBp, S):
+    prof = QBp.get(qid) if isinstance(qid, str) else None
+    return (prof["rush_ypg"] if prof else S.qb_rush_ypg[team]) >= 20
+
+def season_rows(season):
+    pb = P if season == SEASON else pd.read_parquet(f"{D}/pbp_{season}.parquet")
+    pb = pb[pb.season_type == "REG"]
+    gs = games_all[(games_all.season == season) & (games_all.game_type == "REG")]
+    rows = []
+    last = int(gs[gs.result.notna()].week.max())
+    for w in range(4, last + 1):
+        S_ = team_stats(pb[pb.week < w], gs[gs.week < w]); Q_ = qb_profiles(pb[pb.week < w])
+        for _, g in gs[(gs.week == w) & gs.result.notna()].iterrows():
+            dome = g.roof in ("dome", "closed")
+            fa = proj_feats(g.away_team, g.home_team, S_, 0, dome, is_mobile(g.away_qb_id, g.away_team, Q_, S_))
+            fh = proj_feats(g.home_team, g.away_team, S_, 1, dome, is_mobile(g.home_qb_id, g.home_team, Q_, S_))
+            rows.append(dict(season=season, week=w, game_id=g.game_id, away=g.away_team, home=g.home_team, fa=fa, fh=fh,
+                             ya=g.away_score, yh=g.home_score, spread_line=g.spread_line, total_line=g.total_line, result=g.result, total=g.total))
+    return rows
+
+def fit(rows, lam=2.0):
+    X = np.array([r["fa"] for r in rows] + [r["fh"] for r in rows]); y = np.array([r["ya"] for r in rows] + [r["yh"] for r in rows])
+    R = lam * np.eye(X.shape[1]); R[0, 0] = 0
+    return np.linalg.solve(X.T @ X + R, X.T @ y)
+
+PROJ_SEASONS = [s_ for s_ in (SEASON - 2, SEASON - 1) if os.path.exists(f"{D}/pbp_{s_}.parquet")]
+train = {s_: season_rows(s_) for s_ in PROJ_SEASONS}
+train[SEASON] = season_rows(SEASON)
+
+def grade(rows, coef, label):
+    out = []
+    for r in rows:
+        pa_, ph_ = float(np.dot(coef, r["fa"])), float(np.dot(coef, r["fh"]))
+        m, t = ph_ - pa_, ph_ + pa_
+        out.append(dict(test=label, season=r["season"], week=r["week"], game_id=r["game_id"], away=r["away"], home=r["home"],
+                        proj_away=round(pa_, 1), proj_home=round(ph_, 1), proj_margin=round(m, 1), proj_total=round(t, 1),
+                        spread_line=r["spread_line"], total_line=r["total_line"], result=r["result"], total=r["total"],
+                        away_score=r["ya"], home_score=r["yh"]))
+    return out
+
+graded = []
+seasons = sorted(train)
+for i, s_ in enumerate(seasons[1:], 1):  # each season predicted by a model fit only on the seasons before it
+    graded += grade(train[s_], fit(sum((train[x] for x in seasons[:i]), [])), f"{s_} (trained on {seasons[0]}{'' if i == 1 else '-' + str(seasons[i - 1])})")
+gr = pd.DataFrame(graded)
+if len(gr):
+    gr["edge_spread"] = gr.proj_margin - gr.spread_line
+    gr["edge_total"] = gr.proj_total - gr.total_line
+    gr["ats"] = np.where((gr.result - gr.spread_line) == 0, "Push", np.where(((gr.result - gr.spread_line) > 0) == (gr.edge_spread > 0), "Win", "Loss"))
+    gr["ou"] = np.where((gr.total - gr.total_line) == 0, "Push", np.where(((gr.total - gr.total_line) > 0) == (gr.edge_total > 0), "Win", "Loss"))
+    gr["su_model"] = np.where(gr.result == 0, "Tie", np.where((gr.result > 0) == (gr.proj_margin > 0), "Win", "Loss"))
+    gr["su_book"] = np.where(gr.result == 0, "Tie", np.where((gr.result > 0) == (gr.spread_line > 0), "Win", "Loss"))
+    prow = []
+    for test, x in list(gr.groupby("test")) + [("All tested seasons", gr)]:
+        for thr in (0, 2, 3, 4):
+            a = x[x.edge_spread.abs() >= thr]; t = x[x.edge_total.abs() >= thr]
+            prow.append(dict(test=test, min_edge=thr,
+                             spread_games=int(((a.ats == "Win") | (a.ats == "Loss")).sum()), spread_w=int((a.ats == "Win").sum()), spread_l=int((a.ats == "Loss").sum()),
+                             total_games=int(((t.ou == "Win") | (t.ou == "Loss")).sum()), total_w=int((t.ou == "Win").sum()), total_l=int((t.ou == "Loss").sum())))
+        prow[-4].update(model_margin_err=round((x.result - x.proj_margin).abs().mean(), 2), book_margin_err=round((x.result - x.spread_line).abs().mean(), 2),
+                        model_total_err=round((x.total - x.proj_total).abs().mean(), 2), book_total_err=round((x.total - x.total_line).abs().mean(), 2),
+                        model_su=round((x.su_model == "Win").sum() / ((x.su_model != "Tie").sum()), 3), book_su=round((x.su_book == "Win").sum() / ((x.su_book != "Tie").sum()), 3))
+    pd.DataFrame(prow).to_csv(f"{OUT}/proj_backtest.csv", index=False)
+    gr[gr.season == SEASON].to_csv(f"{OUT}/proj_games.csv", index=False)
+    print(pd.DataFrame(prow).to_string())
+
+# Signals graded season by season against the closing spread/total (no model fitting involved)
+sig = []
+def rec_(name, season, outcomes):
+    w, l = outcomes.count("Win"), outcomes.count("Loss")
+    sig.append(dict(signal=name, season=season, w=w, l=l, pct=round(w / max(w + l, 1), 3)))
+for s_ in sorted(train):
+    run_o, pas_o = [], []
+    for r in train[s_]:
+        cov = r["result"] - r["spread_line"]
+        if cov == 0: continue
+        rd, pd_ = r["fh"][3] - r["fa"][3], r["fh"][4] - r["fa"][4]
+        if abs(rd) >= 1.0: run_o.append("Win" if (rd > 0) == (cov > 0) else "Loss")
+        if abs(pd_) >= 0.75: pas_o.append("Win" if (pd_ > 0) == (cov > 0) else "Loss")
+    rec_("Run-game edge 1.0+ YPC", s_, run_o)
+    rec_("Pass-game edge 0.75+ yds/dropback", s_, pas_o)
+if len(gr):
+    for s_, x in gr.groupby("season"):
+        a = x[x.edge_spread.abs() >= 3]; t = x[x.edge_total.abs() >= 3]
+        rec_("Model vs book spread gap 3+", s_, list(a.ats)); rec_("Model vs book total gap 3+", s_, list(t.ou))
+sig = pd.DataFrame(sig)
+tot_ = sig.groupby("signal")[["w", "l"]].sum().reset_index().assign(season="All")
+tot_["pct"] = (tot_.w / (tot_.w + tot_.l).clip(lower=1)).round(3)
+pd.concat([sig, tot_], ignore_index=True).to_csv(f"{OUT}/signals.csv", index=False)
+
+# Final model on every season available, applied to the remaining schedule
+coef = fit(sum(train.values(), []))
+json.dump(dict(features=PROJ_FEATS, coef=[round(float(c), 4) for c in coef], qb_blend_games=4, value_edge=3),
+          open(f"{OUT}/proj_model.json", "w"), indent=1)
+print("coef", dict(zip(PROJ_FEATS, np.round(coef, 3))))
+pcols = dict(proj_away=[], proj_home=[], proj_margin=[], proj_total=[], edge_spread=[], edge_total=[], value_side=[], value_total=[], run_edge=[], run_diff=[])
+for _, r in upcoming.iterrows():
+    dome = r.roof in ("dome", "closed")
+    fa_ = proj_feats(r.away, r.home, S, 0, dome, "Mobile" in str(r.away_qb_type))
+    fh_ = proj_feats(r.home, r.away, S, 1, dome, "Mobile" in str(r.home_qb_type))
+    pa_, ph_ = float(np.dot(coef, fa_)), float(np.dot(coef, fh_))
+    rdiff = fh_[3] - fa_[3]
+    m, t = ph_ - pa_, ph_ + pa_
+    es = m - r.spread_line if pd.notna(r.spread_line) else np.nan
+    et = t - r.total_line if pd.notna(r.total_line) else np.nan
+    vs = ""
+    if pd.notna(es) and abs(es) >= 3:
+        under_t, over_t = (r.home, r.away) if es > 0 else (r.away, r.home)
+        vs = f"Model rates {under_t} {abs(es):.1f} pts better than the book"
+    vt = f"{'Over' if et > 0 else 'Under'} by {abs(et):.1f}" if pd.notna(et) and abs(et) >= 3 else ""
+    for k, v in dict(proj_away=round(pa_, 1), proj_home=round(ph_, 1), proj_margin=round(m, 1), proj_total=round(t, 1),
+                     edge_spread=round(es, 1) if pd.notna(es) else "", edge_total=round(et, 1) if pd.notna(et) else "", value_side=vs, value_total=vt,
+                     run_edge=(r.home if rdiff > 0 else r.away) if abs(rdiff) >= 1.0 else "", run_diff=round(rdiff, 2)).items():
+        pcols[k].append(v)
+for k, v in pcols.items(): upcoming[k] = v
 
 # ---------- Odds feed (The Odds API), when present ----------
 def med_point(df, market, outcome):

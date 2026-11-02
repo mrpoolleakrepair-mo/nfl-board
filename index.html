@@ -205,6 +205,35 @@ td.clk { cursor: pointer; } td.clk:hover .tm { outline: 2px solid var(--gold); }
 .qbc { display: grid; gap: 4px; justify-items: start; } .qbc.home { justify-items: end; text-align: right; }
 .qbn { font-family: var(--head); font-size: 17px; } .qbs { font-size: 12px; color: var(--muted); }
 .vsx { font-family: var(--head); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.cats button { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; background: #0a1427; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.cats button.on { background: var(--red); color: #fff; border-color: var(--red); }
+.sc2 { display: inline-flex; flex-direction: column; line-height: 1.15; }
+.sc2 b { font-family: var(--head); font-size: 15px; font-weight: 600; }
+.rk { font-size: 10.5px; font-family: var(--head); letter-spacing: .04em; }
+.ga { color: #2bd47d; } .gb { color: #9be3b9; } .gc { color: #93a1bf; } .gd { color: #ffb070; } .gf { color: #ff6b78; } .gn { color: var(--muted); }
+tr.clkrow { cursor: pointer; }
+.tp-head { display: grid; gap: 2px; padding: 16px; border-radius: 10px; margin: 14px 0 10px; background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 70%, transparent), transparent); }
+.tp-head .ab { font-family: var(--head); font-weight: 700; font-size: 40px; line-height: 1; } .tp-head .nm { text-transform: uppercase; letter-spacing: .1em; font-size: 13px; }
+.tp-rec { font-family: var(--head); color: #dbe2f0; letter-spacing: .04em; }
+.tprow { display: grid; grid-template-columns: minmax(150px, 1.4fr) 64px 1fr 44px 26px; gap: 10px; align-items: center; font-size: 13px; }
+.tprow b { font-family: var(--head); font-size: 15px; text-align: right; }
+.rkbar { height: 10px; background: rgba(255,255,255,.05); border-radius: 5px; overflow: hidden; } .rkbar i { display: block; height: 100%; border-radius: 5px; background: currentColor; }
+.gr { font-family: var(--head); font-weight: 700; font-size: 16px; text-align: center; }
+.proj { display: grid; gap: 10px; }
+.proj-score { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.ps { display: grid; justify-items: center; padding: 8px 18px; border-radius: 8px; background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 60%, transparent), transparent); }
+.ps span { font-family: var(--head); letter-spacing: .06em; } .ps b { font-family: var(--head); font-size: 42px; line-height: 1; color: #fff; }
+.dash2 { font-family: var(--head); font-size: 28px; color: var(--muted); }
+.proj-lines { display: grid; gap: 4px; font-size: 13px; color: #dbe2f0; } .proj-lines .hl { color: var(--gold); } .proj-lines .dim { font-size: 12px; margin-top: 4px; }
+.mg { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.mgt td, .mgt th { padding: 5px 6px; font-size: 12.5px; } .mgt th { position: static; background: none; border-bottom: 1px solid var(--line); }
+.mc-proj { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 7px 14px; border-top: 1px dashed var(--line); font-size: 12px; color: #dbe2f0; }
+.mc-proj .gap { color: var(--muted); } .mc-proj b { color: var(--gold); font-weight: 600; }
+.sig { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); } .sig:first-child { border-top: 0; }
+.sig-n { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
+.bl.allrow { font-weight: 700; color: #fff; }
+h3.subh { font-family: var(--head); text-transform: uppercase; letter-spacing: .08em; font-size: 14px; color: var(--gold); margin: 16px 0 8px; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -226,7 +255,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
   <button role="tab" data-tab="calc" aria-selected="false">Score a game</button>
   <button role="tab" data-tab="record" aria-selected="false">Season results</button>
   <button role="tab" data-tab="schedule" aria-selected="false">Rest of season</button>
-  <button role="tab" data-tab="teams" aria-selected="false">Team checks</button>
+  <button role="tab" data-tab="teams" aria-selected="false">Team stats</button>
   <button role="tab" data-tab="how" aria-selected="false">How it scores</button>
 </div></nav>
 
@@ -276,19 +305,12 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
 
   <section id="teams" data-tab-panel="teams" hidden>
     <div class="card">
-      <h2>Team inputs behind each check</h2>
-      <p class="note">Season to date. Click a header to sort. Pressure = sacks plus QB hits per dropback. RZ = drives reaching the opponent's 20.</p>
-      <div class="tbl"><table>
-        <thead><tr>
-          <th class="sortable" data-sort="team">Team</th><th class="sortable" data-sort="wins" aria-sort="descending">Record</th><th class="sortable" data-sort="home_w">Home</th><th class="sortable" data-sort="road_w">Road</th>
-          <th class="sortable" data-sort="def_sacks_pg">Sacks/g</th><th class="sortable" data-sort="def_pressure_rate">Pressure %</th><th class="sortable" data-sort="off_sacks_allowed_pg">Sacks allowed/g</th><th class="sortable" data-sort="qb_rush_ypg">QB rush yds/g</th>
-          <th class="sortable" data-sort="off_ypc">Rush YPC</th><th class="sortable" data-sort="off_ypc_l3">YPC last 3</th><th class="sortable" data-sort="def_ypc">YPC allowed</th>
-          <th class="sortable" data-sort="takeaways_pg">Takeaways/g</th><th class="sortable" data-sort="giveaways_pg">Giveaways/g</th>
-          <th class="sortable" data-sort="off_rz_td_pct">RZ TD %</th><th class="sortable" data-sort="def_rz_trips_pg">RZ trips allowed/g</th><th class="sortable" data-sort="def_rz_td_pct">RZ TD % allowed</th><th class="sortable" data-sort="def_3rd_pct">3rd down % allowed</th>
-          <th class="sortable" data-sort="pf_pg">Pts/g</th><th class="sortable" data-sort="pa_pg">Pts allowed/g</th>
-        </tr></thead>
-        <tbody data-draw="team_rows"></tbody>
-      </table></div>
+      <h2>Team stats and league ranks</h2>
+      <p class="note">Season to date. Every stat shows its league rank (1st = best for that team) and a grade: A = top 6, B = 7–12, C = 13–20, D = 21–26, F = bottom 6. Tap a team for its full profile. Click a header to sort.</p>
+      <div class="cats" id="stat-cats">
+        <button data-cat="scoring" class="on">Scoring</button><button data-cat="run">Run game</button><button data-cat="pass">Passing</button><button data-cat="rush">Pass rush</button><button data-cat="rz">Red zone &amp; 3rd</button><button data-cat="to">Turnovers</button><button data-cat="qbtype">Defense vs QB type</button>
+      </div>
+      <div data-draw="team_stats_tbl"></div>
     </div>
   </section>
 
@@ -382,6 +404,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       </div>
     </div>
     <div class="card">
+      <h2>Projected scores and signals vs the book</h2>
+      <p class="note">The points model projects each team's score from its offense against the other defense (scoring, run game, passing, red zone, turnovers, home field, dome, and how that defense does against mobile or pocket QBs). Each season below was predicted by a model trained only on earlier seasons, then graded against the closing spread and total. Gold bars beat the 52.4% break-even.</p>
+      <div data-draw="signals_box"></div>
+    </div>
+    <div class="card">
       <h2>Line tests: Check 6 and quarter/half lines</h2>
       <p class="note">Uses opening and closing lines (including Caesars 1Q and 1H) from The Odds API, graded against real quarter and half scores.</p>
       <div data-draw="lines_tests"></div>
@@ -430,12 +457,13 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     calc: (id, c) => { calcs[id] = c; },
     setLink: (n) => { history.replaceState(null, '', '#' + n); setTimeout(runAll, 0); },
   };
-  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv', backtest_weekly: 'backtest_weekly.csv', backtest_checks: 'backtest_checks.csv', lines_results: 'lines_results.csv' };
+  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv', backtest_weekly: 'backtest_weekly.csv', backtest_checks: 'backtest_checks.csv', lines_results: 'lines_results.csv', signals: 'signals.csv', proj_backtest: 'proj_backtest.csv' };
   const v = Date.now();
   window.addEventListener('DOMContentLoaded', () => {
     Promise.all([
       ...Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${v}`).then((rows) => { DS[id] = { status: 'ok', data: rows }; }).catch(() => { DS[id] = { status: 'ok', data: [] }; })),
       fetch(`data/teams.json?v=${v}`).then((r) => r.json()).then((t) => { window.TEAMS = t; }).catch(() => {}),
+      fetch(`data/proj_model.json?v=${v}`).then((r) => r.json()).then((m) => { window.PROJ = m; }).catch(() => {}),
     ]).then(() => {
       Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
       runAll();
@@ -546,6 +574,14 @@ const gameCard = (g, opts = {}) => {
   const btns = el('span', 'btns'); btns.append(whyBtn(g), calcBtn(g));
   foot.append(left, el('span', null, `★ ${g.pick || '—'} wins ${won.join(', ') || 'none'}`), btns);
   card.append(side(g.away, 'away'), mid, side(g.home, 'home'), foot);
+  if (g.proj_home) {
+    const pr = el('div', 'mc-proj');
+    pr.append(el('span', null, `Model ${g.away} ${d3.format('.0f')(num(g.proj_away))} – ${d3.format('.0f')(num(g.proj_home))} ${g.home} · total ${d3.format('.0f')(num(g.proj_total))}`));
+    if (g.value_side) pr.append(el('span', 'gap', g.value_side));
+    if (g.value_total) pr.append(el('span', 'gap', `Model total ${g.value_total.toLowerCase()}`));
+    if (g.run_edge) pr.append(el('b', null, `Run edge ${g.run_edge}`));
+    card.append(pr);
+  }
   if (g.line_now) {
     const ln = el('div', 'mc-lines');
     ln.append(el('span', null, `Line ${g.line_open} → ${g.line_now}`));
@@ -839,7 +875,9 @@ const render = () => {
   const tl = el('div', 'why'); tl.append(el('b', null, 'Total: '), document.createTextNode(r.tl ? `${r.tl} (${(r.tl === 'Over' ? r.over : r.under).join('; ')})` : 'No lean')); notes.append(tl);
   if (r.c8) { const c8 = el('div', 'why'); c8.append(el('b', null, 'Check 8: '), document.createTextNode(r.c8)); notes.append(c8); }
   notes.append(el('div', 'why dim', `Auto checks: ${r.a} ${r.auto.away}, ${r.h} ${r.auto.home} of 9. 10+ = bet, 8–9 = half stake.`));
-  out.replaceChildren(banner, tbl, notes);
+  const fv = getForm(); const sp = num(fv['f-spread']); const sl = fv['f-fav'] && !isNaN(sp) ? (fv['f-fav'] === 'home' ? sp : -sp) : NaN;
+  const pj = projBlock(null, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), fv['f-dome'], sl, num(fv['f-total']));
+  out.replaceChildren(banner, tbl, notes, el('h3', 'subh', 'Projected score'), pj);
 };
 
 const KEY = 'nbSavedGames';
@@ -958,6 +996,9 @@ window.openWhy = (g) => {
     ? `${g.pick} wins ${Object.keys(METRICS).filter((k) => r.tm[r.c[k]] === g.pick).length} of 5 checks for ${g.pick_pts} of 9 automatic points. ${num(g.manual_pts_needed) <= 4 ? `It needs ${g.manual_pts_needed} more from your handle (3) and line (1) reads to reach 10.` : 'Even with the handle and line it can\'t reach 10: pass.'}`
     : 'Neither side wins more checks. Pass.');
   body.replaceChildren(head, strip, summary);
+  const pj = el('div', 'ck'); const ph = el('div', 'ck-head'); ph.append(el('span', 'ck-n', '▶'), el('span', 'ck-t', 'Projected score vs the book'));
+  pj.append(ph, projBlock(g, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), f['f-dome'], num(g.spread_line), num(g.total)));
+  body.append(pj, matchupGrades(r.a, r.h, r.isMobile(r.a), r.isMobile(r.h)));
   if (g.pass_rules) { const p = el('div', 'why-pass'); p.append(el('b', null, 'Pass rule fires: '), document.createTextNode(g.pass_rules)); body.append(p); }
   // Each check
   Object.entries(METRICS).forEach(([k, m]) => {
@@ -998,6 +1039,163 @@ window.openWhy = (g) => {
 const closeWhy = () => { $('why').hidden = true; document.body.style.overflow = ''; };
 $('why').addEventListener('click', (e) => { if (e.target.id === 'why' || e.target.classList.contains('x')) closeWhy(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWhy(); });
+
+
+// ---------- Stat catalog: every stat, its direction, and a letter grade from league rank ----------
+const STATS = {
+  scoring: { label: 'Scoring', rows: [['pf_pg', 'Points scored / game'], ['pa_pg', 'Points allowed / game'], ['point_diff_pg', 'Point differential / game'], ['tds_pg', 'Touchdowns / game']] },
+  run: { label: 'Run game', rows: [['off_rush_ypg', 'Rush yards / game'], ['off_ypc', 'Yards per carry'], ['off_ypc_l3', 'YPC, last 3 games'], ['def_rush_ypg', 'Rush yards allowed / game'], ['def_ypc', 'YPC allowed']] },
+  pass: { label: 'Passing', rows: [['off_pass_ypg', 'Pass yards / game'], ['off_ypa', 'Yards per dropback'], ['def_pass_ypg', 'Pass yards allowed / game'], ['def_ypa', 'Yards per dropback allowed']] },
+  rush: { label: 'Pass rush & protection', rows: [['def_sacks_pg', 'Sacks / game'], ['def_pressure_rate', 'Pressure rate', '%'], ['off_sacks_allowed_pg', 'Sacks allowed / game'], ['off_sack_rate', 'Sack rate allowed', '%'], ['qb_rush_ypg', 'QB rush yards / game']] },
+  rz: { label: 'Red zone & 3rd down', rows: [['off_rz_trips_pg', 'Red zone trips / game'], ['off_rz_td_pct', 'Red zone TD %', '%'], ['def_rz_trips_pg', 'Red zone trips allowed / game'], ['def_rz_td_pct', 'Red zone TD % allowed', '%'], ['off_3rd_pct', '3rd down conversion %', '%'], ['def_3rd_pct', '3rd down % allowed', '%']] },
+  to: { label: 'Turnovers', rows: [['takeaways_pg', 'Takeaways / game'], ['giveaways_pg', 'Giveaways / game'], ['int_rate', 'INT rate', '%']] },
+  qbtype: { label: 'Defense vs QB type', rows: [['pa_vs_mobile', 'Pts allowed vs mobile QBs'], ['pressure_vs_mobile', 'Pressure vs mobile QBs', '%'], ['ypc_vs_mobile', 'YPC allowed vs mobile QBs'], ['pa_vs_pocket', 'Pts allowed vs pocket QBs'], ['pressure_vs_pocket', 'Pressure vs pocket QBs', '%'], ['ypc_vs_pocket', 'YPC allowed vs pocket QBs']] },
+};
+const gradeOf = (rk) => { const r = num(rk); if (isNaN(r)) return ['—', 'gn']; return r <= 6 ? ['A', 'ga'] : r <= 12 ? ['B', 'gb'] : r <= 20 ? ['C', 'gc'] : r <= 26 ? ['D', 'gd'] : ['F', 'gf']; };
+const fmtS = (v, p) => (v === '' || v == null || isNaN(num(v)) ? '—' : p ? pct(num(v)) : d3.format('.2~f')(num(v)));
+const statCell = (row, key, p) => {
+  const c = el('span', 'sc2'); const [g, cls] = gradeOf(row[`${key}_rk`]);
+  c.append(el('b', null, fmtS(row[key], p)), el('span', `rk ${cls}`, row[`${key}_rk`] ? `${ord(num(row[`${key}_rk`]))} · ${g}` : '—'));
+  return c;
+};
+const qbN = (row, key) => { const m = key.match(/_vs_(mobile|pocket)$/); return m ? ` (${num(row[`n_vs_${m[1]}`]) || 0} g)` : ''; };
+
+nb.cat = 'scoring';
+document.querySelectorAll('#stat-cats button').forEach((b) => b.addEventListener('click', () => {
+  nb.cat = b.dataset.cat; document.querySelectorAll('#stat-cats button').forEach((x) => x.classList.toggle('on', x === b));
+  nb.teamSort = { key: STATS[nb.cat].rows[0][0], dir: 1, rank: true }; dash.draw('team_stats_tbl');
+}));
+dash.draw('team_stats_tbl', (box) => {
+  const t = dash.data('team_stats'); if (t.status !== 'ok') return;
+  const cat = STATS[nb.cat]; const { key, dir, rank } = nb.teamSort;
+  const rows = t.data.slice().sort((a, b) => {
+    if (key === 'team') return dir * a.team.localeCompare(b.team);
+    const k = rank && a[`${key}_rk`] !== undefined ? `${key}_rk` : key; const x = num(a[k]), y = num(b[k]);
+    return (isNaN(x) ? 1 : isNaN(y) ? -1 : dir * (x - y));
+  });
+  const tbl = el('table', 'stbl'); const hr = el('tr');
+  const th = (label, k) => { const h = el('th', 'sortable', label); if (k === key) h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending');
+    h.addEventListener('click', () => { nb.teamSort = { key: k, dir: nb.teamSort.key === k ? -nb.teamSort.dir : 1, rank: k !== 'team' }; dash.draw('team_stats_tbl'); }); return h; };
+  hr.append(th('Team', 'team'), el('th', null, 'Record'), ...cat.rows.map(([k, label]) => th(label, k)));
+  const tb = el('tbody');
+  rows.forEach((r) => {
+    const tr = el('tr', 'clkrow'); tr.addEventListener('click', () => window.openTeam(r.team));
+    tr.append(td(team(r.team)), td(r.record), ...cat.rows.map(([k, , p]) => { const c = td(statCell(r, k, p)); if (/_vs_/.test(k)) c.append(el('span', 'dim', qbN(r, k))); return c; }));
+    tb.append(tr);
+  });
+  const thead = el('thead'); thead.append(hr); tbl.append(thead, tb);
+  const wrap = el('div', 'tbl'); wrap.append(tbl); box.replaceChildren(wrap);
+});
+
+// Team profile
+window.openTeam = (ab) => {
+  const t = dash.data('team_stats'); if (t.status !== 'ok') return; const r = t.data.find((x) => x.team === ab); if (!r) return;
+  const tc = (window.TEAMS[ab] || {}).c1 || '#334';
+  const head = el('div', 'tp-head'); head.style.setProperty('--tc', tc);
+  head.append(el('span', 'ab', ab), el('span', 'nm', (window.TEAMS[ab] || {}).name || ''), el('span', 'tp-rec', `${r.record} · Home ${r.home_rec} · Road ${r.road_rec}`));
+  const body = $('why-body'); body.replaceChildren(head, el('p', 'note', 'Every stat with its league rank (1st = best) and a grade: A = top 6, B = 7–12, C = 13–20, D = 21–26, F = bottom 6.'));
+  Object.values(STATS).forEach((cat) => {
+    const sec = el('div', 'ck'); sec.append(el('div', 'ck-t', cat.label));
+    cat.rows.forEach(([k, label, p]) => {
+      const row = el('div', 'tprow'); const rk = num(r[`${k}_rk`]); const [g, cls] = gradeOf(rk);
+      const bar = el('div', 'rkbar'); const f = el('i', cls); f.style.width = isNaN(rk) ? '0%' : `${((33 - rk) / 32) * 100}%`; bar.append(f);
+      row.append(el('span', 'tpl', label + qbN(r, k)), el('b', null, fmtS(r[k], p)), bar, el('span', `rk ${cls}`, isNaN(rk) ? '—' : `${ord(rk)}`), el('span', `gr ${cls}`, g));
+      sec.append(row);
+    });
+    body.append(sec);
+  });
+  $('why').hidden = false; document.body.style.overflow = 'hidden';
+};
+
+// ---------- Projection (same formula as the daily model) ----------
+const projFeats = (T, O, rows, home, dome, mobile) => {
+  const byT = Object.fromEntries(rows.map((x) => [x.team, x])); const A = byT[T], B = byT[O];
+  const lg = (c) => d3.mean(rows, (x) => num(x[c]));
+  const typ = mobile ? 'mobile' : 'pocket'; const n = num(B[`n_vs_${typ}`]), pav = num(B[`pa_vs_${typ}`]);
+  const pa = n > 0 && !isNaN(pav) ? (n * pav + 4 * num(B.pa_pg)) / (n + 4) : num(B.pa_pg);
+  return [1, num(A.pf_pg), pa, (num(A.off_ypc) - lg('off_ypc')) + (num(B.def_ypc) - lg('def_ypc')), (num(A.off_ypa) - lg('off_ypa')) + (num(B.def_ypa) - lg('def_ypa')),
+    (num(A.off_rz_td_pct) - lg('off_rz_td_pct')) + (num(B.def_rz_td_pct) - lg('def_rz_td_pct')),
+    (num(A.takeaways_pg) + num(B.giveaways_pg)) - (num(A.giveaways_pg) + num(B.takeaways_pg)), home, dome ? 1 : 0];
+};
+window.project = (a, h, mobA, mobH, dome) => {
+  const t = dash.data('team_stats'); const m = window.PROJ; if (t.status !== 'ok' || !m) return null;
+  const dot = (f) => d3.sum(f, (v, i) => v * m.coef[i]);
+  const fa = projFeats(a, h, t.data, 0, dome, mobA), fh = projFeats(h, a, t.data, 1, dome, mobH);
+  return { pa: dot(fa), ph: dot(fh), runDiff: fh[3] - fa[3] };
+};
+const projRecord = () => {
+  const s = dash.data('signals'), b = dash.data('proj_backtest'); if (s.status !== 'ok' || b.status !== 'ok') return null;
+  const g = (name) => s.data.find((r) => r.signal === name && r.season === 'All'); const all = b.data.find((r) => r.test === 'All tested seasons' && r.min_edge === '0');
+  return { gap: g('Model vs book spread gap 3+'), tgap: g('Model vs book total gap 3+'), run: g('Run-game edge 1.0+ YPC'), all };
+};
+
+const projBlock = (g, a, h, mobA, mobH, dome, spreadLine, totalLine) => {
+  const p = window.project(a, h, mobA, mobH, dome); if (!p) return el('span');
+  const box = el('div', 'proj');
+  const sc = el('div', 'proj-score');
+  const tside = (ab, v) => { const d = el('div', 'ps'); d.style.setProperty('--tc', (window.TEAMS[ab] || {}).c1 || '#334'); d.append(el('span', null, ab), el('b', null, d3.format('.0f')(v))); return d; };
+  sc.append(tside(a, p.pa), el('span', 'dash2', '–'), tside(h, p.ph));
+  const m = p.ph - p.pa, tot = p.ph + p.pa;
+  const lines = el('div', 'proj-lines');
+  const fav = m >= 0 ? h : a;
+  lines.append(el('div', null, `Model: ${fav} by ${Math.abs(m).toFixed(1)} · total ${tot.toFixed(1)}`));
+  if (!isNaN(spreadLine)) {
+    const e = m - spreadLine; const bookFav = spreadLine > 0 ? h : spreadLine < 0 ? a : 'PK';
+    lines.append(el('div', Math.abs(e) >= 3 ? 'hl' : null, `Book: ${bookFav === 'PK' ? 'pick\'em' : `${bookFav} -${Math.abs(spreadLine)}`} → ${Math.abs(e) < 1 ? 'model agrees with the book' : `model rates ${e > 0 ? h : a} ${Math.abs(e).toFixed(1)} pts better than the book`}`));
+  }
+  if (!isNaN(totalLine)) { const e = tot - totalLine; lines.append(el('div', Math.abs(e) >= 3 ? 'hl' : null, `Book total ${totalLine} → model ${Math.abs(e) < 1 ? 'agrees' : `${e > 0 ? 'over' : 'under'} by ${Math.abs(e).toFixed(1)}`}`)); }
+  if (Math.abs(p.runDiff) >= 1) lines.append(el('div', 'hl', `Run-game edge: ${p.runDiff > 0 ? h : a} (${Math.abs(p.runDiff).toFixed(2)} YPC matchup edge)`));
+  const rr = projRecord();
+  if (rr && rr.all) lines.append(el('div', 'dim', `Track record on games it hadn't seen: the model's line misses by ${rr.all.model_margin_err} pts a game vs the book's ${rr.all.book_margin_err}. 3+ pt spread gaps went ${rec(rr.gap.w, rr.gap.l)}; run-game edges ${rec(rr.run.w, rr.run.l)} (${pct0(num(rr.run.pct))}). A second opinion, not a bet.`));
+  box.append(sc, lines); return box;
+};
+
+// Matchup grades: each offense vs the other defense, with ranks
+const PAIRS = [['Scoring', 'pf_pg', 'pa_pg'], ['Rush yards / game', 'off_rush_ypg', 'def_rush_ypg'], ['Yards per carry', 'off_ypc', 'def_ypc'], ['Yards per dropback', 'off_ypa', 'def_ypa'],
+  ['Red zone TD %', 'off_rz_td_pct', 'def_rz_td_pct', '%'], ['3rd down %', 'off_3rd_pct', 'def_3rd_pct', '%'], ['Protection vs rush (sacks/g)', 'off_sacks_allowed_pg', 'def_sacks_pg'], ['Turnovers / game', 'giveaways_pg', 'takeaways_pg']];
+const matchupGrades = (a, h, mobA, mobH) => {
+  const t = dash.data('team_stats'); const T = Object.fromEntries(t.data.map((x) => [x.team, x]));
+  const wrap = el('div', 'mg');
+  [[a, h, mobA], [h, a, mobH]].forEach(([o, d, mob]) => {
+    const sec = el('div', 'ck'); const hd = el('div', 'ck-head'); hd.append(team(o), el('span', 'ck-t', 'offense vs'), team(d), el('span', 'ck-t', 'defense'));
+    sec.append(hd);
+    const tbl = el('table', 'mgt'); const tb = el('tbody');
+    PAIRS.concat([[`vs ${mob ? 'mobile' : 'pocket'} QBs (pts allowed)`, 'pf_pg', `pa_vs_${mob ? 'mobile' : 'pocket'}`]]).forEach(([label, ok, dk, p]) => {
+      const tr = el('tr'); const or = num(T[o][`${ok}_rk`]), dr = num(T[d][`${dk}_rk`]);
+      const edge = isNaN(or) || isNaN(dr) ? '' : or < dr - 4 ? o : dr < or - 4 ? d : '';
+      tr.append(td(label), td(statCell(T[o], ok, p)), td(statCell(T[d], dk, p)), td(edge ? team(edge) : el('span', 'dim', 'even')));
+      tb.append(tr);
+    });
+    const thd = el('thead'); const r0 = el('tr'); [' ', `${o} offense`, `${d} defense`, 'Edge'].forEach((x) => r0.append(el('th', null, x))); thd.append(r0);
+    tbl.append(thd, tb); sec.append(tbl); wrap.append(sec);
+  });
+  return wrap;
+};
+
+// ---------- Season results: projection and signals vs the book ----------
+dash.draw('signals_box', (box) => {
+  const s = dash.data('signals'), b = dash.data('proj_backtest'); if (s.status !== 'ok' || b.status !== 'ok' || !s.data.length) return;
+  const all = b.data.find((r) => r.test === 'All tested seasons' && r.min_edge === '0');
+  const tiles = el('div', 'tiles');
+  const tile = (label, big, sub, cls) => { const d = el('div', `tile ${cls}`); d.append(el('span', 'lbl', label), el('b', 'big', big), el('span', 'sub', sub)); return d; };
+  if (all) tiles.append(
+    tile('Model line miss / game', all.model_margin_err, `Book's line misses by ${all.book_margin_err}`, num(all.model_margin_err) <= num(all.book_margin_err) ? 't-good' : 't-bad'),
+    tile('Model total miss / game', all.model_total_err, `Book's total misses by ${all.book_total_err}`, num(all.model_total_err) <= num(all.book_total_err) ? 't-good' : 't-bad'),
+    tile('Model picks the winner', pct0(num(all.model_su)), `Book favorite wins ${pct0(num(all.book_su))}`, num(all.model_su) >= num(all.book_su) ? 't-good' : 't-bad'));
+  const sigs = d3.groups(s.data, (r) => r.signal);
+  const list = el('div', 'bars');
+  sigs.forEach(([name, rows]) => {
+    const g = el('div', 'sig'); g.append(el('div', 'sig-n', name));
+    rows.sort((x, y) => (x.season === 'All') - (y.season === 'All') || x.season.localeCompare(y.season)).forEach((r) => {
+      const p = num(r.pct); const row = el('div', 'brow');
+      const bar = el('div', 'btrack'); const f = el('i'); f.style.width = `${p * 100}%`; f.style.background = p >= 0.524 ? 'var(--gold)' : '#3a4e78'; const be = el('b'); be.style.left = '52.4%'; bar.append(f, be);
+      row.append(el('span', `bl${r.season === 'All' ? ' allrow' : ''}`, r.season === 'All' ? 'All seasons' : r.season), bar, el('span', 'bv', `${rec(r.w, r.l)} · ${pct0(p)}`));
+      g.append(row);
+    });
+    list.append(g);
+  });
+  box.replaceChildren(tiles, list);
+});
 
 // ---------- Line tests ----------
 dash.draw('lines_tests', (box) => {

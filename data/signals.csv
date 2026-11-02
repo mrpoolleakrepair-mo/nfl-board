@@ -1,0 +1,15 @@
+signal,season,w,l,pct
+Run-game edge 1.0+ YPC,2024,54,30,0.643
+Pass-game edge 0.75+ yds/dropback,2024,78,62,0.557
+Run-game edge 1.0+ YPC,2025,34,34,0.5
+Pass-game edge 0.75+ yds/dropback,2025,81,71,0.533
+Run-game edge 1.0+ YPC,2026,16,21,0.432
+Pass-game edge 0.75+ yds/dropback,2026,20,25,0.444
+Model vs book spread gap 3+,2025,43,49,0.467
+Model vs book total gap 3+,2025,52,51,0.505
+Model vs book spread gap 3+,2026,15,20,0.429
+Model vs book total gap 3+,2026,10,16,0.385
+Model vs book spread gap 3+,All,58,69,0.457
+Model vs book total gap 3+,All,62,67,0.481
+Pass-game edge 0.75+ yds/dropback,All,179,158,0.531
+Run-game edge 1.0+ YPC,All,104,85,0.55

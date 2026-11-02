@@ -1,0 +1,26 @@
+{
+ "features": [
+  "intercept",
+  "pts_scored_pg",
+  "opp_pts_allowed_pg",
+  "run_matchup",
+  "pass_matchup",
+  "redzone_matchup",
+  "turnover_matchup",
+  "home",
+  "dome"
+ ],
+ "coef": [
+  16.1762,
+  0.1787,
+  0.0792,
+  0.8975,
+  1.8648,
+  -0.0653,
+  0.5287,
+  1.6685,
+  0.8103
+ ],
+ "qb_blend_games": 4,
+ "value_edge": 3
+}

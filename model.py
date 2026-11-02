@@ -565,6 +565,7 @@ if os.path.exists(snap_path):
         p = pr[pr.game_id == r.game_id]
         if len(p):
             p = p[p.ts == p.ts.max()]
+            p = p[p.book == "williamhill_us"] if (p.book == "williamhill_us").any() else p[p.book == p.book.iloc[0]]  # Caesars first, else the first book that posted
             q1s, q1t, h1s, h1t = med_point(p, "spreads_q1", "home"), med_point(p, "totals_q1", "over"), med_point(p, "spreads_h1", "home"), med_point(p, "totals_h1", "over")
             upcoming.at[i, "cz_q1"] = " · ".join(v for v in [fmt_line(q1s, r.away, r.home), f"O/U {q1t:g}" if q1t is not None else ""] if v)
             upcoming.at[i, "cz_h1"] = " · ".join(v for v in [fmt_line(h1s, r.away, r.home), f"O/U {h1t:g}" if h1t is not None else ""] if v)

@@ -108,7 +108,7 @@ def daily(raw, out):
     if os.environ.get("ODDS_PERIOD_LINES", "1") == "1":
         prow = []
         for eid, gid in soon:
-            ev = get(f"/sports/{SPORT}/events/{eid}/odds", bookmakers="williamhill_us", markets=PERIODS, oddsFormat="american")
+            ev = get(f"/sports/{SPORT}/events/{eid}/odds", bookmakers=BOOKS, markets=PERIODS, oddsFormat="american")  # same credit cost for up to 10 books
             if ev:
                 prow += flatten(ev, gid, ts, games)
         append(f"{out}/caesars_periods.csv", prow)
@@ -133,7 +133,7 @@ def backfill(raw, out):
                 if gid in set(grp.game_id):
                     rows += [dict(r, ts=kind) for r in flatten(ev, gid, kind, games)]
                     if kind == "close":
-                        pe = get(f"/historical/sports/{SPORT}/events/{ev['id']}/odds", bookmakers="williamhill_us",
+                        pe = get(f"/historical/sports/{SPORT}/events/{ev['id']}/odds", bookmakers=BOOKS,
                                  markets=PERIODS, oddsFormat="american", date=when.strftime("%Y-%m-%dT%H:%M:%SZ"))
                         if pe and pe.get("data"):
                             rows += [dict(r, ts="close") for r in flatten(pe["data"], gid, "close", games)]

@@ -19,7 +19,7 @@ else:
 
 # True = higher is better for the team; every metric listed gets a league rank column (<name>_rk)
 RANK_DIRS = {
-    "pf_pg": True, "pa_pg": False, "point_diff_pg": True, "tds_pg": True, "off_total_ypg": True, "def_total_ypg": False,
+    "pf_pg": True, "pa_pg": False, "def_pa_pg": False, "point_diff_pg": True, "tds_pg": True, "off_total_ypg": True, "def_total_ypg": False,
     "off_ypc": True, "off_ypc_l3": True, "off_rush_ypg": True, "def_ypc": False, "def_rush_ypg": False,
     "off_ypa": True, "off_pass_ypg": True, "def_ypa": False, "def_pass_ypg": False,
     "def_sacks_pg": True, "def_sack_rate": True, "def_pressure_rate": True, "off_sacks_allowed_pg": False, "off_sack_rate": False,
@@ -107,7 +107,16 @@ def team_stats(pbp, sched):
     s["point_diff_pg"] = s.pf_pg - s.pa_pg
     s["off_total_ypg"] = s.off_pass_ypg + s.off_rush_ypg
     s["def_total_ypg"] = s.def_pass_ypg + s.def_rush_ypg
-    # Defense split by the opposing starter: mobile (20+ QB rush yds/g) vs pocket
+    # Points the DEFENSE allowed: take out the opponent's return touchdowns (pick-six, fumble return, kick/punt return), 7 pts each
+    tdp = pbp[(pbp.touchdown == 1) & pbp.td_team.notna()]
+    nonoff = tdp[(tdp.td_team != tdp.posteam) | (tdp.get("return_touchdown", 0) == 1)].groupby(["game_id", "td_team"]).size()
+    def def_pa(gid, opp, pts):
+        return pts - 7 * int(nonoff.get((gid, opp), 0))
+    dpa = {t: [] for t in teams}
+    for _, gm in done.iterrows():
+        dpa[gm.home_team].append(def_pa(gm.game_id, gm.away_team, gm.away_score)); dpa[gm.away_team].append(def_pa(gm.game_id, gm.home_team, gm.home_score))
+    s["def_pa_pg"] = pd.Series({t: (np.mean(v) if v else np.nan) for t, v in dpa.items()})
+    # Defense split by the opposing starter. Type comes from 3 seasons of the QB's rushing; borderline QBs are left out.
     QBp = qb_profiles(pbp)
     pg = pbp[pbp.defteam.notna()]
     per = pd.DataFrame({
@@ -119,10 +128,12 @@ def team_stats(pbp, sched):
         for d, oq, ot, pa in ((gm.home_team, gm.away_qb_id, gm.away_team, gm.away_score), (gm.away_team, gm.home_qb_id, gm.home_team, gm.home_score)):
             prof = QBp.get(oq) if isinstance(oq, str) else None
             ypg = prof["rush_ypg"] if prof else qbr.get(ot, 0)
+            typ = qb_type(ypg)
+            if typ is None: continue
             k = (gm.game_id, d)
-            sp.append(dict(team=d, typ="mobile" if ypg >= 20 else "pocket", pa=pa,
+            sp.append(dict(team=d, typ=typ, pa=def_pa(gm.game_id, ot, pa),
                            pressure=per.pressure.get(k, np.nan), ypc=per.ypc.get(k, np.nan), ypa=per.ypa.get(k, np.nan)))
-    sp = pd.DataFrame(sp)
+    sp = pd.DataFrame(sp, columns=["team", "typ", "pa", "pressure", "ypc", "ypa"])
     for typ in ("mobile", "pocket"):
         x = sp[sp.typ == typ].groupby("team")
         s[f"n_vs_{typ}"] = x.size().reindex(teams).fillna(0)
@@ -139,18 +150,45 @@ def z(series):
     return (series - series.mean()) / series.std()
 
 
-def qb_profiles(pbp):
-    """Per-QB rushing (designed runs + scrambles) per game he played, from the same plays the team stats use."""
+MOBILE_YPG, CLEAR_MOBILE, CLEAR_POCKET = 20.0, 23.0, 17.0
+_QB_SEASON = {}
+
+def qb_type(ypg):
+    """Clear types only, for defense splits and alerts: mobile 23+ rush yds/g, pocket 17 or less, borderline -> None."""
+    if ypg is None or pd.isna(ypg): return None
+    return "mobile" if ypg >= CLEAR_MOBILE else "pocket" if ypg <= CLEAR_POCKET else None
+
+
+def _qb_totals(pbp):
     ru = pbp[(pbp.rush_attempt == 1) & (pbp.qb_kneel != 1) & pbp.rusher_player_id.notna()]
     db = pbp[pbp.passer_player_id.notna()]
     gp = db.groupby("passer_player_id").game_id.nunique()
     gp = gp[db.groupby("passer_player_id").size() >= 5]
     yds = ru.groupby("rusher_player_id").yards_gained.sum()
-    scr = pbp[pbp.qb_scramble == 1].groupby("rusher_player_id").size()
-    dbk = pbp[pbp.qb_dropback == 1].groupby("passer_player_id").size()
+    return {pid: (int(n), float(yds.get(pid, 0))) for pid, n in gp.items()}
+
+
+def _season_totals(season):
+    if season not in _QB_SEASON:
+        f = f"{D}/pbp_{season}.parquet"
+        _QB_SEASON[season] = _qb_totals(pd.read_parquet(f, columns=["season_type", "game_id", "rush_attempt", "qb_kneel", "rusher_player_id", "passer_player_id", "yards_gained"]).query("season_type == 'REG'")) if os.path.exists(f) else {}
+    return _QB_SEASON[season]
+
+
+def qb_profiles(pbp):
+    """Per-QB rushing yards a game (designed runs + scrambles) over the two prior seasons plus this one so far,
+    this season weighted 1.5x. A single season is too noisy to call a QB mobile or pocket."""
+    if not len(pbp): return {}
+    cur_season = int(pbp.season.max())
+    cur = _qb_totals(pbp[pbp.season == cur_season])
+    prior = [_season_totals(cur_season - k) for k in (1, 2)]
     out = {}
-    for pid, n in gp.items():
-        out[pid] = dict(games=int(n), rush_ypg=float(yds.get(pid, 0)) / n, scramble_rate=float(scr.get(pid, 0)) / max(float(dbk.get(pid, 1)), 1))
+    for pid in set(cur) | set().union(*[set(p) for p in prior]):
+        gc, yc = cur.get(pid, (0, 0.0))
+        gp_ = sum(p.get(pid, (0, 0.0))[0] for p in prior); yp = sum(p.get(pid, (0, 0.0))[1] for p in prior)
+        wg = 1.5 * gc + gp_
+        if wg <= 0: continue
+        out[pid] = dict(games=gc, rush_ypg=(1.5 * yc + yp) / wg, cur_ypg=(yc / gc) if gc else np.nan)
     return out
 
 
@@ -161,7 +199,7 @@ def qb_info(team, qid, qname, S, QB, starters):
     usual = starters.get(team)
     # Backup = not the opening-day starter and hasn't started 3 straight (an injury fill-in, not a new No. 1)
     backup = bool(usual and isinstance(qid, str) and qid != usual[0] and usual[1] != {qid})
-    mobile = ypg >= 20.0
+    mobile = ypg >= MOBILE_YPG
     label = ("Backup · " if backup else "") + ("Mobile" if mobile else "Pocket")
     return dict(name=qname if isinstance(qname, str) else "", ypg=ypg, mobile=mobile, backup=backup, label=label,
                 games=prof["games"] if prof else 0)
@@ -403,9 +441,12 @@ PROJ_FEATS = ["intercept", "pts_scored_pg", "opp_pts_allowed_pg", "run_matchup",
 
 ALERT_GAP, ALERT_MIN_N = 7.0, 3
 
-def qb_alert(T, O, S, t_mobile):
-    """+1: O's defense is much worse vs this QB type (edge T offense); -1: much better (edge O defense); 0: no alert."""
-    typ, oth = ("mobile", "pocket") if t_mobile else ("pocket", "mobile")
+def qb_alert(T, O, S, t_ypg):
+    """+1: O's defense is much worse vs this QB type (edge T offense); -1: much better (edge O defense); 0: no alert.
+    Only fires for clear mobile (23+) or pocket (17-) QBs, using points allowed by the defense."""
+    typ = qb_type(t_ypg)
+    if typ is None: return 0, ""
+    oth = "pocket" if typ == "mobile" else "mobile"
     n, n2 = S.at[O, f"n_vs_{typ}"], S.at[O, f"n_vs_{oth}"]
     a, b = S.at[O, f"pa_vs_{typ}"], S.at[O, f"pa_vs_{oth}"]
     if n < ALERT_MIN_N or n2 < 2 or pd.isna(a) or pd.isna(b) or abs(a - b) < ALERT_GAP:
@@ -415,19 +456,20 @@ def qb_alert(T, O, S, t_mobile):
 
 RUSH_TOP = 8
 
-def rush_alert(T, O, S, t_mobile, qbn=""):
-    """-1 (edge O defense) when T starts a pocket passer against a top-8 pressure defense."""
-    if t_mobile or S.def_pressure_rate_rk[O] > RUSH_TOP:
+def rush_alert(T, O, S, t_ypg, qbn=""):
+    """-1 (edge O defense) when T starts a clear pocket passer (17- rush yds/g) against a top-8 pressure defense."""
+    if qb_type(t_ypg) != "pocket" or S.def_pressure_rate_rk[O] > RUSH_TOP:
         return 0, ""
     return -1, (f"{O} pass rush is {int(S.def_pressure_rate_rk[O])}{'st' if S.def_pressure_rate_rk[O] == 1 else 'nd' if S.def_pressure_rate_rk[O] == 2 else 'rd' if S.def_pressure_rate_rk[O] == 3 else 'th'} in pressure "
                 f"({S.def_pressure_rate[O]:.0%}) vs pocket passer {qbn or T + ' QB'}; {T} line allows {S.off_sacks_allowed_pg[T]:.1f} sacks/g")
 
 
-def proj_feats(T, O, S, home, dome, t_mobile):
+def proj_feats(T, O, S, home, dome, t_ypg):
     lg = S.mean(numeric_only=True)
-    typ = "mobile" if t_mobile else "pocket"
-    n, pav = S.at[O, f"n_vs_{typ}"], S.at[O, f"pa_vs_{typ}"]
-    pa = (n * pav + 4 * S.pa_pg[O]) / (n + 4) if n > 0 and pd.notna(pav) else S.pa_pg[O]
+    typ = qb_type(t_ypg)
+    base = S.def_pa_pg[O]
+    n, pav = (S.at[O, f"n_vs_{typ}"], S.at[O, f"pa_vs_{typ}"]) if typ else (0, np.nan)
+    pa = (n * pav + 4 * base) / (n + 4) if n > 0 and pd.notna(pav) else base
     return [1.0, S.pf_pg[T], pa,
             (S.off_ypc[T] - lg.off_ypc) + (S.def_ypc[O] - lg.def_ypc),
             (S.off_ypa[T] - lg.off_ypa) + (S.def_ypa[O] - lg.def_ypa),
@@ -435,9 +477,9 @@ def proj_feats(T, O, S, home, dome, t_mobile):
             (S.takeaways_pg[T] + S.giveaways_pg[O]) - (S.giveaways_pg[T] + S.takeaways_pg[O]),
             float(home), float(dome)]
 
-def is_mobile(qid, team, QBp, S):
+def qb_ypg(qid, team, QBp, S):
     prof = QBp.get(qid) if isinstance(qid, str) else None
-    return (prof["rush_ypg"] if prof else S.qb_rush_ypg[team]) >= 20
+    return prof["rush_ypg"] if prof else float(S.qb_rush_ypg[team])
 
 def season_rows(season):
     pb = P if season == SEASON else pd.read_parquet(f"{D}/pbp_{season}.parquet")
@@ -449,7 +491,7 @@ def season_rows(season):
         S_ = team_stats(pb[pb.week < w], gs[gs.week < w]); Q_ = qb_profiles(pb[pb.week < w])
         for _, g in gs[(gs.week == w) & gs.result.notna()].iterrows():
             dome = g.roof in ("dome", "closed")
-            ma, mh = is_mobile(g.away_qb_id, g.away_team, Q_, S_), is_mobile(g.home_qb_id, g.home_team, Q_, S_)
+            ma, mh = qb_ypg(g.away_qb_id, g.away_team, Q_, S_), qb_ypg(g.home_qb_id, g.home_team, Q_, S_)
             fa = proj_feats(g.away_team, g.home_team, S_, 0, dome, ma)
             fh = proj_feats(g.home_team, g.away_team, S_, 1, dome, mh)
             rows.append(dict(season=season, week=w, game_id=g.game_id, away=g.away_team, home=g.home_team, fa=fa, fh=fh,
@@ -535,6 +577,7 @@ for s_ in sorted(train):
     rec_("Alert: pocket QB vs top-8 pass rush (spread, defense side)", s_, rs_s)
     rec_("Alert: pocket QB vs top-8 pass rush (total, under)", s_, rs_t)
     rec_("Matchup alert: defense vs QB type (spread)", s_, al_s)
+    rec_("Fade the defense-vs-QB-type alert (spread)", s_, ["Win" if x == "Loss" else "Loss" for x in al_s])
     rec_("Matchup alert: defense vs QB type (total)", s_, al_t)
     rec_("Run-game edge 1.0+ YPC", s_, run_o)
     rec_("Pass-game edge 0.75+ yds/dropback", s_, pas_o)
@@ -555,8 +598,8 @@ print("coef", dict(zip(PROJ_FEATS, np.round(coef, 3))))
 pcols = dict(proj_away=[], proj_home=[], proj_margin=[], proj_total=[], edge_spread=[], edge_total=[], value_side=[], value_total=[], run_edge=[], run_diff=[], qb_alerts=[])
 for _, r in upcoming.iterrows():
     dome = r.roof in ("dome", "closed")
-    fa_ = proj_feats(r.away, r.home, S, 0, dome, "Mobile" in str(r.away_qb_type))
-    fh_ = proj_feats(r.home, r.away, S, 1, dome, "Mobile" in str(r.home_qb_type))
+    fa_ = proj_feats(r.away, r.home, S, 0, dome, r.away_qb_ypg)
+    fh_ = proj_feats(r.home, r.away, S, 1, dome, r.home_qb_ypg)
     pa_, ph_ = float(np.dot(coef, fa_)), float(np.dot(coef, fh_))
     rdiff = fh_[3] - fa_[3]
     m, t = ph_ - pa_, ph_ + pa_
@@ -572,11 +615,12 @@ for _, r in upcoming.iterrows():
                      run_edge=(r.home if rdiff > 0 else r.away) if abs(rdiff) >= 1.0 else "", run_diff=round(rdiff, 2),
                      qb_alerts=" | ".join(
                          [f"{'Edge ' + T_ + ' offense' if k_ > 0 else 'Edge ' + O_ + ' defense'}: {txt}, and {qbn or T_ + ' QB'} is {'mobile' if mob else 'a pocket passer'}"
-                          for T_, O_, mob, qbn in ((r.away, r.home, "Mobile" in str(r.away_qb_type), r.away_qb), (r.home, r.away, "Mobile" in str(r.home_qb_type), r.home_qb))
-                          for k_, txt in [qb_alert(T_, O_, S, mob)] if k_] +
+                          for T_, O_, ypg_, qbn in ((r.away, r.home, r.away_qb_ypg, r.away_qb), (r.home, r.away, r.home_qb_ypg, r.home_qb))
+                          for mob in [ypg_ >= CLEAR_MOBILE]
+                          for k_, txt in [qb_alert(T_, O_, S, ypg_)] if k_] +
                          [f"Edge {O_} defense: {txt}"
-                          for T_, O_, mob, qbn in ((r.away, r.home, "Mobile" in str(r.away_qb_type), r.away_qb), (r.home, r.away, "Mobile" in str(r.home_qb_type), r.home_qb))
-                          for k_, txt in [rush_alert(T_, O_, S, mob, qbn)] if k_])).items():
+                          for T_, O_, ypg_, qbn in ((r.away, r.home, r.away_qb_ypg, r.away_qb), (r.home, r.away, r.home_qb_ypg, r.home_qb))
+                          for k_, txt in [rush_alert(T_, O_, S, ypg_, qbn)] if k_])).items():
         pcols[k].append(v)
 for k, v in pcols.items(): upcoming[k] = v
 

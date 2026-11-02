@@ -465,7 +465,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       <h2>How each check is scored</h2>
       <ol class="how" start="0">
         <li><b>Money handle (3):</b> automatic once the SharpAPI key is in: DraftKings splits are pulled at 7am and about an hour before each kickoff window (Thu 6:15 pm, Sun 11:15 am, 2:15 pm and 6:15 pm, Mon 6:15 pm CT). Money % 10+ points above bet % on a side = 3 points to that side, from the spread, or the moneyline if the spread shows nothing; if they point different ways it's 0. Circa (a sharper book) is shown for comparison. Every read is graded after the game under Season results, so after a month you'll know if it earns its 3 points.</li>
-        <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Uses the listed starting QB: mobile (20+ rush yards a game on designed runs and scrambles) halves the rush edge against him; a pocket passer takes it in full. A backup starter (not the opening-day starter and hasn't started 3 straight) adds to the opposing rush edge. Cards flag Top-10 rush defenses by pressure rate or sacks. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
+        <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Uses the listed starting QB's rushing over this season and the two before it (this season counts 1.5x): mobile (20+ rush yards a game on designed runs and scrambles) halves the rush edge against him; a pocket passer takes it in full. Defense-vs-QB-type splits and alerts only use clear cases (23+ yards mobile, 17 or less pocket) and count points the defense allowed, without pick-sixes, fumble returns or kick/punt return TDs. A backup starter (not the opening-day starter and hasn't started 3 straight) adds to the opposing rush edge. Cards flag Top-10 rush defenses by pressure rate or sacks. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
         <li><b>Run game (2):</b> rushing YPC (two-thirds season, one-third last 3 games) above league average plus the opponent's YPC allowed above average. Edge must exceed 0.25 yards a carry.</li>
         <li><b>Turnovers (2):</b> your takeaways/g plus their giveaways/g, minus the reverse. Edge must exceed 0.4 a game.</li>
         <li><b>Red zone defense (2):</b> RZ trips allowed/g and RZ TD % allowed, both standardized. Linebacker health isn't scored; split 1–1 by hand if a starting LB is out.</li>
@@ -958,7 +958,8 @@ const render = () => {
   if (r.c8) { const c8 = el('div', 'why'); c8.append(el('b', null, 'Check 8: '), document.createTextNode(r.c8)); notes.append(c8); }
   notes.append(el('div', 'why dim', `Auto checks: ${r.a} ${r.auto.away}, ${r.h} ${r.auto.home} of 9. 10+ = bet, 8–9 = half stake.`));
   const fv = getForm(); const sp = num(fv['f-spread']); const sl = fv['f-fav'] && !isNaN(sp) ? (fv['f-fav'] === 'home' ? sp : -sp) : NaN;
-  const pj = projBlock(null, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), fv['f-dome'], sl, num(fv['f-total']));
+  const ypgOf = (side, ab) => { const q = fv[side]; const T = t.data.find((x) => x.team === ab) || {}; return q === 'auto' || !q ? num(T.qb_rush_ypg) : /mobile/.test(q) ? 25 : 10; };
+  const pj = projBlock(null, r.a, r.h, ypgOf('f-aqb', r.a), ypgOf('f-hqb', r.h), fv['f-dome'], sl, num(fv['f-total']));
   out.replaceChildren(banner, tbl, notes, el('h3', 'subh', 'Projected score'), pj);
 };
 
@@ -1099,8 +1100,8 @@ window.openWhy = (g) => {
     body.append(nc);
   }
   const pj = el('div', 'ck'); const ph = el('div', 'ck-head'); ph.append(el('span', 'ck-n', '▶'), el('span', 'ck-t', 'Projected score vs the book'));
-  pj.append(ph, projBlock(g, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), f['f-dome'], num(g.spread_line), num(g.total)));
-  body.append(pj, matchupGrades(r.a, r.h, r.isMobile(r.a), r.isMobile(r.h)));
+  pj.append(ph, projBlock(g, r.a, r.h, num(g.away_qb_ypg), num(g.home_qb_ypg), f['f-dome'], num(g.spread_line), num(g.total)));
+  body.append(pj, matchupGrades(r.a, r.h, num(g.away_qb_ypg), num(g.home_qb_ypg)));
   if (g.pass_rules) { const p = el('div', 'why-pass'); p.append(el('b', null, 'Pass rule fires: '), document.createTextNode(g.pass_rules)); body.append(p); }
   // Check 0: money handle
   {
@@ -1169,13 +1170,13 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWhy()
 
 // ---------- Stat catalog: every stat, its direction, and a letter grade from league rank ----------
 const STATS = {
-  scoring: { label: 'Scoring & yards', rows: [['pf_pg', 'Points scored / game'], ['pa_pg', 'Points allowed / game'], ['point_diff_pg', 'Point differential / game'], ['tds_pg', 'Touchdowns / game'], ['off_total_ypg', 'Total yards / game'], ['def_total_ypg', 'Total yards allowed / game']] },
+  scoring: { label: 'Scoring & yards', rows: [['pf_pg', 'Points scored / game'], ['pa_pg', 'Points allowed / game (all)'], ['def_pa_pg', 'Points allowed by defense / game'], ['point_diff_pg', 'Point differential / game'], ['tds_pg', 'Touchdowns / game'], ['off_total_ypg', 'Total yards / game'], ['def_total_ypg', 'Total yards allowed / game']] },
   run: { label: 'Run game', rows: [['off_rush_ypg', 'Rush yards / game'], ['off_ypc', 'Yards per carry'], ['off_ypc_l3', 'YPC, last 3 games'], ['def_rush_ypg', 'Rush yards allowed / game'], ['def_ypc', 'YPC allowed']] },
   pass: { label: 'Passing', rows: [['off_pass_ypg', 'Pass yards / game'], ['off_ypa', 'Yards per dropback'], ['def_pass_ypg', 'Pass yards allowed / game'], ['def_ypa', 'Yards per dropback allowed']] },
   rush: { label: 'Pass rush & protection', rows: [['def_sacks_pg', 'Sacks / game'], ['def_pressure_rate', 'Pressure rate', '%'], ['off_sacks_allowed_pg', 'Sacks allowed / game'], ['off_sack_rate', 'Sack rate allowed', '%'], ['qb_rush_ypg', 'QB rush yards / game']] },
   rz: { label: 'Red zone & 3rd down', rows: [['off_rz_trips_pg', 'Red zone trips / game'], ['off_rz_td_pct', 'Red zone TD %', '%'], ['def_rz_trips_pg', 'Red zone trips allowed / game'], ['def_rz_td_pct', 'Red zone TD % allowed', '%'], ['off_3rd_pct', '3rd down conversion %', '%'], ['def_3rd_pct', '3rd down % allowed', '%']] },
   to: { label: 'Turnovers', rows: [['takeaways_pg', 'Takeaways / game'], ['giveaways_pg', 'Giveaways / game'], ['int_rate', 'INT rate', '%']] },
-  qbtype: { label: 'Defense vs QB type', rows: [['pa_vs_mobile', 'Pts allowed vs mobile QBs'], ['pressure_vs_mobile', 'Pressure vs mobile QBs', '%'], ['ypc_vs_mobile', 'YPC allowed vs mobile QBs'], ['pa_vs_pocket', 'Pts allowed vs pocket QBs'], ['pressure_vs_pocket', 'Pressure vs pocket QBs', '%'], ['ypc_vs_pocket', 'YPC allowed vs pocket QBs']] },
+  qbtype: { label: 'Defense vs QB type', rows: [['pa_vs_mobile', 'D pts allowed vs mobile QBs (23+ rush yds/g)'], ['pressure_vs_mobile', 'Pressure vs mobile QBs', '%'], ['ypc_vs_mobile', 'YPC allowed vs mobile QBs'], ['pa_vs_pocket', 'D pts allowed vs pocket QBs (17 or less)'], ['pressure_vs_pocket', 'Pressure vs pocket QBs', '%'], ['ypc_vs_pocket', 'YPC allowed vs pocket QBs']] },
 };
 const gradeOf = (rk) => { const r = num(rk); if (isNaN(r)) return ['—', 'gn']; return r <= 6 ? ['A', 'ga'] : r <= 12 ? ['B', 'gb'] : r <= 20 ? ['C', 'gc'] : r <= 26 ? ['D', 'gd'] : ['F', 'gf']; };
 const fmtS = (v, p) => (v === '' || v == null || isNaN(num(v)) ? '—' : p ? pct(num(v)) : d3.format('.2~f')(num(v)));
@@ -1234,19 +1235,21 @@ window.openTeam = (ab) => {
 };
 
 // ---------- Projection (same formula as the daily model) ----------
-const projFeats = (T, O, rows, home, dome, mobile) => {
+const qbClear = (ypg) => (ypg >= 23 ? 'mobile' : ypg <= 17 ? 'pocket' : null);
+const projFeats = (T, O, rows, home, dome, ypg) => {
   const byT = Object.fromEntries(rows.map((x) => [x.team, x])); const A = byT[T], B = byT[O];
   const lg = (c) => d3.mean(rows, (x) => num(x[c]));
-  const typ = mobile ? 'mobile' : 'pocket'; const n = num(B[`n_vs_${typ}`]), pav = num(B[`pa_vs_${typ}`]);
-  const pa = n > 0 && !isNaN(pav) ? (n * pav + 4 * num(B.pa_pg)) / (n + 4) : num(B.pa_pg);
+  const typ = qbClear(ypg); const base = num(B.def_pa_pg);
+  const n = typ ? num(B[`n_vs_${typ}`]) : 0, pav = typ ? num(B[`pa_vs_${typ}`]) : NaN;
+  const pa = n > 0 && !isNaN(pav) ? (n * pav + 4 * base) / (n + 4) : base;
   return [1, num(A.pf_pg), pa, (num(A.off_ypc) - lg('off_ypc')) + (num(B.def_ypc) - lg('def_ypc')), (num(A.off_ypa) - lg('off_ypa')) + (num(B.def_ypa) - lg('def_ypa')),
     (num(A.off_rz_td_pct) - lg('off_rz_td_pct')) + (num(B.def_rz_td_pct) - lg('def_rz_td_pct')),
     (num(A.takeaways_pg) + num(B.giveaways_pg)) - (num(A.giveaways_pg) + num(B.takeaways_pg)), home, dome ? 1 : 0];
 };
-window.project = (a, h, mobA, mobH, dome) => {
+window.project = (a, h, ypgA, ypgH, dome) => {
   const t = dash.data('team_stats'); const m = window.PROJ; if (t.status !== 'ok' || !m) return null;
   const dot = (f) => d3.sum(f, (v, i) => v * m.coef[i]);
-  const fa = projFeats(a, h, t.data, 0, dome, mobA), fh = projFeats(h, a, t.data, 1, dome, mobH);
+  const fa = projFeats(a, h, t.data, 0, dome, ypgA), fh = projFeats(h, a, t.data, 1, dome, ypgH);
   return { pa: dot(fa), ph: dot(fh), runDiff: fh[3] - fa[3] };
 };
 const projRecord = () => {
@@ -1255,8 +1258,8 @@ const projRecord = () => {
   return { gap: g('Model vs book spread gap 3+'), tgap: g('Model vs book total gap 3+'), run: g('Run-game edge 1.0+ YPC'), all };
 };
 
-const projBlock = (g, a, h, mobA, mobH, dome, spreadLine, totalLine) => {
-  const p = window.project(a, h, mobA, mobH, dome); if (!p) return el('span');
+const projBlock = (g, a, h, ypgA, ypgH, dome, spreadLine, totalLine) => {
+  const p = window.project(a, h, ypgA, ypgH, dome); if (!p) return el('span');
   const box = el('div', 'proj');
   const sc = el('div', 'proj-score');
   const tside = (ab, v) => { const d = el('div', 'ps'); d.style.setProperty('--tc', (window.TEAMS[ab] || {}).c1 || '#334'); d.append(el('span', null, ab), el('b', null, d3.format('.0f')(v))); return d; };
@@ -1277,16 +1280,17 @@ const projBlock = (g, a, h, mobA, mobH, dome, spreadLine, totalLine) => {
 };
 
 // Matchup grades: each offense vs the other defense, with ranks
-const PAIRS = [['Scoring', 'pf_pg', 'pa_pg'], ['Total yards / game', 'off_total_ypg', 'def_total_ypg'], ['Rush yards / game', 'off_rush_ypg', 'def_rush_ypg'], ['Yards per carry', 'off_ypc', 'def_ypc'], ['Yards per dropback', 'off_ypa', 'def_ypa'],
+const PAIRS = [['Scoring (pts vs pts allowed by D)', 'pf_pg', 'def_pa_pg'], ['Total yards / game', 'off_total_ypg', 'def_total_ypg'], ['Rush yards / game', 'off_rush_ypg', 'def_rush_ypg'], ['Yards per carry', 'off_ypc', 'def_ypc'], ['Yards per dropback', 'off_ypa', 'def_ypa'],
   ['Red zone TD %', 'off_rz_td_pct', 'def_rz_td_pct', '%'], ['3rd down %', 'off_3rd_pct', 'def_3rd_pct', '%'], ['Protection vs rush (sacks/g)', 'off_sacks_allowed_pg', 'def_sacks_pg'], ['Turnovers / game', 'giveaways_pg', 'takeaways_pg']];
-const matchupGrades = (a, h, mobA, mobH) => {
+const matchupGrades = (a, h, ypgA, ypgH) => {
   const t = dash.data('team_stats'); const T = Object.fromEntries(t.data.map((x) => [x.team, x]));
   const wrap = el('div', 'mg');
-  [[a, h, mobA], [h, a, mobH]].forEach(([o, d, mob]) => {
+  [[a, h, ypgA], [h, a, ypgH]].forEach(([o, d, ypg]) => {
+    const qt = qbClear(ypg);
     const sec = el('div', 'ck'); const hd = el('div', 'ck-head'); hd.append(team(o), el('span', 'ck-t', 'offense vs'), team(d), el('span', 'ck-t', 'defense'));
     sec.append(hd);
     const tbl = el('table', 'mgt'); const tb = el('tbody');
-    PAIRS.concat([[`vs ${mob ? 'mobile' : 'pocket'} QBs (pts allowed)`, 'pf_pg', `pa_vs_${mob ? 'mobile' : 'pocket'}`]]).forEach(([label, ok, dk, p]) => {
+    PAIRS.concat(qt ? [[`vs ${qt} QBs (pts allowed by D)`, 'pf_pg', `pa_vs_${qt}`]] : []).forEach(([label, ok, dk, p]) => {
       const tr = el('tr'); const or = num(T[o][`${ok}_rk`]), dr = num(T[d][`${dk}_rk`]);
       const edge = isNaN(or) || isNaN(dr) ? '' : or < dr - 4 ? o : dr < or - 4 ? d : '';
       tr.append(td(label), td(statCell(T[o], ok, p)), td(statCell(T[d], dk, p)), td(edge ? team(edge) : el('span', 'dim', 'even')));

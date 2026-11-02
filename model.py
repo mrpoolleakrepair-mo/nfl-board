@@ -590,7 +590,7 @@ def fmt_line(home_pt, a, h):
     if home_pt == 0: return "PK"
     return f"{h} {home_pt:+g}".replace("+", "+") if home_pt < 0 else f"{a} {-home_pt:+g}"
 
-line_cols = ["line_open", "line_now", "move_toward", "move_pts", "total_open", "total_now", "total_move", "cz_spread", "cz_total", "cz_q1", "cz_h1", "lines_seen"]
+line_cols = ["line_open", "line_now", "move_toward", "move_pts", "total_open", "total_now", "total_move", "cz_spread", "cz_total", "cz_q1", "cz_h1", "period_book", "lines_seen"]
 for c in line_cols: upcoming[c] = pd.Series([""] * len(upcoming), index=upcoming.index, dtype=object)
 snap_path, per_path = f"{OUT}/odds_snapshots.csv", f"{OUT}/caesars_periods.csv"
 if os.path.exists(snap_path):
@@ -620,6 +620,7 @@ if os.path.exists(snap_path):
             p = p[p.ts == p.ts.max()]
             pick_b = next((b for b in ("williamhill_us", "draftkings", "fanduel") if (p.book == b).any()), None)  # BetMGM period lines have come back garbled
             p = p[p.book == pick_b] if pick_b else p.iloc[0:0]
+            upcoming.at[i, "period_book"] = {"williamhill_us": "Caesars", "draftkings": "DraftKings", "fanduel": "FanDuel"}.get(pick_b, "")
             q1s, q1t, h1s, h1t = med_point(p, "spreads_q1", "home"), med_point(p, "totals_q1", "over"), med_point(p, "spreads_h1", "home"), med_point(p, "totals_h1", "over")
             upcoming.at[i, "cz_q1"] = " · ".join(v for v in [fmt_line(q1s, r.away, r.home), f"O/U {q1t:g}" if q1t is not None else ""] if v)
             upcoming.at[i, "cz_h1"] = " · ".join(v for v in [fmt_line(h1s, r.away, r.home), f"O/U {h1t:g}" if h1t is not None else ""] if v)

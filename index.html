@@ -248,6 +248,10 @@ h3.subh { font-family: var(--head); text-transform: uppercase; letter-spacing: .
 .al-rush .al-tag { background: #b26b00; }
 .al-rec { flex-basis: 100%; font-size: 11.5px; color: var(--muted); }
 .alerts-card .tr .mc-alerts { background: none; border: 0; padding: 4px 0 0; }
+.mc-periods { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 8px 14px; border-top: 1px dashed var(--line); font-size: 13px; }
+.mc-periods .pb { font-family: var(--head); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.mc-periods .p1h { color: #fff; font-family: var(--head); font-size: 15px; letter-spacing: .02em; } .mc-periods .p1h b { color: #9cc3ff; margin-right: 4px; text-transform: uppercase; font-size: 12px; letter-spacing: .08em; }
+.mc-periods .p1q { color: var(--muted); font-size: 12px; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -305,7 +309,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       <h2>Full slate</h2>
       <p class="note">Tap any matchup to see why. Which team won each check (dashed = too close to call). Spreads and totals are current consensus lines. Times Central.</p>
       <div class="tbl"><table>
-        <thead><tr><th>Matchup</th><th>Kickoff</th><th>Spread</th><th>Total</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1 Rush</th><th>C2 Run</th><th>C3 TO</th><th>C4 RZ D</th><th>C5 Spot</th><th>Pass rule</th><th>Away QB</th><th>Home QB</th><th>Venue &amp; rest</th><th>Line open → now</th><th>Caesars 1Q</th><th>Caesars 1H</th><th></th></tr></thead>
+        <thead><tr><th>Matchup</th><th>Kickoff</th><th>Spread</th><th>Total</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1 Rush</th><th>C2 Run</th><th>C3 TO</th><th>C4 RZ D</th><th>C5 Spot</th><th>Pass rule</th><th>Away QB</th><th>Home QB</th><th>Venue &amp; rest</th><th>Line open → now</th><th>1st half</th><th>1st quarter</th><th></th></tr></thead>
         <tbody data-draw="slate_rows"></tbody>
       </table></div>
     </div>
@@ -635,9 +639,14 @@ const gameCard = (g, opts = {}) => {
     ln.append(el('span', null, `Line ${g.line_open} → ${g.line_now}`));
     if (g.move_toward) { const mv = el('b', null, `moved ${g.move_pts} toward ${g.move_toward}`); ln.append(mv); }
     if (g.total_now) ln.append(el('span', null, `Total ${g.total_open} → ${g.total_now}`));
-    if (g.cz_q1) ln.append(el('span', 'cz', `Caesars 1Q ${g.cz_q1}`));
-    if (g.cz_h1) ln.append(el('span', 'cz', `1H ${g.cz_h1}`));
     card.append(ln);
+  }
+  if (g.cz_h1 || g.cz_q1) {
+    const pl = el('div', 'mc-periods');
+    pl.append(el('span', 'pb', g.period_book || 'Book'));
+    if (g.cz_h1) { const h = el('span', 'p1h'); h.append(el('b', null, '1st half'), document.createTextNode(` ${g.cz_h1}`)); pl.append(h); }
+    if (g.cz_q1) pl.append(el('span', 'p1q', `1Q ${g.cz_q1}`));
+    card.append(pl);
   }
   return card;
 };
@@ -695,7 +704,7 @@ const gameRow = (g, cols) => {
   return tr;
 };
 dash.draw('slate_rows', (tb) => {
-  tb.replaceChildren(...slate().map((g) => gameRow(g, ['matchup', 'when', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest', 'linemove', 'cz_q1', 'cz_h1', 'calc'])));
+  tb.replaceChildren(...slate().map((g) => gameRow(g, ['matchup', 'when', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest', 'linemove', 'cz_h1', 'cz_q1', 'calc'])));
 });
 dash.draw('sched_rows', (tb) => {
   const q = (document.getElementById('nb-search').value || '').trim().toLowerCase();
@@ -1108,7 +1117,7 @@ window.openWhy = (g) => {
   });
   if (g.line_now) {
     const lc = el('div', 'ck'); const hd = el('div', 'ck-head'); hd.append(el('span', 'ck-n', 'C6'), el('span', 'ck-t', 'Line move · 1 pt · you decide'), g.move_toward ? team(g.move_toward) : team('Even'));
-    lc.append(hd, el('p', 'ck-s', `Consensus line ${g.line_open} when first seen, ${g.line_now} now${g.move_toward ? `: ${g.move_pts} points toward ${g.move_toward}. If no injury or weather news explains it, that point goes to ${g.move_toward}. If it came right after one big result, it goes to the other side.` : '. No real move yet.'} Total ${g.total_open} → ${g.total_now}${Math.abs(num(g.total_move)) >= 3 ? ', a 3+ point move: skip the total.' : '.'}${g.cz_q1 ? ` Caesars 1Q ${g.cz_q1}; 1H ${g.cz_h1}.` : ''}`));
+    lc.append(hd, el('p', 'ck-s', `Consensus line ${g.line_open} when first seen, ${g.line_now} now${g.move_toward ? `: ${g.move_pts} points toward ${g.move_toward}. If no injury or weather news explains it, that point goes to ${g.move_toward}. If it came right after one big result, it goes to the other side.` : '. No real move yet.'} Total ${g.total_open} → ${g.total_now}${Math.abs(num(g.total_move)) >= 3 ? ', a 3+ point move: skip the total.' : '.'}${g.cz_h1 ? ` ${g.period_book || ''} 1st half ${g.cz_h1}; 1Q ${g.cz_q1}.` : ''}`));
     body.append(lc);
   }
   const go = el('button', 'btn', 'Add my handle & line read ▸'); go.addEventListener('click', () => { closeWhy(); window.loadCalc(g); showTab('calc'); window.scrollTo({ top: 0 }); });

@@ -234,6 +234,12 @@ tr.clkrow { cursor: pointer; }
 .sig-n { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
 .bl.allrow { font-weight: 700; color: #fff; }
 h3.subh { font-family: var(--head); text-transform: uppercase; letter-spacing: .08em; font-size: 14px; color: var(--gold); margin: 16px 0 8px; }
+.mc-handle { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 7px 14px; border-top: 1px dashed var(--line); font-size: 12px; color: #dbe2f0; }
+.mc-handle .c0 { color: var(--gold); font-weight: 600; } .mc-handle .c0.none { color: var(--muted); font-weight: 400; }
+.hbar { display: grid; gap: 4px; } .hl2 { font-family: var(--head); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.hrow { display: grid; grid-template-columns: 52px 70px 1fr 70px; gap: 8px; align-items: center; font-size: 12px; }
+.hn { color: var(--muted); } .hv { font-family: var(--head); } .hv.r { text-align: right; }
+.htrack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; } .htrack i { display: block; height: 100%; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -268,6 +274,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       <div class="tile t-bet"><span class="lbl">9/9 · Bet if money agrees</span><b class="big" data-draw="t_bet">—</b></div>
       <div class="tile t-handle"><span class="lbl">7–8 · Needs the handle</span><b class="big" data-draw="t_handle">—</b></div>
       <div class="tile t-kill"><span class="lbl">Killed by a pass rule</span><b class="big" data-draw="t_killed">—</b></div>
+      <div class="tile t-good"><span class="lbl">Bet it · 10+ with DK handle</span><b class="big" data-draw="t_full">—</b></div>
     </div>
     <div class="grid">
       <div class="card">
@@ -430,7 +437,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     <div class="card">
       <h2>How each check is scored</h2>
       <ol class="how" start="0">
-        <li><b>Money handle (3):</b> manual. Use DraftKings Betting Splits about an hour before kickoff. Money % 10+ points above bet % on a side = 3 points to that side.</li>
+        <li><b>Money handle (3):</b> automatic once the SharpAPI key is in: DraftKings splits are pulled at 7am and about an hour before each kickoff window (Thu 6:15 pm, Sun 11:15 am, 2:15 pm and 6:15 pm, Mon 6:15 pm CT). Money % 10+ points above bet % on a side = 3 points to that side, from the spread, or the moneyline if the spread shows nothing; if they point different ways it's 0. Circa (a sharper book) is shown for comparison. Every read is graded after the game under Season results, so after a month you'll know if it earns its 3 points.</li>
         <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Uses the listed starting QB: mobile (20+ rush yards a game on designed runs and scrambles) halves the rush edge against him; a pocket passer takes it in full. A backup starter (not the opening-day starter and hasn't started 3 straight) adds to the opposing rush edge. Cards flag Top-10 rush defenses by pressure rate or sacks. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
         <li><b>Run game (2):</b> rushing YPC (two-thirds season, one-third last 3 games) above league average plus the opponent's YPC allowed above average. Edge must exceed 0.25 yards a carry.</li>
         <li><b>Turnovers (2):</b> your takeaways/g plus their giveaways/g, minus the reverse. Edge must exceed 0.4 a game.</li>
@@ -522,7 +529,7 @@ const slate = () => {
   return upcoming().filter((g) => set.includes(Number(g.week)))
     .sort((a, b) => (a.date + a.kickoff).localeCompare(b.date + b.kickoff));
 };
-const redrawSlate = () => ['t_games', 't_bet', 't_handle', 't_killed', 'upnext', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n));
+const redrawSlate = () => ['t_games', 't_bet', 't_handle', 't_killed', 't_full', 'upnext', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n));
 
 // Tabs
 const showTab = (name) => {
@@ -547,6 +554,7 @@ dash.draw('t_games', tile(() => true));
 dash.draw('t_bet', tile((g) => g.verdict === 'Bet if money agrees'));
 dash.draw('t_handle', tile((g) => g.verdict === 'Needs the handle'));
 dash.draw('t_killed', tile((g) => g.verdict === 'Pass rule'));
+dash.draw('t_full', tile((g) => g.full_verdict === 'Bet it'));
 
 const CHECKS = { c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' };
 const calcBtn = (g) => { const b = el('button', 'btn sm', 'Score it ▸'); b.addEventListener('click', () => { window.loadCalc(g); showTab('calc'); window.scrollTo({ top: 0, behavior: 'smooth' }); }); return b; };
@@ -574,6 +582,15 @@ const gameCard = (g, opts = {}) => {
   const btns = el('span', 'btns'); btns.append(whyBtn(g), calcBtn(g));
   foot.append(left, el('span', null, `★ ${g.pick || '—'} wins ${won.join(', ') || 'none'}`), btns);
   card.append(side(g.away, 'away'), mid, side(g.home, 'home'), foot);
+  if (g.splits_ts) {
+    const hr = el('div', 'mc-handle');
+    const pair = (lbl, b, m, side) => (b ? `${lbl} ${side} ${d3.format('.0f')(num(b))}% bets / ${d3.format('.0f')(num(m))}% money` : '');
+    [pair('DK spread', g.dk_spread_bets, g.dk_spread_money, g.away), pair('DK ML', g.dk_ml_bets, g.dk_ml_money, g.away), pair('Circa spread', g.circa_spread_bets, g.circa_spread_money, g.away)]
+      .filter(Boolean).forEach((t) => hr.append(el('span', null, t)));
+    hr.append(el('b', g.c0 ? 'c0' : 'c0 none', g.c0 ? `Check 0: ${g.c0} +3` : 'Check 0: 0 pts'));
+    if (g.full_pick) hr.append(verdict(`${g.full_verdict} · ${g.full_pick} ${g.full_pts}/13`));
+    card.append(hr);
+  }
   if (g.proj_home) {
     const pr = el('div', 'mc-proj');
     pr.append(el('span', null, `Model ${g.away} ${d3.format('.0f')(num(g.proj_away))} – ${d3.format('.0f')(num(g.proj_home))} ${g.home} · total ${d3.format('.0f')(num(g.proj_total))}`));
@@ -919,7 +936,7 @@ window.loadCalc = (g) => {
   const sl = num(g.spread_line);
   setForm({ 'f-aqb': qbVal(g.away_qb_type), 'f-hqb': qbVal(g.home_qb_type), 'f-away': g.away, 'f-home': g.home, 'f-fav': isNaN(sl) || sl === 0 ? '' : sl > 0 ? 'home' : 'away', 'f-spread': isNaN(sl) ? '' : Math.abs(sl), 'f-total': g.total || '',
     'f-arest': g.away_rest || 7, 'f-hrest': g.home_rest || 7, 'f-dome': ['dome', 'closed'].includes(g.roof), 'f-neutral': false,
-    'f-bets': '', 'f-money': '', 'f-agg': false, 'f-move': g.move_toward ? (g.move_toward === g.home ? 'home' : 'away') : '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': Math.abs(num(g.total_move)) >= 3 });
+    'f-bets': (/moneyline/.test(g.c0_note || '') ? g.dk_ml_bets : g.dk_spread_bets) || '', 'f-money': (/moneyline/.test(g.c0_note || '') ? g.dk_ml_money : g.dk_spread_money) || '', 'f-agg': false, 'f-move': g.move_toward ? (g.move_toward === g.home ? 'home' : 'away') : '', 'f-bigresult': false, 'f-qb': false, 'f-tmove': Math.abs(num(g.total_move)) >= 3 });
   render();
 };
 
@@ -1000,6 +1017,30 @@ window.openWhy = (g) => {
   pj.append(ph, projBlock(g, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), f['f-dome'], num(g.spread_line), num(g.total)));
   body.append(pj, matchupGrades(r.a, r.h, r.isMobile(r.a), r.isMobile(r.h)));
   if (g.pass_rules) { const p = el('div', 'why-pass'); p.append(el('b', null, 'Pass rule fires: '), document.createTextNode(g.pass_rules)); body.append(p); }
+  // Check 0: money handle
+  {
+    const c0 = el('div', 'ck'); const hd = el('div', 'ck-head');
+    hd.append(el('span', 'ck-n', 'C0'), el('span', 'ck-t', 'Money handle · 3 pts'), g.c0 ? team(g.c0) : team('Even'));
+    c0.append(hd);
+    if (!g.splits_ts) c0.append(el('p', 'ck-s', 'No DraftKings splits for this game yet. They load at 7am and about an hour before kickoff once the SharpAPI key is in, or enter them yourself in Score a game.'));
+    else {
+      const mk = (label, b, m, sa, sb) => {
+        if (!b) return null;
+        const w = el('div', 'hbar'); w.append(el('span', 'hl2', label));
+        [['Bets', num(b)], ['Money', num(m)]].forEach(([n, v]) => {
+          const row = el('div', 'hrow'); const tr = el('div', 'htrack');
+          const l = el('i', 'ha'); l.style.width = `${v}%`; l.style.background = ta; const rgt = el('i', 'hh'); rgt.style.width = `${100 - v}%`; rgt.style.background = th;
+          tr.append(l, rgt); row.append(el('span', 'hn', n), el('span', 'hv', `${sa} ${d3.format('.0f')(v)}%`), tr, el('span', 'hv r', `${d3.format('.0f')(100 - v)}% ${sb}`)); w.append(row);
+        });
+        return w;
+      };
+      [mk('DraftKings spread', g.dk_spread_bets, g.dk_spread_money, r.a, r.h), mk('DraftKings moneyline', g.dk_ml_bets, g.dk_ml_money, r.a, r.h),
+       mk('DraftKings total', g.dk_total_bets, g.dk_total_money, 'Over', 'Under'), mk('Circa spread (sharper book)', g.circa_spread_bets, g.circa_spread_money, r.a, r.h)]
+        .filter(Boolean).forEach((x) => c0.append(x));
+      c0.append(el('p', 'ck-s', `${g.c0_note}. Read ${new Date(g.splits_ts).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit' })} CT.${g.full_pick ? ` With the handle: ${g.full_pick} ${g.full_pts} of 13 → ${g.full_verdict}. Add the line move (1 pt) yourself.` : ''}`));
+    }
+    body.append(c0);
+  }
   // Each check
   Object.entries(METRICS).forEach(([k, m]) => {
     const card = el('div', 'ck');

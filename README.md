@@ -11,3 +11,10 @@ Data: nflverse schedule, lines and play-by-play. Refreshes automatically every d
    and Caesars 1Q/1H lines for games in the next 30 hours.
 4. Paid plan only: Actions > Refresh NFL data > Run workflow > tick "backfill" to pull opening/closing lines and
    Caesars 1Q/1H closing lines for every played game. That fills the Check 6 and 1Q/1H tests on Season results.
+
+## Money handle (SharpAPI, Pro plan)
+1. Get a Pro key at https://sharpapi.io (splits need Pro or higher).
+2. Repo Settings > Secrets and variables > Actions > New repository secret: name `SHARPAPI_KEY`.
+3. DraftKings and Circa splits are pulled at 7am CT and about an hour before each kickoff window
+   (Thu 6:15 pm, Sun 11:15 am / 2:15 pm / 6:15 pm, Mon 6:15 pm CT). Check 0 is scored automatically
+   and graded against the spread after each game (Season results > Line tests).

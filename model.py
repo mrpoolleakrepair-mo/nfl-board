@@ -393,7 +393,7 @@ T["record"] = T.apply(lambda r: f"{int(r.wins)}-{int(r.losses)}" + (f"-{int(r.ti
 T["home_rec"] = T.apply(lambda r: f"{int(r.home_w)}-{int(r.home_l)}", axis=1)
 T["road_rec"] = T.apply(lambda r: f"{int(r.road_w)}-{int(r.road_l)}", axis=1)
 for c in T.columns:
-    if T[c].dtype.kind == "f": T[c] = T[c].round(3)
+    if T[c].dtype.kind == "f": T[c] = T[c].round(6)
 
 
 # ---------- Points projection: each team's score from its offense vs the other defense ----------
@@ -571,6 +571,64 @@ if os.path.exists(snap_path):
         upcoming.at[i, "lines_seen"] = f"{x.ts.min()[:10]} to {x.ts.max()[:10]}"
     print("odds merged for", (upcoming.line_now != "").sum(), "games")
 
+# ---------- Check 0: money handle from DraftKings / Circa splits (SharpAPI), when present ----------
+def split_signal(x, market, a, h):
+    """Side whose handle % beats its bet % by 10+ points (checklist Check 0)."""
+    y = x[x.market == market].set_index("side")
+    if not len(y): return None, None
+    sides = ("over", "under") if market == "total" else ("away", "home")
+    gaps = {sd: (y.handle_pct.get(sd, float("nan")) - y.bet_pct.get(sd, float("nan"))) for sd in sides}
+    win = [sd for sd, gp in gaps.items() if gp >= 10]
+    return (win[0] if len(win) == 1 else None), y
+
+split_cols = ["c0", "c0_note", "splits_ts", "dk_spread_bets", "dk_spread_money", "dk_ml_bets", "dk_ml_money", "dk_total_bets", "dk_total_money",
+              "circa_spread_bets", "circa_spread_money", "circa_ml_bets", "circa_ml_money", "full_pick", "full_pts", "full_verdict"]
+for c in split_cols: upcoming[c] = pd.Series([""] * len(upcoming), index=upcoming.index, dtype=object)
+spl_path = f"{OUT}/splits_snapshots.csv"
+def kickoff_utc(gday, gtime):
+    return pd.Timestamp(f"{gday} {gtime}").tz_localize("America/New_York").tz_convert("UTC")
+def c0_for(x, a, h):
+    dk = x[x.book == "draftkings"]
+    s_sp, ysp = split_signal(dk, "spread", a, h); s_ml, yml = split_signal(dk, "moneyline", a, h)
+    side = s_sp if (s_sp and (not s_ml or s_ml == s_sp)) else (s_ml if (s_ml and not s_sp) else None)
+    return side, s_sp, s_ml, dk
+if os.path.exists(spl_path):
+    sp_ = pd.read_csv(spl_path)
+    def fmt_pair(y, sd):
+        if y is None or sd not in y.index: return ""
+        return f"{y.bet_pct[sd]:.0f}/{y.handle_pct[sd]:.0f}"
+    for i, r in upcoming.iterrows():
+        x = sp_[sp_.game_id == r.game_id]
+        if not len(x): continue
+        x = x[x.ts == x.ts.max()]
+        side, s_sp, s_ml, dk = c0_for(x, r.away, r.home)
+        tm_ = {"away": r.away, "home": r.home}
+        _, ysp = split_signal(dk, "spread", r.away, r.home); _, yml = split_signal(dk, "moneyline", r.away, r.home); _, ytt = split_signal(dk, "total", r.away, r.home)
+        ci = x[x.book == "circa"]; _, csp = split_signal(ci, "spread", r.away, r.home); _, cml = split_signal(ci, "moneyline", r.away, r.home)
+        upcoming.at[i, "splits_ts"] = x.ts.max()
+        for col, y, sd in (("dk_spread_bets", ysp, "away"), ("dk_ml_bets", yml, "away"), ("dk_total_bets", ytt, "over"),
+                           ("circa_spread_bets", csp, "away"), ("circa_ml_bets", cml, "away")):
+            if y is not None and sd in y.index:
+                upcoming.at[i, col] = round(float(y.bet_pct[sd]), 1); upcoming.at[i, col.replace("_bets", "_money")] = round(float(y.handle_pct[sd]), 1)
+        if side:
+            upcoming.at[i, "c0"] = tm_[side]
+            upcoming.at[i, "c0_note"] = f"DraftKings money on {tm_[side]} runs 10+ pts ahead of its bets ({'spread' if s_sp == side else 'moneyline'})"
+        elif s_sp and s_ml and s_sp != s_ml:
+            upcoming.at[i, "c0_note"] = "Spread and moneyline money point different ways: 0 pts"
+        else:
+            upcoming.at[i, "c0_note"] = "Money roughly matches bets: 0 pts"
+        # Full checklist score with the handle added (line move still yours to add)
+        auto_a = r.pick_pts if r.pick == r.away else (r.opp_pts if r.pick else 0)
+        auto_h = r.pick_pts if r.pick == r.home else (r.opp_pts if r.pick else 0)
+        fa, fh = auto_a + (3 if side == "away" else 0), auto_h + (3 if side == "home" else 0)
+        if fa != fh:
+            fp, pts_ = (r.away, fa) if fa > fh else (r.home, fh)
+            upcoming.at[i, "full_pick"], upcoming.at[i, "full_pts"] = fp, int(pts_)
+            if r.pass_rules and fp == r.pick: v_ = "Pass rule"
+            else: v_ = "Bet it" if pts_ >= 10 else "Lean, half stake" if pts_ >= 8 else "Pass"
+            upcoming.at[i, "full_verdict"] = v_
+    print("splits merged for", (upcoming.splits_ts != "").sum(), "games")
+
 # Played games with stored open/close lines: test Check 6 and the 1Q/1H theories
 cl_path = f"{OUT}/closing_lines.csv"
 per_rows = []
@@ -611,6 +669,20 @@ if os.path.exists(cl_path):
     tally("1Q favorite of 2.5+ won the game", q1big)
     tally("1Q favorite covered the 1Q spread", q1cov)
     tally("1H favorite covered the 1H spread", h1cov)
+if os.path.exists(spl_path):
+    sp_ = pd.read_csv(spl_path); c0o, cio = [], []
+    for _, g in G[G.result.notna() & G.game_id.isin(sp_.game_id)].iterrows():
+        ko = kickoff_utc(g.gameday, g.gametime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        x = sp_[(sp_.game_id == g.game_id) & (sp_.ts < ko)]
+        if not len(x): continue
+        x = x[x.ts == x.ts.max()]
+        side, _, _, _ = c0_for(x, g.away_team, g.home_team)
+        m = g.result - g.spread_line
+        if side and m != 0: c0o.append("Win" if (side == "home") == (m > 0) else "Loss")
+        cs, _ = split_signal(x[x.book == "circa"], "spread", g.away_team, g.home_team)
+        if cs and m != 0: cio.append("Win" if (cs == "home") == (m > 0) else "Loss")
+    w, l = c0o.count("Win"), c0o.count("Loss"); per_rows.insert(0, dict(tier="Check 0: DraftKings money 10+ over bets (ATS)", games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
+    w, l = cio.count("Win"), cio.count("Loss"); per_rows.insert(1, dict(tier="Circa money 10+ over bets (ATS)", games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
 pd.DataFrame(per_rows, columns=["tier", "games", "ats_w", "ats_l", "ats_pct"]).to_csv(f"{OUT}/lines_results.csv", index=False)
 
 upcoming = upcoming.drop(columns=["away_score", "home_score", "home_margin", "final_total"])

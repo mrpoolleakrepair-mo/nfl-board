@@ -5,6 +5,8 @@ on:
     # run at both and let the guard below keep only the one that lands at 7am Chicago time.
     - cron: "5 12 * * *"
     - cron: "5 13 * * *"
+    # Pregame handle reads ~1 hour before kickoff windows (the guard keeps only the matching Chicago times)
+    - cron: "15 * * * 0,1,2,4,5"
   workflow_dispatch:
     inputs:
       backfill:
@@ -13,15 +15,26 @@ on:
         default: false
 permissions:
   contents: write
+concurrency:
+  group: refresh
+  cancel-in-progress: false
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Only run at 7am Central
+      - name: Only run at 7am Central or a pregame window
         id: guard
         run: |
-          H=$(TZ=America/Chicago date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" = "07" ]; then echo "go=1" >> $GITHUB_OUTPUT; else echo "Chicago hour $H, skipping"; fi
+          H=$(TZ=America/Chicago date +%H); DH=$(TZ=America/Chicago date +%a-%H)
+          SCHED="${{ github.event.schedule }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || { [ "$H" = "07" ] && [ "${SCHED#5 }" != "$SCHED" ]; }; then echo "go=1" >> $GITHUB_OUTPUT; echo "periods=1" >> $GITHUB_OUTPUT
+          elif [ "${SCHED#15 }" != "$SCHED" ]; then
+            case "$DH" in
+              Thu-18|Sun-11|Sun-14|Sun-18|Mon-18) echo "go=1" >> $GITHUB_OUTPUT; echo "periods=0" >> $GITHUB_OUTPUT; echo "Pregame read $DH" ;;
+              *) echo "Chicago $DH, skipping" ;;
+            esac
+          else echo "Chicago $DH, skipping"
+          fi
       - uses: actions/checkout@v4
         if: steps.guard.outputs.go == '1'
 
@@ -42,9 +55,15 @@ jobs:
         if: steps.guard.outputs.go == '1'
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_PERIOD_LINES: ${{ steps.guard.outputs.periods }}
         run: |
           python odds.py daily raw data || echo "odds pull failed, continuing"
           if [ "${{ inputs.backfill }}" = "true" ]; then python odds.py backfill raw data || echo "backfill failed, continuing"; fi
+      - name: Pull DraftKings and Circa betting splits (skips if no SHARPAPI_KEY secret)
+        if: steps.guard.outputs.go == '1'
+        env:
+          SHARPAPI_KEY: ${{ secrets.SHARPAPI_KEY }}
+        run: python splits.py raw data || echo "splits pull failed, continuing"
       - run: python model.py raw data
         if: steps.guard.outputs.go == '1'
       - name: Commit updated data

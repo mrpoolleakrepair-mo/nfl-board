@@ -64,6 +64,9 @@ jobs:
         env:
           SHARPAPI_KEY: ${{ secrets.SHARPAPI_KEY }}
         run: python splits.py raw data || echo "splits pull failed, continuing"
+      - name: Scan NFL.com / NFL Network and ESPN coverage for the total (Check 9)
+        if: steps.guard.outputs.go == '1'
+        run: python news.py raw data || echo "news scan failed, continuing"
       - run: python model.py raw data
         if: steps.guard.outputs.go == '1'
       - name: Commit updated data

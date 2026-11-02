@@ -252,6 +252,16 @@ h3.subh { font-family: var(--head); text-transform: uppercase; letter-spacing: .
 .mc-periods .pb { font-family: var(--head); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .mc-periods .p1h { color: #fff; font-family: var(--head); font-size: 15px; letter-spacing: .02em; } .mc-periods .p1h b { color: #9cc3ff; margin-right: 4px; text-transform: uppercase; font-size: 12px; letter-spacing: .08em; }
 .mc-periods .p1q { color: var(--muted); font-size: 12px; }
+.mc-news { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 7px 14px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+.mc-news .nl { font-family: var(--head); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.nlean { font-family: var(--head); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; padding: 1px 7px; border-radius: 3px; background: #26385e; color: #dbe2f0; font-weight: 600; }
+.nlean.over { background: #d64a2b; color: #fff; } .nlean.under { background: #2b6fd6; color: #fff; } .nlean.split, .nlean.mixed { background: #6b5b2b; color: #fff; }
+.al-news .al-tag { background: #2b6fd6; }
+.news-list { display: grid; gap: 8px; }
+.news-it { padding: 8px 10px; background: rgba(255,255,255,.03); border-radius: 6px; display: grid; gap: 3px; }
+.nt { display: flex; gap: 8px; align-items: center; } .nsrc { font-family: var(--head); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.ntitle { color: #fff; text-decoration: none; font-size: 13px; } .ntitle:hover { text-decoration: underline; }
+.nq { font-size: 12px; color: var(--muted); font-style: italic; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -460,6 +470,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
         <li><b>Turnovers (2):</b> your takeaways/g plus their giveaways/g, minus the reverse. Edge must exceed 0.4 a game.</li>
         <li><b>Red zone defense (2):</b> RZ trips allowed/g and RZ TD % allowed, both standardized. Linebacker health isn't scored; split 1–1 by hand if a starting LB is out.</li>
         <li><b>Situational spot (1):</b> home team's home win % vs road team's road win % (15-point gap), and a 2+ day rest edge. If they disagree, rest wins.</li>
+        <li><b>Media check (Check 9, totals):</b> every morning and before each kickoff window the site reads NFL.com (which carries NFL Network's coverage) and ESPN articles on each game and tags over talk ("take the over 46.5", "shootout") and under talk ("under 46.5", "defensive battle"). If 3+ articles lean one way with 75%+ agreement, or 75%+ of DraftKings bets are on one side of the total, it suggests the other side. Every call is graded after the game.</li>
         <li><b>Line move (1):</b> manual. Point to the side the line moved toward with no news; to the other side if the move followed one big result.</li>
       </ol>
       <p class="note" style="margin-top:16px">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
@@ -487,6 +498,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
     Promise.all([
       ...Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${v}`).then((rows) => { DS[id] = { status: 'ok', data: rows }; }).catch(() => { DS[id] = { status: 'ok', data: [] }; })),
       fetch(`data/teams.json?v=${v}`).then((r) => r.json()).then((t) => { window.TEAMS = t; }).catch(() => {}),
+      fetch(`data/news_latest.json?v=${v}`).then((r) => r.json()).then((n) => { window.NEWS = n; }).catch(() => { window.NEWS = {}; }),
       fetch(`data/proj_model.json?v=${v}`).then((r) => r.json()).then((m) => { window.PROJ = m; }).catch(() => {}),
     ]).then(() => {
       Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
@@ -582,9 +594,10 @@ const alertRec = (txt) => {
   return `${/pass rush is/.test(txt) ? 'Defense side' : 'Side it favors'} has covered ${r.w}–${r.l} (${pct0(num(r.pct))}) since 2024`;
 };
 const alertBox = (g) => {
-  if (!g.qb_alerts) return null;
+  if (!g.qb_alerts && !g.check9) return null;
   const box = el('div', 'mc-alerts');
-  g.qb_alerts.split(' | ').forEach((a) => {
+  if (g.check9) { const row = el('div', 'al al-news'); const [h1, ...rest] = g.check9.split(': '); row.append(el('span', 'al-tag', 'Check 9 · media'), el('b', null, h1), el('span', null, rest.join(': '))); box.append(row); }
+  (g.qb_alerts ? g.qb_alerts.split(' | ') : []).forEach((a) => {
     const [head, ...rest] = a.split(': '); const row = el('div', `al ${/pass rush is/.test(a) ? 'al-rush' : 'al-qb'}`);
     row.append(el('span', 'al-tag', /pass rush is/.test(a) ? 'Pocket QB vs pass rush' : 'Defense vs QB type'), el('b', null, head), el('span', null, rest.join(': ')));
     const rc = alertRec(a); if (rc) row.append(el('span', 'al-rec', rc));
@@ -626,6 +639,12 @@ const gameCard = (g, opts = {}) => {
     if (g.full_pick) hr.append(verdict(`${g.full_verdict} · ${g.full_pick} ${g.full_pts}/13`));
     card.append(hr);
   }
+  if (g.news_ts) {
+    const nr = el('div', 'mc-news');
+    nr.append(el('span', 'nl', 'News'), el('b', `nlean ${String(g.news_lean).toLowerCase()}`, g.news_lean === 'Quiet' ? 'No total talk' : `Media leans ${g.news_lean}`));
+    if (g.news_summary) nr.append(el('span', null, g.news_summary));
+    card.append(nr);
+  }
   if (g.proj_home) {
     const pr = el('div', 'mc-proj');
     pr.append(el('span', null, `Model ${g.away} ${d3.format('.0f')(num(g.proj_away))} – ${d3.format('.0f')(num(g.proj_home))} ${g.home} · total ${d3.format('.0f')(num(g.proj_total))}`));
@@ -653,7 +672,7 @@ const gameCard = (g, opts = {}) => {
 
 dash.draw('alerts_list', (box) => {
   if (!upcoming().length) return;
-  const gs = slate().filter((g) => g.qb_alerts);
+  const gs = slate().filter((g) => g.qb_alerts || g.check9);
   if (!gs.length) { box.replaceChildren(el('p', 'empty', 'No matchup alerts on this slate.')); return; }
   box.replaceChildren(...gs.map((g) => { const r = el('div', 'tr'); const top = el('div', 'top'); top.append(matchup(g), el('span', 'ou', kick(g))); r.append(top, alertBox(g)); r.style.cursor = 'pointer'; r.addEventListener('click', () => window.openWhy(g)); return r; }));
 });
@@ -1060,6 +1079,25 @@ window.openWhy = (g) => {
     : 'Neither side wins more checks. Pass.');
   body.replaceChildren(head, strip, summary);
   { const ab = alertBox(g); if (ab) body.append(ab); }
+  {
+    const arts = (window.NEWS || {})[g.game_id] || [];
+    const nc = el('div', 'ck'); const nh = el('div', 'ck-head');
+    nh.append(el('span', 'ck-n', 'C9'), el('span', 'ck-t', 'What NFL.com / NFL Network and ESPN are saying about the total'));
+    nc.append(nh);
+    if (!g.news_ts) nc.append(el('p', 'ck-s', 'No coverage scanned for this game yet. The scan runs at 7am CT and before each kickoff window for games in the next 8 days.'));
+    else {
+      nc.append(el('p', 'ck-s', `${g.news_lean === 'Quiet' ? 'No over/under talk found' : `Coverage leans ${g.news_lean}`}${g.news_summary ? ` (${g.news_summary})` : ''}. ${g.check9 || 'Not one-sided enough to fade (needs 3+ articles, 75%+ on one side).'}`));
+      const list = el('div', 'news-list');
+      arts.filter((x) => x.lean).concat(arts.filter((x) => !x.lean)).slice(0, 12).forEach((x) => {
+        const it = el('div', 'news-it'); const top = el('div', 'nt');
+        top.append(el('span', 'nsrc', x.source), el('span', `nlean ${String(x.lean || 'none').toLowerCase()}`, x.lean || 'No total talk'));
+        const a = el('a', 'ntitle', x.title || x.url); a.href = x.url; a.target = '_blank'; a.rel = 'noopener';
+        it.append(top, a); if (x.quote) it.append(el('div', 'nq', `“${x.quote}”`)); list.append(it);
+      });
+      nc.append(list);
+    }
+    body.append(nc);
+  }
   const pj = el('div', 'ck'); const ph = el('div', 'ck-head'); ph.append(el('span', 'ck-n', '▶'), el('span', 'ck-t', 'Projected score vs the book'));
   pj.append(ph, projBlock(g, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), f['f-dome'], num(g.spread_line), num(g.total)));
   body.append(pj, matchupGrades(r.a, r.h, r.isMobile(r.a), r.isMobile(r.h)));

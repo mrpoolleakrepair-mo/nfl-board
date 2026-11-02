@@ -687,6 +687,40 @@ if os.path.exists(spl_path):
             upcoming.at[i, "full_verdict"] = v_
     print("splits merged for", (upcoming.splits_ts != "").sum(), "games")
 
+# ---------- Check 9: what NFL.com / NFL Network and ESPN are saying about the total ----------
+def check9_call(x, a, h, over_bets=None):
+    """x: one snapshot of article rows for a game. Returns (media lean, summary, Check 9 call)."""
+    x = x[x.lean.isin(["Over", "Under"])]
+    n_o, n_u = int((x.lean == "Over").sum()), int((x.lean == "Under").sum())
+    parts = []
+    for src, y in x.groupby("source"):
+        c = y.lean.value_counts(); parts.append(f"{src}: " + ", ".join(f"{int(c[k])} {k.lower()}" for k in ("Over", "Under") if k in c))
+    lean = "Over" if n_o > n_u else "Under" if n_u > n_o else ("Split" if n_o else "Quiet")
+    call = ""
+    if n_o + n_u >= 3 and max(n_o, n_u) / (n_o + n_u) >= 0.75:
+        call = f"Media pushing the {lean.upper()} ({max(n_o, n_u)} of {n_o + n_u} articles): Check 9 says lean {'UNDER' if lean == 'Over' else 'OVER'}"
+    if over_bets is not None and pd.notna(over_bets) and over_bets != "":
+        ob = float(over_bets)
+        if ob >= 75: call = (call + " · " if call else "") + f"{ob:.0f}% of DK bets on the over: lean UNDER"
+        elif ob <= 25: call = (call + " · " if call else "") + f"{100 - ob:.0f}% of DK bets on the under: lean OVER"
+    return lean, " · ".join(parts), call
+
+news_cols = ["news_lean", "news_summary", "check9", "news_ts"]
+for c in news_cols: upcoming[c] = pd.Series([""] * len(upcoming), index=upcoming.index, dtype=object)
+news_path = f"{OUT}/news_snapshots.csv"
+news_latest = {}
+if os.path.exists(news_path):
+    nw = pd.read_csv(news_path).fillna("")
+    for i, r in upcoming.iterrows():
+        x = nw[nw.game_id == r.game_id]
+        if not len(x): continue
+        x = x[x.ts == x.ts.max()]
+        lean, summ, call = check9_call(x, r.away, r.home, r.get("dk_total_bets", ""))
+        upcoming.at[i, "news_lean"], upcoming.at[i, "news_summary"], upcoming.at[i, "check9"], upcoming.at[i, "news_ts"] = lean, summ, call, x.ts.max()
+        news_latest[r.game_id] = x[["source", "title", "url", "lean", "quote", "published"]].drop_duplicates("url").head(25).to_dict("records")
+    print("news merged for", (upcoming.news_ts != "").sum(), "games")
+json.dump(news_latest, open(f"{OUT}/news_latest.json", "w"))
+
 # Played games with stored open/close lines: test Check 6 and the 1Q/1H theories
 cl_path = f"{OUT}/closing_lines.csv"
 per_rows = []
@@ -741,6 +775,16 @@ if os.path.exists(spl_path):
         if cs and m != 0: cio.append("Win" if (cs == "home") == (m > 0) else "Loss")
     w, l = c0o.count("Win"), c0o.count("Loss"); per_rows.insert(0, dict(tier="Check 0: DraftKings money 10+ over bets (ATS)", games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
     w, l = cio.count("Win"), cio.count("Loss"); per_rows.insert(1, dict(tier="Circa money 10+ over bets (ATS)", games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
+if os.path.exists(news_path):
+    nw = pd.read_csv(news_path).fillna(""); c9 = []
+    for _, g in G[G.result.notna() & G.game_id.isin(nw.game_id)].iterrows():
+        ko = kickoff_utc(g.gameday, g.gametime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        x = nw[(nw.game_id == g.game_id) & (nw.ts < ko)]
+        if not len(x) or pd.isna(g.total_line): continue
+        _, _, call = check9_call(x[x.ts == x.ts.max()], g.away_team, g.home_team)
+        ou = g.total - g.total_line
+        if call and ou != 0: c9.append("Win" if ("lean UNDER" in call) == (ou < 0) else "Loss")
+    w, l = c9.count("Win"), c9.count("Loss"); per_rows.append(dict(tier="Check 9: fade the media's total (O/U)", games=w + l, ats_w=w, ats_l=l, ats_pct=round(w / max(w + l, 1), 3)))
 pd.DataFrame(per_rows, columns=["tier", "games", "ats_w", "ats_l", "ats_pct"]).to_csv(f"{OUT}/lines_results.csv", index=False)
 
 upcoming = upcoming.drop(columns=["away_score", "home_score", "home_margin", "final_total"])

@@ -641,7 +641,7 @@ const gameCard = (g, opts = {}) => {
   }
   if (g.news_ts) {
     const nr = el('div', 'mc-news');
-    nr.append(el('span', 'nl', 'News'), el('b', `nlean ${String(g.news_lean).toLowerCase()}`, g.news_lean === 'Quiet' ? 'No total talk' : `Media leans ${g.news_lean}`));
+    nr.append(el('span', 'nl', 'News'), el('b', `nlean ${String(g.news_lean).toLowerCase()}`, g.news_lean === 'Quiet' ? 'Media: no over/under lean' : `Media leans ${g.news_lean}`));
     if (g.news_summary) nr.append(el('span', null, g.news_summary));
     card.append(nr);
   }
@@ -1090,7 +1090,7 @@ window.openWhy = (g) => {
       const list = el('div', 'news-list');
       arts.filter((x) => x.lean).concat(arts.filter((x) => !x.lean)).slice(0, 12).forEach((x) => {
         const it = el('div', 'news-it'); const top = el('div', 'nt');
-        top.append(el('span', 'nsrc', x.source), el('span', `nlean ${String(x.lean || 'none').toLowerCase()}`, x.lean || 'No total talk'));
+        top.append(el('span', 'nsrc', x.source), el('span', `nlean ${String(x.lean || 'none').toLowerCase()}`, x.lean || 'No over/under lean'));
         const a = el('a', 'ntitle', x.title || x.url); a.href = x.url; a.target = '_blank'; a.rel = 'noopener';
         it.append(top, a); if (x.quote) it.append(el('div', 'nq', `“${x.quote}”`)); list.append(it);
       });

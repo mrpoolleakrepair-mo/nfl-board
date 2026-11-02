@@ -240,6 +240,14 @@ h3.subh { font-family: var(--head); text-transform: uppercase; letter-spacing: .
 .hrow { display: grid; grid-template-columns: 52px 70px 1fr 70px; gap: 8px; align-items: center; font-size: 12px; }
 .hn { color: var(--muted); } .hv { font-family: var(--head); } .hv.r { text-align: right; }
 .htrack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; } .htrack i { display: block; height: 100%; }
+.mc-alerts, .why-box .mc-alerts { grid-column: 1 / -1; display: grid; gap: 6px; padding: 9px 12px; background: linear-gradient(90deg, rgba(224,23,43,.22), rgba(224,23,43,.06)); border-bottom: 1px solid rgba(224,23,43,.5); }
+.why-box .mc-alerts { border: 1px solid rgba(224,23,43,.5); border-radius: 8px; margin-bottom: 12px; }
+.al { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 12.5px; color: #f1f4fa; line-height: 1.4; }
+.al b { font-family: var(--head); letter-spacing: .04em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.al-tag { font-family: var(--head); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; background: var(--red); color: #fff; padding: 1px 7px; border-radius: 3px; }
+.al-rush .al-tag { background: #b26b00; }
+.al-rec { flex-basis: 100%; font-size: 11.5px; color: var(--muted); }
+.alerts-card .tr .mc-alerts { background: none; border: 0; padding: 4px 0 0; }
 ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
 ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
 ol.how b { color: #fff; }
@@ -269,6 +277,11 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
   <section id="slate" data-tab-panel="slate">
     <div class="bar"><label for="nb-week">Slate</label><select id="nb-week" data-draw="weeksel"></select></div>
     <div class="upnext" data-draw="upnext"></div>
+    <div class="card alerts-card">
+      <h2>Matchup alerts</h2>
+      <p class="note">Pocket QB facing a top-8 pass rush, or a defense that plays very differently against mobile vs pocket QBs (7+ pts a game apart, 3+ games). Each shows how its side has done against the spread since 2024.</p>
+      <div class="tl" data-draw="alerts_list"></div>
+    </div>
     <div class="tiles">
       <div class="tile t-games"><span class="lbl">Games on the slate</span><b class="big" data-draw="t_games">—</b></div>
       <div class="tile t-bet"><span class="lbl">9/9 · Bet if money agrees</span><b class="big" data-draw="t_bet">—</b></div>
@@ -315,7 +328,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px
       <h2>Team stats and league ranks</h2>
       <p class="note">Season to date. Every stat shows its league rank (1st = best for that team) and a grade: A = top 6, B = 7–12, C = 13–20, D = 21–26, F = bottom 6. Tap a team for its full profile. Click a header to sort.</p>
       <div class="cats" id="stat-cats">
-        <button data-cat="scoring" class="on">Scoring</button><button data-cat="run">Run game</button><button data-cat="pass">Passing</button><button data-cat="rush">Pass rush</button><button data-cat="rz">Red zone &amp; 3rd</button><button data-cat="to">Turnovers</button><button data-cat="qbtype">Defense vs QB type</button>
+        <button data-cat="scoring" class="on">Scoring &amp; yards</button><button data-cat="run">Run game</button><button data-cat="pass">Passing</button><button data-cat="rush">Pass rush</button><button data-cat="rz">Red zone &amp; 3rd</button><button data-cat="to">Turnovers</button><button data-cat="qbtype">Defense vs QB type</button>
       </div>
       <div data-draw="team_stats_tbl"></div>
     </div>
@@ -529,7 +542,7 @@ const slate = () => {
   return upcoming().filter((g) => set.includes(Number(g.week)))
     .sort((a, b) => (a.date + a.kickoff).localeCompare(b.date + b.kickoff));
 };
-const redrawSlate = () => ['t_games', 't_bet', 't_handle', 't_killed', 't_full', 'upnext', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n));
+const redrawSlate = () => ['alerts_list', 't_games', 't_bet', 't_handle', 't_killed', 't_full', 'upnext', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n));
 
 // Tabs
 const showTab = (name) => {
@@ -558,6 +571,23 @@ dash.draw('t_full', tile((g) => g.full_verdict === 'Bet it'));
 
 const CHECKS = { c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' };
 const calcBtn = (g) => { const b = el('button', 'btn sm', 'Score it ▸'); b.addEventListener('click', () => { window.loadCalc(g); showTab('calc'); window.scrollTo({ top: 0, behavior: 'smooth' }); }); return b; };
+const alertRec = (txt) => {
+  const s = dash.data('signals'); if (s.status !== 'ok') return '';
+  const name = /pass rush is/.test(txt) ? 'Alert: pocket QB vs top-8 pass rush (spread, defense side)' : 'Matchup alert: defense vs QB type (spread)';
+  const r = s.data.find((x) => x.signal === name && x.season === 'All'); if (!r) return '';
+  return `${/pass rush is/.test(txt) ? 'Defense side' : 'Side it favors'} has covered ${r.w}–${r.l} (${pct0(num(r.pct))}) since 2024`;
+};
+const alertBox = (g) => {
+  if (!g.qb_alerts) return null;
+  const box = el('div', 'mc-alerts');
+  g.qb_alerts.split(' | ').forEach((a) => {
+    const [head, ...rest] = a.split(': '); const row = el('div', `al ${/pass rush is/.test(a) ? 'al-rush' : 'al-qb'}`);
+    row.append(el('span', 'al-tag', /pass rush is/.test(a) ? 'Pocket QB vs pass rush' : 'Defense vs QB type'), el('b', null, head), el('span', null, rest.join(': ')));
+    const rc = alertRec(a); if (rc) row.append(el('span', 'al-rec', rc));
+    box.append(row);
+  });
+  return box;
+};
 const whyBtn = (g) => { const b = el('button', 'btn sm ghost', 'Why? ▸'); b.addEventListener('click', () => window.openWhy(g)); return b; };
 const gameCard = (g, opts = {}) => {
   const card = el('div', `mc${num(g.pick_pts) >= 9 ? ' hot' : ''}`);
@@ -581,6 +611,7 @@ const gameCard = (g, opts = {}) => {
   const left = el('span', 'fl'); left.append(verdict(g.verdict), el('span', null, opts.when ? kick(g) : num(g.manual_pts_needed) > 4 ? 'Can\'t reach 10' : `Needs ${g.manual_pts_needed} of 4 manual`));
   const btns = el('span', 'btns'); btns.append(whyBtn(g), calcBtn(g));
   foot.append(left, el('span', null, `★ ${g.pick || '—'} wins ${won.join(', ') || 'none'}`), btns);
+  const ab = alertBox(g); if (ab) card.append(ab);
   card.append(side(g.away, 'away'), mid, side(g.home, 'home'), foot);
   if (g.splits_ts) {
     const hr = el('div', 'mc-handle');
@@ -611,6 +642,12 @@ const gameCard = (g, opts = {}) => {
   return card;
 };
 
+dash.draw('alerts_list', (box) => {
+  if (!upcoming().length) return;
+  const gs = slate().filter((g) => g.qb_alerts);
+  if (!gs.length) { box.replaceChildren(el('p', 'empty', 'No matchup alerts on this slate.')); return; }
+  box.replaceChildren(...gs.map((g) => { const r = el('div', 'tr'); const top = el('div', 'top'); top.append(matchup(g), el('span', 'ou', kick(g))); r.append(top, alertBox(g)); r.style.cursor = 'pointer'; r.addEventListener('click', () => window.openWhy(g)); return r; }));
+});
 dash.draw('upnext', (box) => {
   const gs = slate(); if (!gs.length) { box.replaceChildren(); return; }
   const first = gs[0]; const same = gs.filter((g) => g.date === first.date && g.kickoff === first.kickoff);
@@ -1013,6 +1050,7 @@ window.openWhy = (g) => {
     ? `${g.pick} wins ${Object.keys(METRICS).filter((k) => r.tm[r.c[k]] === g.pick).length} of 5 checks for ${g.pick_pts} of 9 automatic points. ${num(g.manual_pts_needed) <= 4 ? `It needs ${g.manual_pts_needed} more from your handle (3) and line (1) reads to reach 10.` : 'Even with the handle and line it can\'t reach 10: pass.'}`
     : 'Neither side wins more checks. Pass.');
   body.replaceChildren(head, strip, summary);
+  { const ab = alertBox(g); if (ab) body.append(ab); }
   const pj = el('div', 'ck'); const ph = el('div', 'ck-head'); ph.append(el('span', 'ck-n', '▶'), el('span', 'ck-t', 'Projected score vs the book'));
   pj.append(ph, projBlock(g, r.a, r.h, r.isMobile(r.a), r.isMobile(r.h), f['f-dome'], num(g.spread_line), num(g.total)));
   body.append(pj, matchupGrades(r.a, r.h, r.isMobile(r.a), r.isMobile(r.h)));
@@ -1084,7 +1122,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWhy()
 
 // ---------- Stat catalog: every stat, its direction, and a letter grade from league rank ----------
 const STATS = {
-  scoring: { label: 'Scoring', rows: [['pf_pg', 'Points scored / game'], ['pa_pg', 'Points allowed / game'], ['point_diff_pg', 'Point differential / game'], ['tds_pg', 'Touchdowns / game']] },
+  scoring: { label: 'Scoring & yards', rows: [['pf_pg', 'Points scored / game'], ['pa_pg', 'Points allowed / game'], ['point_diff_pg', 'Point differential / game'], ['tds_pg', 'Touchdowns / game'], ['off_total_ypg', 'Total yards / game'], ['def_total_ypg', 'Total yards allowed / game']] },
   run: { label: 'Run game', rows: [['off_rush_ypg', 'Rush yards / game'], ['off_ypc', 'Yards per carry'], ['off_ypc_l3', 'YPC, last 3 games'], ['def_rush_ypg', 'Rush yards allowed / game'], ['def_ypc', 'YPC allowed']] },
   pass: { label: 'Passing', rows: [['off_pass_ypg', 'Pass yards / game'], ['off_ypa', 'Yards per dropback'], ['def_pass_ypg', 'Pass yards allowed / game'], ['def_ypa', 'Yards per dropback allowed']] },
   rush: { label: 'Pass rush & protection', rows: [['def_sacks_pg', 'Sacks / game'], ['def_pressure_rate', 'Pressure rate', '%'], ['off_sacks_allowed_pg', 'Sacks allowed / game'], ['off_sack_rate', 'Sack rate allowed', '%'], ['qb_rush_ypg', 'QB rush yards / game']] },
@@ -1192,7 +1230,7 @@ const projBlock = (g, a, h, mobA, mobH, dome, spreadLine, totalLine) => {
 };
 
 // Matchup grades: each offense vs the other defense, with ranks
-const PAIRS = [['Scoring', 'pf_pg', 'pa_pg'], ['Rush yards / game', 'off_rush_ypg', 'def_rush_ypg'], ['Yards per carry', 'off_ypc', 'def_ypc'], ['Yards per dropback', 'off_ypa', 'def_ypa'],
+const PAIRS = [['Scoring', 'pf_pg', 'pa_pg'], ['Total yards / game', 'off_total_ypg', 'def_total_ypg'], ['Rush yards / game', 'off_rush_ypg', 'def_rush_ypg'], ['Yards per carry', 'off_ypc', 'def_ypc'], ['Yards per dropback', 'off_ypa', 'def_ypa'],
   ['Red zone TD %', 'off_rz_td_pct', 'def_rz_td_pct', '%'], ['3rd down %', 'off_3rd_pct', 'def_3rd_pct', '%'], ['Protection vs rush (sacks/g)', 'off_sacks_allowed_pg', 'def_sacks_pg'], ['Turnovers / game', 'giveaways_pg', 'takeaways_pg']];
 const matchupGrades = (a, h, mobA, mobH) => {
   const t = dash.data('team_stats'); const T = Object.fromEntries(t.data.map((x) => [x.team, x]));

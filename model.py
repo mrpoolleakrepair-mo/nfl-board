@@ -19,7 +19,7 @@ else:
 
 # True = higher is better for the team; every metric listed gets a league rank column (<name>_rk)
 RANK_DIRS = {
-    "pf_pg": True, "pa_pg": False, "point_diff_pg": True, "tds_pg": True,
+    "pf_pg": True, "pa_pg": False, "point_diff_pg": True, "tds_pg": True, "off_total_ypg": True, "def_total_ypg": False,
     "off_ypc": True, "off_ypc_l3": True, "off_rush_ypg": True, "def_ypc": False, "def_rush_ypg": False,
     "off_ypa": True, "off_pass_ypg": True, "def_ypa": False, "def_pass_ypg": False,
     "def_sacks_pg": True, "def_sack_rate": True, "def_pressure_rate": True, "off_sacks_allowed_pg": False, "off_sack_rate": False,
@@ -105,6 +105,8 @@ def team_stats(pbp, sched):
     s["def_pass_ypg"] = db.groupby("defteam").yards_gained.sum() / gp
     s["def_rush_ypg"] = ru.groupby("defteam").yards_gained.sum() / gp
     s["point_diff_pg"] = s.pf_pg - s.pa_pg
+    s["off_total_ypg"] = s.off_pass_ypg + s.off_rush_ypg
+    s["def_total_ypg"] = s.def_pass_ypg + s.def_rush_ypg
     # Defense split by the opposing starter: mobile (20+ QB rush yds/g) vs pocket
     QBp = qb_profiles(pbp)
     pg = pbp[pbp.defteam.notna()]
@@ -399,6 +401,28 @@ for c in T.columns:
 # ---------- Points projection: each team's score from its offense vs the other defense ----------
 PROJ_FEATS = ["intercept", "pts_scored_pg", "opp_pts_allowed_pg", "run_matchup", "pass_matchup", "redzone_matchup", "turnover_matchup", "home", "dome"]
 
+ALERT_GAP, ALERT_MIN_N = 7.0, 3
+
+def qb_alert(T, O, S, t_mobile):
+    """+1: O's defense is much worse vs this QB type (edge T offense); -1: much better (edge O defense); 0: no alert."""
+    typ, oth = ("mobile", "pocket") if t_mobile else ("pocket", "mobile")
+    n, n2 = S.at[O, f"n_vs_{typ}"], S.at[O, f"n_vs_{oth}"]
+    a, b = S.at[O, f"pa_vs_{typ}"], S.at[O, f"pa_vs_{oth}"]
+    if n < ALERT_MIN_N or n2 < 2 or pd.isna(a) or pd.isna(b) or abs(a - b) < ALERT_GAP:
+        return 0, ""
+    return (1 if a > b else -1), f"{O} D allows {a:.1f} pts vs {typ} QBs ({int(n)} g), {b:.1f} vs {oth} ({int(n2)} g)"
+
+
+RUSH_TOP = 8
+
+def rush_alert(T, O, S, t_mobile, qbn=""):
+    """-1 (edge O defense) when T starts a pocket passer against a top-8 pressure defense."""
+    if t_mobile or S.def_pressure_rate_rk[O] > RUSH_TOP:
+        return 0, ""
+    return -1, (f"{O} pass rush is {int(S.def_pressure_rate_rk[O])}{'st' if S.def_pressure_rate_rk[O] == 1 else 'nd' if S.def_pressure_rate_rk[O] == 2 else 'rd' if S.def_pressure_rate_rk[O] == 3 else 'th'} in pressure "
+                f"({S.def_pressure_rate[O]:.0%}) vs pocket passer {qbn or T + ' QB'}; {T} line allows {S.off_sacks_allowed_pg[T]:.1f} sacks/g")
+
+
 def proj_feats(T, O, S, home, dome, t_mobile):
     lg = S.mean(numeric_only=True)
     typ = "mobile" if t_mobile else "pocket"
@@ -425,9 +449,12 @@ def season_rows(season):
         S_ = team_stats(pb[pb.week < w], gs[gs.week < w]); Q_ = qb_profiles(pb[pb.week < w])
         for _, g in gs[(gs.week == w) & gs.result.notna()].iterrows():
             dome = g.roof in ("dome", "closed")
-            fa = proj_feats(g.away_team, g.home_team, S_, 0, dome, is_mobile(g.away_qb_id, g.away_team, Q_, S_))
-            fh = proj_feats(g.home_team, g.away_team, S_, 1, dome, is_mobile(g.home_qb_id, g.home_team, Q_, S_))
+            ma, mh = is_mobile(g.away_qb_id, g.away_team, Q_, S_), is_mobile(g.home_qb_id, g.home_team, Q_, S_)
+            fa = proj_feats(g.away_team, g.home_team, S_, 0, dome, ma)
+            fh = proj_feats(g.home_team, g.away_team, S_, 1, dome, mh)
             rows.append(dict(season=season, week=w, game_id=g.game_id, away=g.away_team, home=g.home_team, fa=fa, fh=fh,
+                             alert_a=qb_alert(g.away_team, g.home_team, S_, ma)[0], alert_h=qb_alert(g.home_team, g.away_team, S_, mh)[0],
+                             rush_a=rush_alert(g.away_team, g.home_team, S_, ma)[0], rush_h=rush_alert(g.home_team, g.away_team, S_, mh)[0],
                              ya=g.away_score, yh=g.home_score, spread_line=g.spread_line, total_line=g.total_line, result=g.result, total=g.total))
     return rows
 
@@ -490,6 +517,25 @@ for s_ in sorted(train):
         rd, pd_ = r["fh"][3] - r["fa"][3], r["fh"][4] - r["fa"][4]
         if abs(rd) >= 1.0: run_o.append("Win" if (rd > 0) == (cov > 0) else "Loss")
         if abs(pd_) >= 0.75: pas_o.append("Win" if (pd_ > 0) == (cov > 0) else "Loss")
+    al_s, al_t = [], []
+    for r in train[s_]:
+        cov, ou = r["result"] - r["spread_line"], r["total"] - r["total_line"]
+        for al, home_off in ((r["alert_a"], False), (r["alert_h"], True)):
+            if not al: continue
+            benefit_home = home_off if al > 0 else not home_off
+            if cov != 0: al_s.append("Win" if benefit_home == (cov > 0) else "Loss")
+            if ou != 0: al_t.append("Win" if (al > 0) == (ou > 0) else "Loss")
+    rs_s, rs_t = [], []
+    for r in train[s_]:
+        cov, ou = r["result"] - r["spread_line"], r["total"] - r["total_line"]
+        for al, home_off in ((r["rush_a"], False), (r["rush_h"], True)):
+            if not al: continue
+            if cov != 0: rs_s.append("Win" if (not home_off) == (cov > 0) else "Loss")   # edge goes to the defense
+            if ou != 0: rs_t.append("Win" if ou < 0 else "Loss")                         # and to the under
+    rec_("Alert: pocket QB vs top-8 pass rush (spread, defense side)", s_, rs_s)
+    rec_("Alert: pocket QB vs top-8 pass rush (total, under)", s_, rs_t)
+    rec_("Matchup alert: defense vs QB type (spread)", s_, al_s)
+    rec_("Matchup alert: defense vs QB type (total)", s_, al_t)
     rec_("Run-game edge 1.0+ YPC", s_, run_o)
     rec_("Pass-game edge 0.75+ yds/dropback", s_, pas_o)
 if len(gr):
@@ -506,7 +552,7 @@ coef = fit(sum(train.values(), []))
 json.dump(dict(features=PROJ_FEATS, coef=[round(float(c), 4) for c in coef], qb_blend_games=4, value_edge=3),
           open(f"{OUT}/proj_model.json", "w"), indent=1)
 print("coef", dict(zip(PROJ_FEATS, np.round(coef, 3))))
-pcols = dict(proj_away=[], proj_home=[], proj_margin=[], proj_total=[], edge_spread=[], edge_total=[], value_side=[], value_total=[], run_edge=[], run_diff=[])
+pcols = dict(proj_away=[], proj_home=[], proj_margin=[], proj_total=[], edge_spread=[], edge_total=[], value_side=[], value_total=[], run_edge=[], run_diff=[], qb_alerts=[])
 for _, r in upcoming.iterrows():
     dome = r.roof in ("dome", "closed")
     fa_ = proj_feats(r.away, r.home, S, 0, dome, "Mobile" in str(r.away_qb_type))
@@ -523,7 +569,14 @@ for _, r in upcoming.iterrows():
     vt = f"{'Over' if et > 0 else 'Under'} by {abs(et):.1f}" if pd.notna(et) and abs(et) >= 3 else ""
     for k, v in dict(proj_away=round(pa_, 1), proj_home=round(ph_, 1), proj_margin=round(m, 1), proj_total=round(t, 1),
                      edge_spread=round(es, 1) if pd.notna(es) else "", edge_total=round(et, 1) if pd.notna(et) else "", value_side=vs, value_total=vt,
-                     run_edge=(r.home if rdiff > 0 else r.away) if abs(rdiff) >= 1.0 else "", run_diff=round(rdiff, 2)).items():
+                     run_edge=(r.home if rdiff > 0 else r.away) if abs(rdiff) >= 1.0 else "", run_diff=round(rdiff, 2),
+                     qb_alerts=" | ".join(
+                         [f"{'Edge ' + T_ + ' offense' if k_ > 0 else 'Edge ' + O_ + ' defense'}: {txt}, and {qbn or T_ + ' QB'} is {'mobile' if mob else 'a pocket passer'}"
+                          for T_, O_, mob, qbn in ((r.away, r.home, "Mobile" in str(r.away_qb_type), r.away_qb), (r.home, r.away, "Mobile" in str(r.home_qb_type), r.home_qb))
+                          for k_, txt in [qb_alert(T_, O_, S, mob)] if k_] +
+                         [f"Edge {O_} defense: {txt}"
+                          for T_, O_, mob, qbn in ((r.away, r.home, "Mobile" in str(r.away_qb_type), r.away_qb), (r.home, r.away, "Mobile" in str(r.home_qb_type), r.home_qb))
+                          for k_, txt in [rush_alert(T_, O_, S, mob, qbn)] if k_])).items():
         pcols[k].append(v)
 for k, v in pcols.items(): upcoming[k] = v
 

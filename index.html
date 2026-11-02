@@ -1,225 +1,237 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NFL Betting Board 2026</title>
+<meta name="theme-color" content="#07101f">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
-:root { --font-anthropic-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; --font-anthropic-serif: Georgia, "Times New Roman", serif;
- --color-fg:#1a1a1a; --color-fg-muted:#666; --color-bg:#f7f7f5; --color-panel:#fff; --color-border-line:#e3e3df; --color-ok:#1f8a4c; --color-warn:#b26b00; --color-bad:#c0392b;
- --cds-chart-muted:#c9c9c4; --cds-chart-axis:#bbb; --cds-chart-reference:#555; --cds-surface-popover:#fff; --cds-border:#ddd; --cds-shadow-popover:0 4px 14px rgba(0,0,0,.12);
- --cds-gap-xs:4px; --cds-gap-sm:8px; --cds-gap-md:16px; --cds-gap-lg:24px; --cds-pad-xs:4px; --cds-pad-sm:8px; --cds-pad-md:12px; --cds-pad-lg:18px; --cds-radius:8px;
- --cds-font-size-caption:13px; --cds-font-size-body:15px; --cds-font-size-heading:17px; --cds-font-size-title:30px; --cds-font-weight-medium:600; --cds-dur-slow:.3s; }
-@media (prefers-color-scheme: dark) { :root { --color-fg:#ececec; --color-fg-muted:#9a9a9a; --color-bg:#151515; --color-panel:#1f1f1f; --color-border-line:#333; --color-ok:#4cc27e; --color-warn:#e0a03a; --color-bad:#ef6a5a; --cds-chart-muted:#4a4a4a; --cds-chart-axis:#555; --cds-chart-reference:#aaa; --cds-surface-popover:#262626; --cds-border:#3a3a3a; } }
-html, body { margin:0; background:var(--color-bg); }
-#dash-root { padding: clamp(12px, 3vw, 32px); max-width: 1500px; margin: 0 auto; }
-.nb .stamp { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 4px 0 0; }
-</style></head><body><div id="dash-root">
-<script>
-(function(){
-  const DS = {}, draws = {}, calcs = {};
-  const runAll = () => Object.keys(draws).forEach((n) => window.dash.draw(n));
-  window.dash = {
-    data: (id) => DS[id] || { status: 'loading', data: [] },
-    draw: (n, fn) => { if (fn) draws[n] = fn; if (!draws[n]) return; document.querySelectorAll(`[data-draw="${n}"]`).forEach((el) => draws[n](el)); },
-    calc: (id, c) => { calcs[id] = c; },
-    setLink: (n) => { history.replaceState(null, '', '#' + n); setTimeout(runAll, 0); },
-  };
-  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv' };
-  window.addEventListener('DOMContentLoaded', () => {
-    Promise.all(Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${Date.now()}`).then((rows) => { DS[id] = { status: 'ok', data: rows, columns: rows.columns }; })))
-      .then(() => {
-        Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
-        runAll();
-      });
-    fetch(`data/meta.json?v=${Date.now()}`).then((r) => r.json()).then((m) => {
-      document.getElementById('nb-stamp').textContent = `Stats through Week ${m.through_week} · updated ${m.updated}`;
-    }).catch(() => {});
-    let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(runAll, 150); });
-  });
-})();
-</script>
-<style>
-#dash-root { --dash-gutter: clamp(12px, 3vw, 32px); }
-.nb { font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-lg); }
-.nb h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
-.nb h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
-.nb .lede { color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 0; max-width: 70ch; }
-.nb .note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); }
-.nb .tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
-.nb .tabs button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--cds-pad-sm) var(--cds-pad-md); color: var(--color-fg-muted); cursor: pointer; }
-.nb .tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
-.nb section { display: grid; gap: var(--cds-gap-md); }
-.nb section[hidden] { display: none; }
-.nb .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
-.nb .grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
-.nb .tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
-.nb .tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-.nb .tile .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; display: block; min-height: 1.3em; }
-.nb .bar { display: flex; gap: var(--cds-gap-sm); align-items: center; flex-wrap: wrap; }
-.nb select, .nb input { font: inherit; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
-.nb .tbl { max-height: 70vh; overflow: auto; }
-.nb table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-.nb th, .nb td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: top; }
-.nb th { position: sticky; top: 0; background: var(--color-panel); font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); }
-.nb th.sortable { cursor: pointer; }
-.nb td.wrap { white-space: normal; min-width: 14rem; }
-.nb .chip { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); }
-.nb .v-bet { color: var(--color-ok); border-color: var(--color-ok); }
-.nb .v-handle { color: var(--color-warn); border-color: var(--color-warn); }
-.nb .v-pass { color: var(--color-bad); border-color: var(--color-bad); }
-.nb .pts { display: inline-flex; align-items: center; gap: 6px; }
-.nb .pts i { display: inline-block; height: 6px; border-radius: 3px; background: var(--cds-chart-muted); width: 54px; position: relative; overflow: hidden; }
-.nb .pts i b { position: absolute; inset: 0 auto 0 0; background: var(--color-ok); }
-.nb .spots { display: grid; gap: var(--cds-gap-sm); min-height: 8rem; }
-.nb .spot { border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); display: grid; gap: 2px; }
-.nb .spot:first-child { border-top: 0; padding-top: 0; }
-.nb .spot .row1 { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); flex-wrap: wrap; }
-.nb .spot .m { font-weight: var(--cds-font-weight-medium); }
-.nb .spot .why { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
-.nb .chart { position: relative; min-height: 260px; }
-.nb .tip { position: absolute; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; }
-.nb ol.how { margin: 0; padding-left: 1.2rem; display: grid; gap: var(--cds-gap-xs); max-width: 80ch; }
-.nb [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
-</style>
+:root {
+  --navy: #07101f; --navy2: #0d1a33; --panel: #111f3b; --panel2: #16274a; --line: #24375f;
+  --fg: #f4f6fb; --muted: #93a1bf; --red: #e0172b; --gold: #ffc72c; --green: #2bd47d; --turf: #1d6b34; --turf2: #17592b;
+  --head: "Oswald", "Arial Narrow", Impact, sans-serif; --body: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 10px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--navy); color: var(--fg); font-family: var(--body); font-size: 15px; }
+a { color: var(--gold); }
 
-<div class="nb">
-  <header>
-    <h1>NFL betting board · 2026</h1>
-    <p class="stamp" id="nb-stamp">Loading data…</p>
-    <p class="lede">Your checklist, run on every remaining game. Checks 1–5 (9 of the 13 points) are scored automatically from 2026 play-by-play. Check 0 (money handle, 3 pts) and Check 6 (line move, 1 pt) you add from DraftKings splits before kickoff: 10+ is a bet, 8–9 a half-stake lean.</p>
-  </header>
+/* Hero */
+.hero { position: relative; overflow: hidden; border-bottom: 4px solid var(--red);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(255,255,255,.22) calc(10% - 2px) 10%),
+    repeating-linear-gradient(90deg, var(--turf) 0 10%, var(--turf2) 10% 20%); }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,16,31,.25), rgba(7,16,31,.92)); }
+.hero-in { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 34px clamp(14px, 3vw, 32px) 22px; }
+.kicker { display: inline-flex; align-items: center; gap: 8px; font-family: var(--head); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: 13px; color: var(--gold); }
+.kicker::before { content: ""; width: 26px; height: 4px; background: var(--red); transform: skewX(-20deg); }
+.hero h1 { font-family: var(--head); font-weight: 700; text-transform: uppercase; font-size: clamp(38px, 7vw, 74px); line-height: .95; margin: 8px 0 10px; letter-spacing: .01em; transform: skewX(-6deg); transform-origin: left; text-shadow: 0 3px 0 rgba(0,0,0,.35); }
+.hero h1 span { color: var(--red); }
+.hero p { max-width: 75ch; margin: 0; color: #d6ddec; line-height: 1.5; }
+.stamp { margin-top: 12px !important; display: inline-block; font-family: var(--head); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.18); padding: 4px 10px; border-radius: 4px; color: #fff !important; }
 
-  <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="slate" aria-selected="true">This week</button>
-    <button role="tab" data-tab="schedule" aria-selected="false">Rest of season</button>
-    <button role="tab" data-tab="teams" aria-selected="false">Team checks</button>
-    <button role="tab" data-tab="record" aria-selected="false">Track record</button>
-    <button role="tab" data-tab="how" aria-selected="false">How it scores</button>
-  </nav>
+/* Tabs */
+.tabs-wrap { position: sticky; top: 0; z-index: 5; background: var(--navy2); border-bottom: 1px solid var(--line); }
+.tabs { max-width: 1500px; margin: 0 auto; padding: 0 clamp(14px, 3vw, 32px); display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs button { font-family: var(--head); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 15px; background: none; border: 0; color: var(--muted); padding: 14px 14px 11px; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-selected="true"] { color: #fff; border-bottom-color: var(--red); }
 
+.wrap { max-width: 1500px; margin: 0 auto; padding: 22px clamp(14px, 3vw, 32px) 60px; }
+section { display: grid; gap: 18px; }
+section[hidden] { display: none; }
+h2 { font-family: var(--head); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 20px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+h2::before { content: ""; width: 6px; height: 20px; background: var(--red); transform: skewX(-18deg); }
+.note { color: var(--muted); font-size: 13px; margin: 0 0 14px; line-height: 1.45; }
+.card { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); align-items: start; }
+
+/* Week picker */
+.bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bar label { font-family: var(--head); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-size: 13px; }
+select, input[type=search] { font: 500 15px var(--body); color: var(--fg); background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; }
+select { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; font-size: 16px; }
+
+/* Scoreboard tiles */
+.tiles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.tile { position: relative; background: #050b16; border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px 12px; overflow: hidden; }
+.tile::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--accent, var(--muted)); }
+.tile .lbl { font-family: var(--head); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; color: var(--muted); display: block; }
+.tile .big { font-family: var(--head); font-weight: 700; font-size: 54px; line-height: 1; display: block; margin-top: 6px; color: var(--accent, #fff); font-variant-numeric: tabular-nums; text-shadow: 0 0 18px color-mix(in srgb, var(--accent, #fff) 35%, transparent); }
+.tile.t-bet { --accent: var(--gold); } .tile.t-handle { --accent: #ff9a3c; } .tile.t-kill { --accent: var(--red); } .tile.t-games { --accent: #fff; }
+
+/* Team chips */
+.tm { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; padding: 3px 7px; border-radius: 5px; font-family: var(--head); font-weight: 600; letter-spacing: .04em; font-size: 14px; color: #fff; background: var(--tc, #334); border-bottom: 3px solid var(--tc2, transparent); text-shadow: 0 1px 1px rgba(0,0,0,.4); line-height: 1.2; }
+.tm.even { background: transparent; border: 1px dashed var(--line); color: var(--muted); text-shadow: none; }
+
+/* Matchup cards */
+.games { display: grid; gap: 12px; }
+.mc { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; background: #0a1427; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.mc.hot { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(255,199,44,.18); }
+.side { padding: 12px 14px; display: grid; gap: 2px; background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 55%, transparent), transparent 85%); }
+.side.home { text-align: right; background: linear-gradient(270deg, color-mix(in srgb, var(--tc) 55%, transparent), transparent 85%); }
+.side .ab { font-family: var(--head); font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: .02em; }
+.side .nm { font-size: 12px; color: #cfd7e8; text-transform: uppercase; letter-spacing: .08em; }
+.side.pick .ab::after { content: " ★"; color: var(--gold); font-size: 18px; vertical-align: middle; }
+.side.home.pick .ab::after { content: ""; }
+.side.home.pick .ab::before { content: "★ "; color: var(--gold); font-size: 18px; vertical-align: middle; }
+.mid { display: grid; place-items: center; align-content: center; gap: 4px; padding: 8px 12px; background: #050b16; min-width: 104px; }
+.score { font-family: var(--head); font-weight: 700; font-size: 26px; line-height: 1; color: var(--gold); }
+.score small { font-size: 14px; color: var(--muted); }
+.mid .sp { font-family: var(--head); font-size: 13px; letter-spacing: .05em; color: #fff; text-transform: uppercase; }
+.pips { display: flex; gap: 4px; }
+.pip { width: 14px; height: 6px; border-radius: 2px; background: #2a3a5c; }
+.pip.w { background: var(--gold); } .pip.l { background: var(--red); }
+.mc-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.vb { font-family: var(--head); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; padding: 2px 9px; border-radius: 3px; background: #26385e; color: #fff; white-space: nowrap; display: inline-block; }
+.vb.v-bet { background: var(--gold); color: #111; } .vb.v-handle { background: #ff9a3c; color: #111; } .vb.v-pass { background: var(--red); }
+.vb.under { background: #2b6fd6; } .vb.over { background: #d64a2b; }
+
+/* Totals list */
+.tl { display: grid; gap: 10px; }
+.tr { background: #0a1427; border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; display: grid; gap: 4px; }
+.tr .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tr .ou { margin-left: auto; font-family: var(--head); font-size: 15px; letter-spacing: .04em; }
+.tr .why { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+.tr .why b { color: var(--gold); font-weight: 600; }
+.empty { color: var(--muted); font-style: italic; }
+
+/* Tables */
+.tbl { max-height: 72vh; overflow: auto; border-radius: 8px; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; white-space: nowrap; vertical-align: middle; }
+th { position: sticky; top: 0; z-index: 1; background: #050b16; font-family: var(--head); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; font-size: 12px; color: var(--muted); border-bottom: 2px solid var(--red); }
+th.sortable { cursor: pointer; } th.sortable:hover { color: #fff; }
+th[aria-sort=descending]::after { content: " ▼"; color: var(--gold); } th[aria-sort=ascending]::after { content: " ▲"; color: var(--gold); }
+tbody tr:nth-child(odd) td { background: rgba(255,255,255,.025); }
+tbody tr:hover td { background: rgba(255,199,44,.07); }
+td { border-bottom: 1px solid #1a2a4b; }
+td.wrap { white-space: normal; min-width: 13rem; color: #ffb3ba; }
+.mu { display: inline-flex; align-items: center; gap: 5px; }
+.mu i { font-style: normal; color: var(--muted); font-size: 11px; }
+.pts { display: inline-flex; align-items: center; gap: 7px; font-family: var(--head); font-size: 15px; }
+.pts .meter { display: inline-flex; gap: 2px; }
+.pts .meter s { width: 5px; height: 12px; background: #2a3a5c; border-radius: 1px; text-decoration: none; }
+.pts .meter s.on { background: var(--gold); }
+.res-win { color: var(--green); font-weight: 600; } .res-loss { color: var(--red); font-weight: 600; } .res-push { color: var(--muted); }
+
+/* Chart */
+.chart { position: relative; min-height: 280px; }
+.chart text { font-family: var(--body); }
+.tip { position: absolute; background: #050b16; border: 1px solid var(--gold); border-radius: 6px; padding: 6px 10px; font-size: 12.5px; pointer-events: none; color: #fff; }
+
+ol.how { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; max-width: 85ch; line-height: 1.5; }
+ol.how li::marker { font-family: var(--head); color: var(--gold); font-weight: 700; }
+ol.how b { color: #fff; }
+footer { color: var(--muted); font-size: 12px; text-align: center; padding: 20px; border-top: 1px solid var(--line); }
+@media (max-width: 560px) {
+  .side .ab { font-size: 24px; } .mid { min-width: 86px; } .tile .big { font-size: 42px; }
+}
+</style></head>
+<body>
+<header class="hero"><div class="hero-in">
+  <span class="kicker">2026 Regular season</span>
+  <h1>NFL Betting <span>Board</span></h1>
+  <p>Your checklist, run on every remaining game. Checks 1–5 (9 of the 13 points) are scored automatically from play-by-play. Add Check 0 (money handle, 3 pts) and Check 6 (line move, 1 pt) from DraftKings splits before kickoff. 10+ is a bet, 8–9 a half-stake lean.</p>
+  <p class="stamp" id="nb-stamp">Loading data…</p>
+</div></header>
+
+<nav class="tabs-wrap"><div class="tabs" role="tablist">
+  <button role="tab" data-tab="slate" aria-selected="true">This week</button>
+  <button role="tab" data-tab="schedule" aria-selected="false">Rest of season</button>
+  <button role="tab" data-tab="teams" aria-selected="false">Team checks</button>
+  <button role="tab" data-tab="record" aria-selected="false">Track record</button>
+  <button role="tab" data-tab="how" aria-selected="false">How it scores</button>
+</div></nav>
+
+<main class="wrap">
   <section id="slate" data-tab-panel="slate">
-    <div class="bar">
-      <label for="nb-week">Week</label>
-      <select id="nb-week" data-draw="weeksel" data-source="upcoming" aria-label="Week"></select>
-    </div>
+    <div class="bar"><label for="nb-week">Week</label><select id="nb-week" data-draw="weeksel"></select></div>
     <div class="tiles">
-      <div class="card tile"><span class="lbl">Games on the slate</span><b class="big" data-draw="t_games" data-source="week_counts" data-field="games">—</b></div>
-      <div class="card tile"><span class="lbl">9 of 9 auto: bet if money agrees</span><b class="big" data-draw="t_bet" data-source="week_counts" data-field="bet">—</b></div>
-      <div class="card tile"><span class="lbl">7–8 auto: needs the handle</span><b class="big" data-draw="t_handle" data-source="week_counts" data-field="handle">—</b></div>
-      <div class="card tile"><span class="lbl">Killed by a pass rule</span><b class="big" data-draw="t_killed" data-source="week_counts" data-field="killed">—</b></div>
+      <div class="tile t-games"><span class="lbl">Games on the slate</span><b class="big" data-draw="t_games">—</b></div>
+      <div class="tile t-bet"><span class="lbl">9/9 · Bet if money agrees</span><b class="big" data-draw="t_bet">—</b></div>
+      <div class="tile t-handle"><span class="lbl">7–8 · Needs the handle</span><b class="big" data-draw="t_handle">—</b></div>
+      <div class="tile t-kill"><span class="lbl">Killed by a pass rule</span><b class="big" data-draw="t_killed">—</b></div>
     </div>
     <div class="grid">
       <div class="card">
-        <h2>Best sides this week</h2>
-        <p class="note">Highest auto score with no pass rule. "Needs" is how many of the 4 manual points (handle 3, line 1) get it to 10.</p>
-        <div class="spots" data-draw="spots" data-source="upcoming">—</div>
+        <h2>Best sides</h2>
+        <p class="note">★ marks the side. Bars under the score are Checks 1–5: gold = won by the side, red = lost, grey = even. "Needs" = manual points (handle 3, line 1) to reach 10.</p>
+        <div class="games" data-draw="spots"></div>
       </div>
       <div class="card">
-        <h2>Totals and team totals</h2>
+        <h2>Totals &amp; team totals</h2>
         <p class="note">Check 7 leans need 2+ reasons on one side. Check 8 flags underdog team-total unders and bad teams that can run.</p>
-        <div class="spots" data-draw="totals" data-source="upcoming">—</div>
+        <div class="tl" data-draw="totals"></div>
       </div>
     </div>
     <div class="card">
-      <h2>Every game this week</h2>
-      <p class="note">Columns C1–C5 show which team won each check (Even = too close to call). Spreads and totals are current consensus lines.</p>
-      <div class="tbl">
-        <table data-source="upcoming" data-row-key="game_id">
-          <thead><tr>
-            <th data-field="game_id">Game</th><th data-field="date">Date</th><th data-field="kickoff">ET</th>
-            <th data-field="spread">Spread</th><th data-field="total">Total</th>
-            <th data-field="pick">Side</th><th data-field="pick_pts">Auto pts /9</th><th data-field="verdict">Verdict</th>
-            <th data-field="c1">C1 rush</th><th data-field="c2">C2 run</th><th data-field="c3">C3 TOs</th><th data-field="c4">C4 RZ D</th><th data-field="c5">C5 spot</th>
-            <th data-field="pass_rules">Pass rule</th><th data-field="away_qb">Away QB</th><th data-field="home_qb">Home QB</th><th data-field="venue_rest">Venue and rest</th>
-          </tr></thead>
-          <tbody data-draw="slate_rows"></tbody>
-        </table>
-      </div>
+      <h2>Full slate</h2>
+      <p class="note">Which team won each check (dashed = too close to call). Spreads and totals are current consensus lines; times ET.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Matchup</th><th>Date</th><th>ET</th><th>Spread</th><th>Total</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1 Rush</th><th>C2 Run</th><th>C3 TO</th><th>C4 RZ D</th><th>C5 Spot</th><th>Pass rule</th><th>Away QB</th><th>Home QB</th><th>Venue &amp; rest</th></tr></thead>
+        <tbody data-draw="slate_rows"></tbody>
+      </table></div>
     </div>
   </section>
 
   <section id="schedule" data-tab-panel="schedule" hidden>
     <div class="card">
       <h2>Rest of the regular season</h2>
-      <p class="note">Same auto scoring for every remaining game. Lines only post a week out, so later weeks show the side and score without a spread; re-check them once injuries and lines are in.</p>
-      <div class="bar"><input type="search" id="nb-search" placeholder="Filter by team or verdict" aria-label="Filter games"></div>
-      <div class="tbl">
-        <table data-source="upcoming" data-row-key="game_id">
-          <thead><tr>
-            <th data-field="week">Wk</th><th data-field="game_id">Game</th><th data-field="date">Date</th><th data-field="spread">Spread</th>
-            <th data-field="pick">Side</th><th data-field="pick_pts">Auto pts /9</th><th data-field="verdict">Verdict</th>
-            <th data-field="c1">C1</th><th data-field="c2">C2</th><th data-field="c3">C3</th><th data-field="c4">C4</th><th data-field="c5">C5</th>
-            <th data-field="pass_rules">Pass rule</th><th data-field="check8">Check 8</th>
-          </tr></thead>
-          <tbody data-draw="sched_rows"></tbody>
-        </table>
-      </div>
+      <p class="note">Same auto scoring for every remaining game. Lines post about a week out, so later weeks show the side and score without a spread. Re-check once injuries and lines are in.</p>
+      <div class="bar" style="margin-bottom:14px"><input type="search" id="nb-search" placeholder="Filter by team or verdict" aria-label="Filter games"></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Wk</th><th>Matchup</th><th>Date</th><th>Spread</th><th>Side</th><th>Auto /9</th><th>Verdict</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>Pass rule</th><th>Check 8</th></tr></thead>
+        <tbody data-draw="sched_rows"></tbody>
+      </table></div>
     </div>
   </section>
 
   <section id="teams" data-tab-panel="teams" hidden>
     <div class="card">
       <h2>Team inputs behind each check</h2>
-      <p class="note">Season to date, regular season. Click a header to sort. Pressure rate = sacks plus QB hits per dropback. RZ = drives reaching the opponent's 20.</p>
-      <div class="tbl">
-        <table data-source="team_stats" data-row-key="team">
-          <thead><tr>
-            <th class="sortable" data-field="team" data-sort="team">Team</th>
-            <th class="sortable" data-field="record" data-sort="wins">Record</th>
-            <th class="sortable" data-field="home_rec" data-sort="home_w">Home</th>
-            <th class="sortable" data-field="road_rec" data-sort="road_w">Road</th>
-            <th class="sortable" data-field="def_sacks_pg" data-sort="def_sacks_pg">Sacks/g</th>
-            <th class="sortable" data-field="def_pressure_rate" data-sort="def_pressure_rate">Pressure %</th>
-            <th class="sortable" data-field="off_sacks_allowed_pg" data-sort="off_sacks_allowed_pg">Sacks allowed/g</th>
-            <th class="sortable" data-field="qb_rush_ypg" data-sort="qb_rush_ypg">QB rush yds/g</th>
-            <th class="sortable" data-field="off_ypc" data-sort="off_ypc">Rush YPC</th>
-            <th class="sortable" data-field="off_ypc_l3" data-sort="off_ypc_l3">YPC last 3</th>
-            <th class="sortable" data-field="def_ypc" data-sort="def_ypc">YPC allowed</th>
-            <th class="sortable" data-field="takeaways_pg" data-sort="takeaways_pg">Takeaways/g</th>
-            <th class="sortable" data-field="giveaways_pg" data-sort="giveaways_pg">Giveaways/g</th>
-            <th class="sortable" data-field="off_rz_td_pct" data-sort="off_rz_td_pct">RZ TD %</th>
-            <th class="sortable" data-field="def_rz_trips_pg" data-sort="def_rz_trips_pg">RZ trips allowed/g</th>
-            <th class="sortable" data-field="def_rz_td_pct" data-sort="def_rz_td_pct">RZ TD % allowed</th>
-            <th class="sortable" data-field="def_3rd_pct" data-sort="def_3rd_pct">3rd down % allowed</th>
-            <th class="sortable" data-field="pf_pg" data-sort="pf_pg">Pts/g</th>
-            <th class="sortable" data-field="pa_pg" data-sort="pa_pg">Pts allowed/g</th>
-          </tr></thead>
-          <tbody data-draw="team_rows"></tbody>
-        </table>
-      </div>
+      <p class="note">Season to date. Click a header to sort. Pressure = sacks plus QB hits per dropback. RZ = drives reaching the opponent's 20.</p>
+      <div class="tbl"><table>
+        <thead><tr>
+          <th class="sortable" data-sort="team">Team</th><th class="sortable" data-sort="wins" aria-sort="descending">Record</th><th class="sortable" data-sort="home_w">Home</th><th class="sortable" data-sort="road_w">Road</th>
+          <th class="sortable" data-sort="def_sacks_pg">Sacks/g</th><th class="sortable" data-sort="def_pressure_rate">Pressure %</th><th class="sortable" data-sort="off_sacks_allowed_pg">Sacks allowed/g</th><th class="sortable" data-sort="qb_rush_ypg">QB rush yds/g</th>
+          <th class="sortable" data-sort="off_ypc">Rush YPC</th><th class="sortable" data-sort="off_ypc_l3">YPC last 3</th><th class="sortable" data-sort="def_ypc">YPC allowed</th>
+          <th class="sortable" data-sort="takeaways_pg">Takeaways/g</th><th class="sortable" data-sort="giveaways_pg">Giveaways/g</th>
+          <th class="sortable" data-sort="off_rz_td_pct">RZ TD %</th><th class="sortable" data-sort="def_rz_trips_pg">RZ trips allowed/g</th><th class="sortable" data-sort="def_rz_td_pct">RZ TD % allowed</th><th class="sortable" data-sort="def_3rd_pct">3rd down % allowed</th>
+          <th class="sortable" data-sort="pf_pg">Pts/g</th><th class="sortable" data-sort="pa_pg">Pts allowed/g</th>
+        </tr></thead>
+        <tbody data-draw="team_rows"></tbody>
+      </table></div>
     </div>
   </section>
 
   <section id="record" data-tab-panel="record" hidden>
     <div class="card">
-      <h2>How the auto score did, Weeks 4–8</h2>
-      <p class="note">Each game re-scored using only stats from the weeks before it, then graded against the closing spread. The dashed line is 52.4%, break-even at -110. Higher auto scores pick winners, but the spread already prices that in, which is why the handle and line reads matter.</p>
-      <div class="chart" data-draw="bt_chart" data-source="backtest_summary"></div>
+      <h2>How the auto score did, Weeks 4+</h2>
+      <p class="note">Each game re-scored using only stats from the weeks before it, then graded against the closing number. Dashed line = 52.4%, break-even at -110. Higher auto scores pick winners, but the spread already prices that in. That's why the handle and line reads matter.</p>
+      <div class="chart" data-draw="bt_chart"></div>
     </div>
     <div class="grid">
       <div class="card">
         <h2>Record by group</h2>
-        <div class="tbl">
-          <table data-source="backtest_summary" data-row-key="tier">
-            <thead><tr><th data-field="tier">Group</th><th data-field="games">Games</th><th data-field="ats_w">W vs number</th><th data-field="ats_l">L vs number</th><th data-field="ats_pct">Win %</th><th data-field="su_w">SU W</th><th data-field="su_l">SU L</th></tr></thead>
-            <tbody data-draw="bt_sum_rows"></tbody>
-          </table>
-        </div>
+        <div class="tbl"><table>
+          <thead><tr><th>Group</th><th>Games</th><th>W</th><th>L</th><th>Win %</th><th>SU W</th><th>SU L</th></tr></thead>
+          <tbody data-draw="bt_sum_rows"></tbody>
+        </table></div>
       </div>
       <div class="card">
         <h2>Graded games</h2>
-        <div class="tbl">
-          <table data-source="backtest_games" data-row-key="game_id">
-            <thead><tr><th data-field="week">Wk</th><th data-field="game_id">Game</th><th data-field="spread">Spread</th><th data-field="pick">Side</th><th data-field="pick_pts">Pts</th><th data-field="away_score">Away</th><th data-field="home_score">Home</th><th data-field="su">SU</th><th data-field="ats">ATS</th><th data-field="total_lean">Total lean</th><th data-field="total_result">Total</th></tr></thead>
-            <tbody data-draw="bt_rows"></tbody>
-          </table>
-        </div>
+        <div class="tbl"><table>
+          <thead><tr><th>Wk</th><th>Matchup</th><th>Spread</th><th>Side</th><th>Pts</th><th>Score</th><th>SU</th><th>ATS</th><th>Total lean</th><th>Total</th></tr></thead>
+          <tbody data-draw="bt_rows"></tbody>
+        </table></div>
       </div>
     </div>
   </section>
 
   <section id="how" data-tab-panel="how" hidden>
     <div class="card">
-      <h2>How each check is scored here</h2>
+      <h2>How each check is scored</h2>
       <ol class="how" start="0">
         <li><b>Money handle (3):</b> manual. Use DraftKings Betting Splits about an hour before kickoff. Money % 10+ points above bet % on a side = 3 points to that side.</li>
         <li><b>Pass rush vs protection (2):</b> each defense's sack and pressure rate against the other line's sack rate allowed. Halved when the QB runs for 20+ yards a game. Blitz splits aren't in the free data, so check PFF or Next Gen Stats on close calls.</li>
@@ -229,26 +241,66 @@ html, body { margin:0; background:var(--color-bg); }
         <li><b>Situational spot (1):</b> home team's home win % vs road team's road win % (15-point gap), and a 2+ day rest edge. If they disagree, rest wins.</li>
         <li><b>Line move (1):</b> manual. Point to the side the line moved toward with no news; to the other side if the move followed one big result.</li>
       </ol>
-      <p class="note">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
-      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed (nfl.com blocks automated downloads). Refreshes automatically every Tuesday and Saturday.</p>
+      <p class="note" style="margin-top:16px">Pass rules checked automatically: the side loses both trench checks; the side is an underdog ranked bottom 5 in TDs/game or RZ TD %. Still on you: the total moving 3+ from the open, QB status 90 minutes out, and betting the team instead of the number.</p>
+      <p class="note">Schedule, lines and play-by-play come from nflverse, which mirrors the NFL's official game feed. Refreshes automatically every Tuesday and Saturday.</p>
     </div>
   </section>
-</div>
+</main>
+<footer>For research and entertainment. Not affiliated with the NFL. Bet responsibly.</footer>
 
 <script>
-window.addEventListener("DOMContentLoaded", () => {
-window.nb = window.nb || { week: null, teamSort: { key: 'wins', dir: -1 } };
-const nb = window.nb;
+(function () {
+  const DS = {}, draws = {}, calcs = {};
+  const runAll = () => Object.keys(draws).forEach((n) => window.dash.draw(n));
+  window.TEAMS = {};
+  window.dash = {
+    data: (id) => DS[id] || { status: 'loading', data: [] },
+    draw: (n, fn) => { if (fn) draws[n] = fn; if (!draws[n]) return; document.querySelectorAll(`[data-draw="${n}"]`).forEach((el) => draws[n](el)); },
+    calc: (id, c) => { calcs[id] = c; },
+    setLink: (n) => { history.replaceState(null, '', '#' + n); setTimeout(runAll, 0); },
+  };
+  const files = { upcoming: 'upcoming_games.csv', team_stats: 'team_stats.csv', backtest_games: 'backtest_games.csv', backtest_summary: 'backtest_summary.csv' };
+  const v = Date.now();
+  window.addEventListener('DOMContentLoaded', () => {
+    Promise.all([
+      ...Object.entries(files).map(([id, f]) => d3.csv(`data/${f}?v=${v}`).then((rows) => { DS[id] = { status: 'ok', data: rows }; })),
+      fetch(`data/teams.json?v=${v}`).then((r) => r.json()).then((t) => { window.TEAMS = t; }).catch(() => {}),
+    ]).then(() => {
+      Object.entries(calcs).forEach(([id, c]) => { DS[id] = { status: 'ok', data: c.fn(...c.inputs.map((i) => DS[i].data)) }; });
+      runAll();
+    });
+    fetch(`data/meta.json?v=${v}`).then((r) => r.json()).then((m) => {
+      document.getElementById('nb-stamp').textContent = `Stats through Week ${m.through_week} · Updated ${m.updated}`;
+    }).catch(() => {});
+    let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(runAll, 150); });
+  });
+})();
+</script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+const nb = (window.nb = { week: null, teamSort: { key: 'wins', dir: -1 } });
 const num = (v) => (v === '' || v == null ? NaN : Number(v));
-const f1 = d3.format('.1f'), f2 = d3.format('.2f'), pct = d3.format('.1%');
+const f2 = d3.format('.2f'), pct = d3.format('.1%');
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const team = (ab) => {
+  if (!ab || ab === 'Even') { return el('span', 'tm even', 'EVEN'); }
+  const t = window.TEAMS[ab] || {};
+  const s = el('span', 'tm', ab); s.style.setProperty('--tc', t.c1 || '#334'); s.style.setProperty('--tc2', t.c2 || 'transparent'); return s;
+};
+const vclass = (v) => (v === 'Bet if money agrees' ? 'v-bet' : v === 'Needs the handle' || v === 'Needs handle + line' ? 'v-handle' : v === 'Pass rule' || v === 'Pass' ? 'v-pass' : '');
+const verdict = (v) => el('span', `vb ${vclass(v)}`, v);
+const meter = (p) => {
+  const w = el('span', 'pts'); w.append(el('span', null, String(p)));
+  const m = el('span', 'meter'); for (let i = 1; i <= 9; i++) m.append(el('s', i <= num(p) ? 'on' : null)); w.append(m); return w;
+};
+const td = (child, cls) => { const c = el('td', cls); if (child instanceof Node) c.append(child); else c.textContent = child ?? ''; return c; };
+const matchup = (g) => { const s = el('span', 'mu'); s.append(team(g.away), el('i', null, '@'), team(g.home)); return s; };
 
 dash.calc('week_counts', {
   inputs: ['upcoming'],
-  title: 'Slate counts by week',
-  description: 'Games per week and how many land in each verdict.',
   fn: (upcoming) => Array.from(d3.group(upcoming, (g) => Number(g.week)), ([week, gs]) => ({
-    week,
-    games: gs.length,
+    week, games: gs.length,
     bet: gs.filter((g) => g.verdict === 'Bet if money agrees').length,
     handle: gs.filter((g) => g.verdict === 'Needs the handle').length,
     killed: gs.filter((g) => g.verdict === 'Pass rule').length,
@@ -259,140 +311,118 @@ const curWeek = () => {
   const u = dash.data('upcoming');
   if (nb.week == null && u.status === 'ok') {
     const counts = d3.rollups(u.data, (v) => v.length, (g) => Number(g.week)).sort((a, b) => a[0] - b[0]);
-    const full = counts.find(([, n]) => n >= 10);
-    nb.week = (full || counts[0])[0];
+    nb.week = (counts.find(([, n]) => n >= 10) || counts[0])[0];
   }
   return nb.week;
 };
-const weekGames = () => {
-  const u = dash.data('upcoming');
-  return u.status === 'ok' ? u.data.filter((g) => Number(g.week) === curWeek()) : [];
-};
-const vclass = (v) => (v === 'Bet if money agrees' ? 'v-bet' : v === 'Needs the handle' || v === 'Needs handle + line' ? 'v-handle' : v === 'Pass rule' || v === 'Pass' ? 'v-pass' : '');
+const weekGames = () => { const u = dash.data('upcoming'); return u.status === 'ok' ? u.data.filter((g) => Number(g.week) === curWeek()) : []; };
 
 // Tabs
-document.querySelectorAll('.nb .tabs button').forEach((b) => b.addEventListener('click', () => {
-  document.querySelectorAll('.nb .tabs button').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
-  document.querySelectorAll('.nb [data-tab-panel]').forEach((s) => { s.hidden = s.dataset.tabPanel !== b.dataset.tab; });
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
+  document.querySelectorAll('[data-tab-panel]').forEach((s) => { s.hidden = s.dataset.tabPanel !== b.dataset.tab; });
   dash.setLink(b.dataset.tab);
 }));
-const named = document.querySelector(`.nb .tabs button[data-tab="${location.hash.slice(1)}"]`);
+const named = document.querySelector(`.tabs button[data-tab="${location.hash.slice(1)}"]`);
 if (named) named.click();
 
 dash.draw('weeksel', (sel) => {
-  const u = dash.data('upcoming');
-  if (u.status !== 'ok') { sel.replaceChildren(); return; }
+  const u = dash.data('upcoming'); if (u.status !== 'ok') return;
   const counts = d3.rollups(u.data, (v) => v.length, (g) => Number(g.week)).sort((a, b) => a[0] - b[0]);
-  sel.replaceChildren(...counts.map(([w, n]) => new Option(`Week ${w} (${n} game${n === 1 ? '' : 's'})`, String(w))));
+  sel.replaceChildren(...counts.map(([w, n]) => new Option(`Week ${w} · ${n} game${n === 1 ? '' : 's'}`, String(w))));
   sel.value = String(curWeek());
   sel.onchange = () => { nb.week = Number(sel.value); ['t_games', 't_bet', 't_handle', 't_killed', 'spots', 'totals', 'slate_rows'].forEach((n) => dash.draw(n)); };
 });
 
-const tile = (field) => (el) => {
-  const c = dash.data('week_counts');
-  const w = curWeek();
-  el.setAttribute('data-where', `week=${w}`);
-  const row = c.status === 'ok' ? c.data.find((r) => r.week === w) : null;
-  el.textContent = row ? String(row[field]) : '—';
+const tile = (field) => (e) => {
+  const c = dash.data('week_counts'); const row = c.status === 'ok' ? c.data.find((r) => r.week === curWeek()) : null;
+  e.textContent = row ? String(row[field]) : '—';
 };
-dash.draw('t_games', tile('games'));
-dash.draw('t_bet', tile('bet'));
-dash.draw('t_handle', tile('handle'));
-dash.draw('t_killed', tile('killed'));
+dash.draw('t_games', tile('games')); dash.draw('t_bet', tile('bet')); dash.draw('t_handle', tile('handle')); dash.draw('t_killed', tile('killed'));
 
-const ptsCell = (td, p) => {
-  const wrap = document.createElement('span'); wrap.className = 'pts';
-  const t = document.createElement('span'); t.textContent = String(p);
-  const i = document.createElement('i'); const b = document.createElement('b'); b.style.width = `${(num(p) / 9) * 100}%`; i.append(b);
-  wrap.append(t, i); td.replaceChildren(wrap);
-};
-const chip = (td, v) => { const s = document.createElement('span'); s.className = `chip ${vclass(v)}`; s.textContent = v; td.replaceChildren(s); };
-const line = (parent, cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; parent.append(d); return d; };
-
-dash.draw('spots', (el) => {
+const CHECKS = { c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' };
+dash.draw('spots', (box) => {
+  if (dash.data('upcoming').status !== 'ok') return;
   const gs = weekGames().filter((g) => g.pick && g.verdict !== 'Pass rule' && g.verdict !== 'Pass')
     .sort((a, b) => num(b.pick_pts) - num(a.pick_pts)).slice(0, 6);
-  if (!gs.length) { el.textContent = dash.data('upcoming').status === 'ok' ? 'No side clears the auto bar this week.' : '—'; return; }
-  el.replaceChildren();
-  gs.forEach((g) => {
-    const s = document.createElement('div'); s.className = 'spot';
-    const r1 = document.createElement('div'); r1.className = 'row1';
-    const m = document.createElement('span'); m.className = 'm'; m.textContent = `Take ${g.pick} · ${g.matchup}${g.spread ? ` (${g.spread})` : ''}`;
-    const c = document.createElement('span'); c.className = `chip ${vclass(g.verdict)}`; c.textContent = `${g.pick_pts}/9`;
-    r1.append(m, c); s.append(r1);
-    const won = ['c1', 'c2', 'c3', 'c4', 'c5'].filter((k) => g[k] === g.pick).map((k) => ({ c1: 'pass rush', c2: 'run game', c3: 'turnovers', c4: 'red zone D', c5: 'spot' }[k]));
-    line(s, 'why', `${g.verdict}. Needs ${g.manual_pts_needed} of 4 manual pts. Wins: ${won.join(', ') || 'none'}.`);
-    el.append(s);
-  });
+  if (!gs.length) { box.replaceChildren(el('p', 'empty', 'No side clears the auto bar this week.')); return; }
+  box.replaceChildren(...gs.map((g) => {
+    const card = el('div', `mc${num(g.pick_pts) >= 9 ? ' hot' : ''}`);
+    const side = (ab, cls) => {
+      const t = window.TEAMS[ab] || {};
+      const s = el('div', `side ${cls}${g.pick === ab ? ' pick' : ''}`); s.style.setProperty('--tc', t.c1 || '#334');
+      s.append(el('span', 'ab', ab), el('span', 'nm', t.name || '')); return s;
+    };
+    const mid = el('div', 'mid');
+    const sc = el('div', 'score', String(g.pick_pts)); sc.append(el('small', null, '/9'));
+    const pips = el('div', 'pips');
+    Object.keys(CHECKS).forEach((k) => { const p = el('span', `pip ${g[k] === g.pick ? 'w' : g[k] === 'Even' ? '' : 'l'}`); p.title = CHECKS[k]; pips.append(p); });
+    mid.append(sc, pips, el('span', 'sp', g.spread || 'No line'));
+    const foot = el('div', 'mc-foot');
+    const won = Object.keys(CHECKS).filter((k) => g[k] === g.pick).map((k) => CHECKS[k]);
+    foot.append(verdict(g.verdict), el('span', null, `Needs ${g.manual_pts_needed} of 4 manual · Wins ${won.join(', ') || 'none'}`));
+    card.append(side(g.away, 'away'), mid, side(g.home, 'home'), foot);
+    return card;
+  }));
 });
 
-dash.draw('totals', (el) => {
+dash.draw('totals', (box) => {
+  if (dash.data('upcoming').status !== 'ok') return;
   const gs = weekGames().filter((g) => g.total_lean || g.check8);
-  if (!gs.length) { el.textContent = dash.data('upcoming').status === 'ok' ? 'No total or team-total angles this week.' : '—'; return; }
-  el.replaceChildren();
-  gs.forEach((g) => {
-    const s = document.createElement('div'); s.className = 'spot';
-    const r1 = document.createElement('div'); r1.className = 'row1';
-    const m = document.createElement('span'); m.className = 'm'; m.textContent = `${g.matchup}${g.total ? ` · O/U ${g.total}` : ''}`;
-    r1.append(m);
-    if (g.total_lean) { const c = document.createElement('span'); c.className = 'chip'; c.textContent = g.total_lean; r1.append(c); }
-    s.append(r1);
-    if (g.total_lean) line(s, 'why', g.total_lean === 'Under' ? g.under_reasons : g.over_reasons);
-    if (g.check8) line(s, 'why', `Check 8: ${g.check8}`);
-    el.append(s);
-  });
+  if (!gs.length) { box.replaceChildren(el('p', 'empty', 'No total or team-total angles this week.')); return; }
+  box.replaceChildren(...gs.map((g) => {
+    const r = el('div', 'tr'); const top = el('div', 'top');
+    top.append(matchup(g));
+    if (g.total_lean) top.append(el('span', `vb ${g.total_lean.toLowerCase()}`, g.total_lean));
+    if (g.total) top.append(el('span', 'ou', `O/U ${g.total}`));
+    r.append(top);
+    if (g.total_lean) r.append(el('div', 'why', g.total_lean === 'Under' ? g.under_reasons : g.over_reasons));
+    if (g.check8) { const w = el('div', 'why'); w.append(el('b', null, 'Check 8: '), document.createTextNode(g.check8)); r.append(w); }
+    return r;
+  }));
 });
 
 const gameRow = (g, cols) => {
-  const tr = document.createElement('tr'); tr.dataset.key = g.game_id;
+  const tr = el('tr');
   cols.forEach((c) => {
-    const td = document.createElement('td');
-    if (c === 'game_id') td.textContent = g.matchup;
-    else if (c === 'pick_pts') ptsCell(td, g.pick_pts);
-    else if (c === 'verdict') chip(td, g.verdict);
-    else { td.textContent = g[c] ?? ''; if (c === 'pass_rules' || c === 'check8' || c === 'venue_rest') td.className = 'wrap'; }
-    tr.append(td);
+    if (c === 'matchup') tr.append(td(matchup(g)));
+    else if (c === 'pick') tr.append(td(g.pick ? team(g.pick) : ''));
+    else if (/^c[1-5]$/.test(c)) tr.append(td(team(g[c])));
+    else if (c === 'pick_pts') tr.append(td(meter(g.pick_pts)));
+    else if (c === 'verdict') tr.append(td(verdict(g.verdict)));
+    else tr.append(td(g[c], ['pass_rules', 'check8', 'venue_rest'].includes(c) ? 'wrap' : null));
   });
   return tr;
 };
-const SLATE_COLS = ['game_id', 'date', 'kickoff', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest'];
 dash.draw('slate_rows', (tb) => {
   const gs = weekGames().slice().sort((a, b) => num(b.pick_pts) - num(a.pick_pts));
-  tb.replaceChildren(...gs.map((g) => gameRow(g, SLATE_COLS)));
+  tb.replaceChildren(...gs.map((g) => gameRow(g, ['matchup', 'date', 'kickoff', 'spread', 'total', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'away_qb', 'home_qb', 'venue_rest'])));
 });
-
-const SCHED_COLS = ['week', 'game_id', 'date', 'spread', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'check8'];
 dash.draw('sched_rows', (tb) => {
   const u = dash.data('upcoming');
-  const q = (document.getElementById('nb-search')?.value || '').trim().toLowerCase();
-  const gs = (u.status === 'ok' ? u.data : []).filter((g) => !q || `${g.matchup} ${g.verdict} ${g.pick}`.toLowerCase().includes(q));
-  tb.replaceChildren(...gs.map((g) => gameRow(g, SCHED_COLS)));
+  const q = (document.getElementById('nb-search').value || '').trim().toLowerCase();
+  const gs = (u.status === 'ok' ? u.data : []).filter((g) => !q || `${g.matchup} ${g.verdict} ${g.pick} ${(window.TEAMS[g.away] || {}).name} ${(window.TEAMS[g.home] || {}).name}`.toLowerCase().includes(q));
+  tb.replaceChildren(...gs.map((g) => gameRow(g, ['week', 'matchup', 'date', 'spread', 'pick', 'pick_pts', 'verdict', 'c1', 'c2', 'c3', 'c4', 'c5', 'pass_rules', 'check8'])));
 });
-document.querySelectorAll('#nb-search').forEach((i) => i.addEventListener('input', () => dash.draw('sched_rows')));
+document.getElementById('nb-search').addEventListener('input', () => dash.draw('sched_rows'));
 
 const TEAM_COLS = ['team', 'record', 'home_rec', 'road_rec', 'def_sacks_pg', 'def_pressure_rate', 'off_sacks_allowed_pg', 'qb_rush_ypg', 'off_ypc', 'off_ypc_l3', 'def_ypc', 'takeaways_pg', 'giveaways_pg', 'off_rz_td_pct', 'def_rz_trips_pg', 'def_rz_td_pct', 'def_3rd_pct', 'pf_pg', 'pa_pg'];
 const PCT = new Set(['def_pressure_rate', 'off_rz_td_pct', 'def_rz_td_pct', 'def_3rd_pct']);
 dash.draw('team_rows', (tb) => {
-  const t = dash.data('team_stats');
-  const { key, dir } = nb.teamSort;
+  const t = dash.data('team_stats'); const { key, dir } = nb.teamSort;
   const rows = (t.status === 'ok' ? t.data : []).slice().sort((a, b) => {
     const x = num(a[key]), y = num(b[key]);
-    return (isNaN(x) || isNaN(y)) ? dir * String(a[key]).localeCompare(String(b[key])) : dir * (x - y);
+    return isNaN(x) || isNaN(y) ? dir * String(a[key]).localeCompare(String(b[key])) : dir * (x - y);
   });
   tb.replaceChildren(...rows.map((r) => {
-    const tr = document.createElement('tr');
-    TEAM_COLS.forEach((c) => {
-      const td = document.createElement('td');
-      const v = r[c];
-      td.textContent = PCT.has(c) ? pct(num(v)) : (['record', 'home_rec', 'road_rec', 'team'].includes(c) ? v : f2(num(v)));
-      tr.append(td);
-    });
+    const tr = el('tr');
+    TEAM_COLS.forEach((c) => tr.append(td(c === 'team' ? team(r.team) : PCT.has(c) ? pct(num(r[c])) : ['record', 'home_rec', 'road_rec'].includes(c) ? r[c] : f2(num(r[c])))));
     return tr;
   }));
 });
 document.querySelectorAll('#teams th.sortable').forEach((th) => th.addEventListener('click', () => {
   const k = th.dataset.sort;
-  nb.teamSort = { key: k, dir: nb.teamSort.key === k ? -nb.teamSort.dir : (k === 'team' ? 1 : -1) };
+  nb.teamSort = { key: k, dir: nb.teamSort.key === k ? -nb.teamSort.dir : k === 'team' ? 1 : -1 };
   document.querySelectorAll('#teams th.sortable').forEach((x) => x.setAttribute('aria-sort', x === th ? (nb.teamSort.dir > 0 ? 'ascending' : 'descending') : 'none'));
   dash.draw('team_rows');
 }));
@@ -400,62 +430,52 @@ document.querySelectorAll('#teams th.sortable').forEach((th) => th.addEventListe
 dash.draw('bt_sum_rows', (tb) => {
   const s = dash.data('backtest_summary');
   tb.replaceChildren(...(s.status === 'ok' ? s.data : []).map((r) => {
-    const tr = document.createElement('tr');
+    const tr = el('tr');
     ['tier', 'games', 'ats_w', 'ats_l', 'ats_pct', 'su_w', 'su_l'].forEach((c) => {
-      const td = document.createElement('td');
-      td.textContent = c === 'ats_pct' ? pct(num(r[c])) : (r[c] === '' || r[c] == null ? '' : String(r[c]).replace(/[.]0$/, ''));
-      tr.append(td);
+      const cell = td(c === 'ats_pct' ? pct(num(r[c])) : (r[c] || '').replace(/[.]0$/, ''));
+      if (c === 'ats_pct') cell.className = num(r[c]) >= 0.524 ? 'res-win' : 'res-loss';
+      tr.append(cell);
     });
     return tr;
   }));
 });
-
+const resCls = (v) => (v === 'Win' ? 'res-win' : v === 'Loss' ? 'res-loss' : 'res-push');
 dash.draw('bt_rows', (tb) => {
   const b = dash.data('backtest_games');
-  tb.replaceChildren(...(b.status === 'ok' ? b.data : []).map((r) => {
-    const tr = document.createElement('tr');
-    ['week', 'game_id', 'spread', 'pick', 'pick_pts', 'away_score', 'home_score', 'su', 'ats', 'total_lean', 'total_result'].forEach((c) => {
-      const td = document.createElement('td');
-      td.textContent = c === 'game_id' ? r.game_id : (r[c] ?? '');
-      if ((c === 'ats' || c === 'total_result' || c === 'su') && r[c]) td.style.color = r[c] === 'Win' ? 'var(--color-ok)' : r[c] === 'Loss' ? 'var(--color-bad)' : '';
-      tr.append(td);
-    });
+  tb.replaceChildren(...(b.status === 'ok' ? b.data : []).slice().reverse().map((r) => {
+    const tr = el('tr'); const [aw, hm] = r.matchup.split(' @ ');
+    tr.append(td(r.week), td(matchup({ away: aw, home: hm })), td(r.spread), td(r.pick ? team(r.pick) : ''), td(r.pick_pts),
+      td(`${r.away_score}–${r.home_score}`), td(r.su, resCls(r.su)), td(r.ats, resCls(r.ats)), td(r.total_lean), td(r.total_result, resCls(r.total_result)));
     return tr;
   }));
 });
 
 const BREAKEVEN = 0.524;
-dash.draw('bt_chart', (el) => {
+dash.draw('bt_chart', (box) => {
   const s = dash.data('backtest_summary');
-  el.replaceChildren();
-  if (s.status !== 'ok') return;
+  box.replaceChildren(); if (s.status !== 'ok' || !box.clientWidth) return;
   const rows = s.data.map((r) => ({ tier: r.tier, p: num(r.ats_pct), w: num(r.ats_w), l: num(r.ats_l) }));
-  const W = Math.max(el.clientWidth, 300), rowH = 30;
-  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${rows.length * rowH + 30}`);
-  const lbl = svg.append('g').selectAll('text').data(rows).join('text').text((d) => d.tier)
-    .attr('font-size', 12).attr('fill', 'var(--color-fg)').attr('dominant-baseline', 'middle');
-  const lw = d3.max(lbl.nodes(), (n) => n.getComputedTextLength()) + 12;
-  const x = d3.scaleLinear([0, 1], [lw, W - 56]);
-  const y = d3.scaleBand(rows.map((d) => d.tier), [4, rows.length * rowH + 4]).padding(0.3);
+  const W = Math.max(box.clientWidth, 300), rowH = 32, H = rows.length * rowH + 34;
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const lbl = svg.append('g').selectAll('text').data(rows).join('text').text((d) => d.tier).attr('font-size', 13).attr('fill', '#dbe2f0').attr('dominant-baseline', 'middle');
+  const lw = d3.max(lbl.nodes(), (n) => n.getComputedTextLength()) + 14;
+  const x = d3.scaleLinear([0, 1], [lw, W - 60]);
+  const y = d3.scaleBand(rows.map((d) => d.tier), [4, rows.length * rowH + 4]).padding(0.28);
   lbl.attr('x', 0).attr('y', (d) => y(d.tier) + y.bandwidth() / 2);
-  svg.append('g').attr('transform', `translate(0,${rows.length * rowH + 6})`).call(d3.axisBottom(x).ticks(5, '.0%'))
-    .attr('font-size', null).attr('font-family', null).call((g) => g.select('.domain').attr('stroke', 'var(--cds-chart-axis)'))
-    .call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)')).call((g) => g.selectAll('line').attr('stroke', 'var(--cds-chart-axis)'));
-  const tip = d3.select(el).append('div').attr('class', 'tip').style('opacity', 0);
+  [0.25, 0.5, 0.75, 1].forEach((t) => svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', 0).attr('y2', rows.length * rowH + 6).attr('stroke', '#1f3054'));
+  svg.append('g').attr('transform', `translate(0,${rows.length * rowH + 8})`).call(d3.axisBottom(x).ticks(4, '.0%').tickSize(0))
+    .attr('font-size', null).attr('font-family', null).call((g) => g.select('.domain').remove()).call((g) => g.selectAll('text').attr('fill', '#93a1bf').attr('dy', '1em'));
+  const tip = d3.select(box).append('div').attr('class', 'tip').style('opacity', 0);
   svg.append('g').selectAll('rect').data(rows).join('rect')
-    .attr('x', x(0)).attr('y', (d) => y(d.tier)).attr('height', Math.min(y.bandwidth(), 32)).attr('rx', 3)
+    .attr('x', x(0)).attr('y', (d) => y(d.tier)).attr('height', y.bandwidth()).attr('rx', 3)
     .attr('width', (d) => Math.max(0, x(d.p) - x(0)))
-    .attr('fill', (d) => (d.p >= BREAKEVEN ? 'var(--color-ok)' : 'var(--cds-chart-muted)'))
-    .on('mousemove', (ev, d) => {
-      const [mx, my] = d3.pointer(ev, el);
-      tip.style('opacity', 1).style('left', `${Math.min(mx + 10, el.clientWidth - 170)}px`).style('top', `${my - 10}px`)
-        .text(`${d.tier}: ${d.w}-${d.l} (${pct(d.p)})`);
-    }).on('mouseleave', () => tip.style('opacity', 0));
-  svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d.p) + 6).attr('y', (d) => y(d.tier) + y.bandwidth() / 2)
-    .attr('dominant-baseline', 'middle').attr('font-size', 12).attr('fill', 'var(--color-fg-muted)').text((d) => pct(d.p));
-  svg.append('line').attr('x1', x(BREAKEVEN)).attr('x2', x(BREAKEVEN)).attr('y1', 0).attr('y2', rows.length * rowH + 6)
-    .attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+    .attr('fill', (d) => (d.p >= BREAKEVEN ? '#ffc72c' : '#3a4e78'))
+    .on('mousemove', (ev, d) => { const [mx, my] = d3.pointer(ev, box); tip.style('opacity', 1).style('left', `${Math.min(mx + 12, box.clientWidth - 180)}px`).style('top', `${my - 12}px`).text(`${d.tier}: ${d.w}-${d.l} (${pct(d.p)})`); })
+    .on('mouseleave', () => tip.style('opacity', 0));
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d.p) + 7).attr('y', (d) => y(d.tier) + y.bandwidth() / 2)
+    .attr('dominant-baseline', 'middle').attr('font-size', 13).attr('font-weight', 600).attr('fill', (d) => (d.p >= BREAKEVEN ? '#ffc72c' : '#93a1bf')).text((d) => pct(d.p));
+  svg.append('line').attr('x1', x(BREAKEVEN)).attr('x2', x(BREAKEVEN)).attr('y1', 0).attr('y2', rows.length * rowH + 6).attr('stroke', '#e0172b').attr('stroke-width', 2).attr('stroke-dasharray', '5 4');
 });
 });
 </script>
-</div></body></html>
+</body></html>

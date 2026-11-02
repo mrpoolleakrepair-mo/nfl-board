@@ -1,14 +1,30 @@
 signal,season,w,l,pct
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2024,36,31,0.537
+"Alert: pocket QB vs top-8 pass rush (total, under)",2024,31,36,0.463
+Matchup alert: defense vs QB type (spread),2024,37,42,0.468
+Matchup alert: defense vs QB type (total),2024,39,41,0.487
 Run-game edge 1.0+ YPC,2024,54,30,0.643
 Pass-game edge 0.75+ yds/dropback,2024,78,62,0.557
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2025,37,32,0.536
+"Alert: pocket QB vs top-8 pass rush (total, under)",2025,33,36,0.478
+Matchup alert: defense vs QB type (spread),2025,40,53,0.43
+Matchup alert: defense vs QB type (total),2025,48,46,0.511
 Run-game edge 1.0+ YPC,2025,34,34,0.5
 Pass-game edge 0.75+ yds/dropback,2025,81,71,0.533
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2026,11,10,0.524
+"Alert: pocket QB vs top-8 pass rush (total, under)",2026,11,12,0.478
+Matchup alert: defense vs QB type (spread),2026,8,6,0.571
+Matchup alert: defense vs QB type (total),2026,9,5,0.643
 Run-game edge 1.0+ YPC,2026,16,21,0.432
 Pass-game edge 0.75+ yds/dropback,2026,20,25,0.444
 Model vs book spread gap 3+,2025,43,49,0.467
 Model vs book total gap 3+,2025,52,51,0.505
 Model vs book spread gap 3+,2026,15,20,0.429
 Model vs book total gap 3+,2026,10,16,0.385
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",All,84,73,0.535
+"Alert: pocket QB vs top-8 pass rush (total, under)",All,75,84,0.472
+Matchup alert: defense vs QB type (spread),All,85,101,0.457
+Matchup alert: defense vs QB type (total),All,96,92,0.511
 Model vs book spread gap 3+,All,58,69,0.457
 Model vs book total gap 3+,All,62,67,0.481
 Pass-game edge 0.75+ yds/dropback,All,179,158,0.531

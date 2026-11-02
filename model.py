@@ -7,6 +7,14 @@ games_all = pd.read_csv(f"{D}/games.csv")
 G = games_all[(games_all.season == SEASON) & (games_all.game_type == "REG")].copy()
 P = pd.read_parquet(f"{D}/pbp_2026.parquet")
 P = P[P.season_type == "REG"]
+import os
+PRIOR_WEEKS = 4  # weeks 1-4 lean on last season's final 8 weeks until 2026 data builds up
+if os.path.exists(f"{D}/pbp_2025.parquet"):
+    P25 = pd.read_parquet(f"{D}/pbp_2025.parquet")
+    P25 = P25[(P25.season_type == "REG") & (P25.week >= 11)]
+    G25 = games_all[(games_all.season == SEASON - 1) & (games_all.game_type == "REG") & (games_all.week >= 11)].copy()
+else:
+    P25, G25 = P.iloc[0:0], G.iloc[0:0]
 
 
 def team_stats(pbp, sched):
@@ -160,7 +168,10 @@ def verdict(lead_pts, passes):
 
 
 def build(G, P, weeks, stats_through):
-    S = team_stats(P[P.week <= stats_through], G[G.week <= stats_through])
+    p, g = P[P.week <= stats_through], G[G.week <= stats_through]
+    if min(weeks) <= PRIOR_WEEKS and len(P25):
+        p, g = pd.concat([P25, p], ignore_index=True), pd.concat([G25, g], ignore_index=True)
+    S = team_stats(p, g)
     rows = []
     for _, g in G[G.week.isin(weeks)].iterrows():
         a, h = g.away_team, g.home_team
@@ -211,7 +222,7 @@ def build(G, P, weeks, stats_through):
                    away=a, home=h, matchup=f"{a} @ {h}",
                    spread=fmt_spread(g, a, h), total=g.total_line if has_line else None,
                    away_ml=g.away_moneyline, home_ml=g.home_moneyline, roof=g.roof, div_game=int(g.div_game),
-                   away_qb=g.away_qb_name if isinstance(g.away_qb_name, str) else "", home_qb=g.home_qb_name if isinstance(g.home_qb_name, str) else "",
+                   away_rest=g.away_rest, home_rest=g.home_rest, away_qb=g.away_qb_name if isinstance(g.away_qb_name, str) else "", home_qb=g.home_qb_name if isinstance(g.home_qb_name, str) else "",
                    pick=lt or "", pick_pts=lp, opp_pts=min(r["pts_away"], r["pts_home"]) if lead else lp,
                    verdict=v, manual_pts_needed=need,
                    c1=team(r["c1"], a, h), c2=team(r["c2"], a, h), c3=team(r["c3"], a, h), c4=team(r["c4"], a, h), c5=team(r["c5"], a, h),
@@ -242,7 +253,7 @@ if len(cur_unplayed):
 
 # Backtest: weeks 4..last_done, stats from prior weeks only
 bt = []
-for w in range(4, last_done + 1):
+for w in range(1, last_done + 1):
     df, _ = build(G, P, [w], w - 1)
     bt.append(df)
 bt = pd.concat(bt)
@@ -268,6 +279,9 @@ def tier(p):
     return "9 of 9 auto" if p >= 9 else ("7-8 auto" if p >= 7 else ("5-6 auto" if p >= 5 else "0-4 auto"))
 bt["tier"] = bt.pick_pts.apply(tier)
 summ = []
+w_, l_ = (bt.ats == "Win").sum(), (bt.ats == "Loss").sum(); sw_, sl_ = (bt.su == "Win").sum(), (bt.su == "Loss").sum()
+summ.append(dict(tier="All picks", games=len(bt), ats_w=int(w_), ats_l=int(l_), ats_pct=round(w_ / (w_ + l_), 3),
+                 su_w=int(sw_), su_l=int(sl_), su_pct=round(sw_ / (sw_ + sl_), 3)))
 for t in ["9 of 9 auto", "7-8 auto", "5-6 auto", "0-4 auto"]:
     x = bt[bt.tier == t]
     w, l = (x.ats == "Win").sum(), (x.ats == "Loss").sum()
@@ -295,9 +309,33 @@ for c in T.columns:
 upcoming = upcoming.drop(columns=["away_score", "home_score", "home_margin", "final_total"])
 upcoming.to_csv(f"{OUT}/upcoming_games.csv", index=False)
 T.to_csv(f"{OUT}/team_stats.csv", index=False)
-bt_out = bt[["game_id", "week", "matchup", "spread", "pick", "pick_pts", "verdict", "pass_rules", "away_score", "home_score", "su", "ats", "total_lean", "total_result"]].copy()
+bt["basis"] = bt.week.apply(lambda w: "2026 + late 2025" if w <= PRIOR_WEEKS else "2026 only")
+bt_out = bt[["game_id", "week", "date", "matchup", "away", "home", "spread", "pick", "pick_pts", "verdict", "pass_rules", "c1", "c2", "c3", "c4", "c5", "away_score", "home_score", "su", "ats", "total_lean", "total_result", "check8", "basis"]].copy()
 bt_out["away_score"] = bt_out.away_score.astype(int); bt_out["home_score"] = bt_out.home_score.astype(int)
 bt_out.to_csv(f"{OUT}/backtest_games.csv", index=False)
+
+# Weekly accuracy
+wk = []
+for w, x in bt.groupby("week"):
+    s7 = x[x.pick_pts >= 7]
+    wk.append(dict(week=int(w), games=len(x), su_w=int((x.su == "Win").sum()), su_l=int((x.su == "Loss").sum()),
+                   ats_w=int((x.ats == "Win").sum()), ats_l=int((x.ats == "Loss").sum()),
+                   strong_ats_w=int((s7.ats == "Win").sum()), strong_ats_l=int((s7.ats == "Loss").sum())))
+pd.DataFrame(wk).to_csv(f"{OUT}/backtest_weekly.csv", index=False)
+
+# Each check on its own: when a team wins the check, how often does it win the game / cover?
+names = {"c1": "C1 Pass rush", "c2": "C2 Run game", "c3": "C3 Turnovers", "c4": "C4 Red zone D", "c5": "C5 Situational spot"}
+ck = []
+for c, nm in names.items():
+    x = bt[bt[c] != "Even"]
+    if not len(x): continue
+    won = x.apply(lambda r: (r[c] == r.home) == (r.home_margin > 0) if r.home_margin != 0 else None, axis=1).dropna()
+    m = x.home_margin - x.spread_line
+    cov = x[m != 0].apply(lambda r: (r[c] == r.home) == ((r.home_margin - r.spread_line) > 0), axis=1)
+    ck.append(dict(check=nm, games=len(x), su_w=int(won.sum()), su_l=int((~won.astype(bool)).sum()), su_pct=round(won.mean(), 3),
+                   ats_w=int(cov.sum()), ats_l=int((~cov).sum()), ats_pct=round(cov.mean(), 3)))
+pd.DataFrame(ck).to_csv(f"{OUT}/backtest_checks.csv", index=False)
+print(pd.DataFrame(ck).to_string()); print(pd.DataFrame(wk).to_string())
 summary.to_csv(f"{OUT}/backtest_summary.csv", index=False)
 print("stats through week", last_done, "| upcoming", len(upcoming), "| backtest", len(bt))
 print(summary.to_string())

@@ -31,6 +31,7 @@ jobs:
           mkdir -p raw
           curl -sSfL -o raw/games.csv https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv
           curl -sSfL -o raw/pbp_2026.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet
+          curl -sSfL -o raw/pbp_2025.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet
       - run: python model.py raw data
         if: steps.guard.outputs.go == '1'
       - name: Commit updated data

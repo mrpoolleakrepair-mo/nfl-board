@@ -15,6 +15,7 @@ import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 
@@ -26,7 +27,16 @@ SITES = {"nfl.com": "NFL.com / NFL Network", "espn.com": "ESPN"}
 
 
 
-def fetch(url, timeout=20):
+START = time.time()
+BUDGET = 170          # seconds for the whole scan
+BING_OK = [True]      # flips off the first time Bing blocks us
+
+
+def over_budget():
+    return time.time() - START > BUDGET
+
+
+def fetch(url, timeout=8):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode("utf-8", "ignore")
@@ -34,15 +44,13 @@ def fetch(url, timeout=20):
 
 def bing_news(query):
     url = "https://www.bing.com/news/search?" + urllib.parse.urlencode({"q": query, "format": "rss", "count": 20})
-    root = None
-    for wait in (0, 12, 30):
-        time.sleep(wait)
-        try:
-            root = ET.fromstring(fetch(url)); break
-        except Exception as e:
-            err = e
-    if root is None:
-        print(f"  bing blocked '{query}': {err}")
+    if not BING_OK[0] or over_budget():
+        return []
+    try:
+        root = ET.fromstring(fetch(url))
+    except Exception as e:
+        BING_OK[0] = False
+        print(f"  bing blocked at '{query}' ({e}); using Google News only for the rest of this run")
         return []
     out = []
     for it in root.iter("item"):
@@ -55,6 +63,8 @@ def bing_news(query):
 
 
 def google_news(query):
+    if over_budget():
+        return []
     url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": query + " when:10d", "hl": "en-US", "gl": "US", "ceid": "US:en"})
     try:
         root = ET.fromstring(fetch(url))
@@ -73,9 +83,9 @@ def google_news(query):
 def discover(query, site):
     """Articles from one site: Bing (direct links, full text) plus Google News (headline and snippet)."""
     items = [dict(it, site=site) for it in bing_news(f"{query} site:{site}") if site in it["url"]]
-    time.sleep(2.5)
+    if BING_OK[0]: time.sleep(1.5)
     items += [dict(it, site=site) for it in google_news(f"{query} site:{site}") if site in it.get("src_domain", "") or site in it["url"]]
-    time.sleep(1.0)
+    time.sleep(0.4)
     return items
 
 
@@ -199,9 +209,11 @@ def main(raw, out):
         print(f"  week {wk}: {len(weekly[wk])} picks/preview articles")
     def body_of(it):
         if it.get("body"): return it["body"].strip()
-        if it["url"] not in body_cache: body_cache[it["url"]] = article_text(it["url"]) if it["url"] else ""
-        return body_cache[it["url"]]
+        return body_cache.get(it["url"], "")
     for _, r in g.iterrows():
+        if over_budget():
+            print(f"  time budget reached; stopping before {r.away_team}@{r.home_team}")
+            break
         a, h = r.away_team, r.home_team
         na, nh = TEAMS[a]["name"], TEAMS[h]["name"]
         items = []
@@ -214,6 +226,11 @@ def main(raw, out):
             if fresh(it["published"]) and na.lower() in head and nh.lower() in head:
                 cand.append((it, False))
         cand += [(it, True) for it in weekly.get(r.week, [])]
+        todo = [it["url"] for it, _ in cand if it["url"] and not (it.get("body") or "").strip() and it["url"] not in body_cache]
+        if todo and not over_budget():
+            with ThreadPoolExecutor(max_workers=8) as ex:
+                for u, txt in zip(todo, ex.map(lambda u: article_text(u), todo)):
+                    body_cache[u] = txt
         n_art = 0
         for it, is_weekly in cand:
             key = (r.game_id, it["url"] or it["title"])
@@ -234,7 +251,7 @@ def main(raw, out):
     if os.path.exists(path):
         df = pd.concat([pd.read_csv(path), df], ignore_index=True)
     df.to_csv(path, index=False)
-    print(f"  wrote {len(rows)} article rows")
+    print(f"  wrote {len(rows)} article rows in {time.time() - START:.0f}s")
 
 
 if __name__ == "__main__":

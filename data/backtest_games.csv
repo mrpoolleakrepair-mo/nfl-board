@@ -1,28 +1,28 @@
 game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c2,c3,c4,c5,away_score,home_score,su,ats,total_lean,total_result,check8,basis
 2026_01_SF_LA,1,2026-09-10,SF @ LA,SF,LA,LA -3.5,LA,4,Lean at best,,LA,Even,LA,Even,Even,27,7,Loss,Loss,Over,Loss,,2026 + late 2025
-2026_01_CHI_CAR,1,2026-09-13,CHI @ CAR,CHI,CAR,CHI -3,CHI,8,Needs the handle,,CHI,CHI,CHI,CHI,CAR,59,37,Win,Win,Under,Loss,,2026 + late 2025
+2026_01_CHI_CAR,1,2026-09-13,CHI @ CAR,CHI,CAR,CHI -3,CHI,6,Needs handle + line,,Even,CHI,CHI,CHI,CAR,59,37,Win,Win,Under,Loss,,2026 + late 2025
 2026_01_TB_CIN,1,2026-09-13,TB @ CIN,TB,CIN,CIN -3.5,CIN,7,Needs the handle,,CIN,TB,CIN,CIN,CIN,27,33,Win,Win,,,TB is a bad team that can run: dog/ML look,2026 + late 2025
 2026_01_NO_DET,1,2026-09-13,NO @ DET,NO,DET,DET -7,NO,6,Needs handle + line,,NO,NO,Even,NO,Even,30,31,Loss,Win,,,,2026 + late 2025
 2026_01_BUF_HOU,1,2026-09-13,BUF @ HOU,BUF,HOU,BUF -1.5,HOU,7,Needs the handle,,HOU,BUF,HOU,HOU,HOU,36,31,Loss,Loss,Under,Loss,HOU team total under (winning-record dog: strongest),2026 + late 2025
 2026_01_BAL_IND,1,2026-09-13,BAL @ IND,BAL,IND,BAL -3,BAL,7,Needs the handle,,IND,BAL,BAL,BAL,BAL,41,23,Win,Win,Over,Win,IND team total under,2026 + late 2025
-2026_01_CLE_JAX,1,2026-09-13,CLE @ JAX,CLE,JAX,JAX -8.5,JAX,9,Bet if money agrees,,JAX,JAX,JAX,JAX,JAX,10,34,Win,Win,Under,Loss,CLE team total under,2026 + late 2025
+2026_01_CLE_JAX,1,2026-09-13,CLE @ JAX,CLE,JAX,JAX -8.5,JAX,7,Needs the handle,,Even,JAX,JAX,JAX,JAX,10,34,Win,Win,Under,Loss,CLE team total under,2026 + late 2025
 2026_01_ATL_PIT,1,2026-09-13,ATL @ PIT,ATL,PIT,PIT -6.5,PIT,4,Lean at best,,ATL,PIT,PIT,Even,Even,13,20,Win,Win,,,,2026 + late 2025
 2026_01_NYJ_TEN,1,2026-09-13,NYJ @ TEN,NYJ,TEN,TEN -1.5,TEN,9,Bet if money agrees,,TEN,TEN,TEN,TEN,TEN,23,10,Loss,Loss,,,NYJ team total under,2026 + late 2025
 2026_01_ARI_LAC,1,2026-09-13,ARI @ LAC,ARI,LAC,LAC -8.5,LAC,7,Needs the handle,,Even,LAC,LAC,LAC,LAC,26,14,Loss,Loss,,,ARI team total under,2026 + late 2025
 2026_01_MIA_LV,1,2026-09-13,MIA @ LV,MIA,LV,LV -3,MIA,6,Needs handle + line,,MIA,MIA,MIA,LV,Even,13,27,Loss,Loss,,,,2026 + late 2025
-2026_01_GB_MIN,1,2026-09-13,GB @ MIN,GB,MIN,MIN -1.5,MIN,5,Lean at best,,GB,MIN,Even,MIN,MIN,22,39,Win,Win,,,GB team total under,2026 + late 2025
+2026_01_GB_MIN,1,2026-09-13,GB @ MIN,GB,MIN,MIN -1.5,MIN,7,Needs the handle,,MIN,MIN,Even,MIN,MIN,22,39,Win,Win,,,GB team total under,2026 + late 2025
 2026_01_WAS_PHI,1,2026-09-13,WAS @ PHI,WAS,PHI,PHI -6,PHI,8,Needs the handle,,PHI,PHI,PHI,PHI,Even,22,24,Win,Loss,Under,Loss,WAS team total under,2026 + late 2025
 2026_01_DAL_NYG,1,2026-09-13,DAL @ NYG,DAL,NYG,DAL -3,NYG,6,Needs handle + line,,NYG,DAL,NYG,NYG,DAL,20,28,Win,Win,Under,Loss,NYG team total under,2026 + late 2025
 2026_01_DEN_KC,1,2026-09-14,DEN @ KC,DEN,KC,KC -2.5,DEN,5,Pass rule,DEN is a dog that can't score (bottom 5),DEN,Even,DEN,KC,DEN,10,31,Loss,Loss,,,,2026 + late 2025
 2026_02_DET_BUF,2,2026-09-17,DET @ BUF,DET,BUF,BUF -5.5,BUF,7,Needs the handle,,DET,BUF,BUF,BUF,BUF,31,41,Win,Win,,,,2026 + late 2025
 2026_02_CAR_ATL,2,2026-09-20,CAR @ ATL,CAR,ATL,CAR -2.5,ATL,7,Needs the handle,,ATL,ATL,CAR,ATL,ATL,34,3,Loss,Loss,,,,2026 + late 2025
-2026_02_NO_BAL,2,2026-09-20,NO @ BAL,NO,BAL,BAL -8.5,NO,5,Lean at best,,NO,BAL,BAL,NO,NO,24,17,Win,Win,,,NO team total under,2026 + late 2025
+2026_02_NO_BAL,2,2026-09-20,NO @ BAL,NO,BAL,BAL -8.5,BAL,4,Lean at best,,Even,BAL,BAL,NO,NO,24,17,Loss,Loss,,,NO team total under,2026 + late 2025
 2026_02_MIN_CHI,2,2026-09-20,MIN @ CHI,MIN,CHI,CHI -4.5,CHI,5,Lean at best,,CHI,MIN,CHI,MIN,CHI,9,3,Loss,Loss,Over,Loss,,2026 + late 2025
 2026_02_CIN_HOU,2,2026-09-20,CIN @ HOU,CIN,HOU,HOU -3,HOU,5,Lean at best,,CIN,HOU,HOU,CIN,HOU,20,6,Loss,Loss,Under,Win,,2026 + late 2025
 2026_02_PIT_NE,2,2026-09-20,PIT @ NE,PIT,NE,NE -4.5,PIT,2,Pass,,Even,Even,PIT,Even,NE,3,20,Loss,Loss,Under,Win,,2026 + late 2025
 2026_02_GB_NYJ,2,2026-09-20,GB @ NYJ,GB,NYJ,GB -3.5,GB,6,Needs handle + line,,GB,Even,GB,GB,Even,20,17,Win,Loss,,,,2026 + late 2025
 2026_02_PHI_TEN,2,2026-09-20,PHI @ TEN,PHI,TEN,PHI -7,PHI,7,Needs the handle,,PHI,TEN,PHI,PHI,PHI,24,20,Win,Loss,,,TEN is a bad team that can run: dog/ML look,2026 + late 2025
-2026_02_JAX_DEN,2,2026-09-20,JAX @ DEN,JAX,DEN,DEN -2.5,JAX,7,Needs the handle,,Even,JAX,JAX,JAX,JAX,13,20,Loss,Loss,,,,2026 + late 2025
+2026_02_JAX_DEN,2,2026-09-20,JAX @ DEN,JAX,DEN,DEN -2.5,JAX,7,Needs the handle,,DEN,JAX,JAX,JAX,JAX,13,20,Loss,Loss,Under,Win,,2026 + late 2025
 2026_02_LV_LAC,2,2026-09-20,LV @ LAC,LV,LAC,LAC -6.5,LAC,9,Bet if money agrees,,LAC,LAC,LAC,LAC,LAC,26,14,Loss,Loss,Under,Win,LV team total under,2026 + late 2025
 2026_02_SEA_ARI,2,2026-09-20,SEA @ ARI,SEA,ARI,SEA -3.5,SEA,9,Bet if money agrees,,SEA,SEA,SEA,SEA,SEA,31,7,Win,Win,Under,Win,ARI team total under,2026 + late 2025
 2026_02_MIA_SF,2,2026-09-20,MIA @ SF,MIA,SF,SF -12.5,SF,7,Needs the handle,,SF,SF,Even,SF,SF,13,35,Win,Win,,,,2026 + late 2025
@@ -38,7 +38,7 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_03_TEN_NYG,3,2026-09-27,TEN @ NYG,TEN,NYG,NYG -2.5,TEN,4,Lean at best,,TEN,TEN,NYG,Even,Even,7,12,Loss,Loss,,,TEN is a bad team that can run: dog/ML look,2026 + late 2025
 2026_03_CIN_PIT,3,2026-09-27,CIN @ PIT,CIN,PIT,CIN -3.5,PIT,3,Pass,,CIN,PIT,Even,Even,PIT,27,30,Win,Win,,,,2026 + late 2025
 2026_03_SEA_WAS,3,2026-09-27,SEA @ WAS,SEA,WAS,SEA -8.5,SEA,7,Needs the handle,,WAS,SEA,SEA,SEA,SEA,31,33,Loss,Loss,Under,Loss,WAS team total under,2026 + late 2025
-2026_03_ARI_SF,3,2026-09-27,ARI @ SF,ARI,SF,SF -7.5,SF,9,Bet if money agrees,,SF,SF,SF,SF,SF,30,36,Win,Loss,,,ARI team total under,2026 + late 2025
+2026_03_ARI_SF,3,2026-09-27,ARI @ SF,ARI,SF,SF -7.5,SF,7,Needs the handle,,Even,SF,SF,SF,SF,30,36,Win,Loss,,,ARI team total under,2026 + late 2025
 2026_03_MIN_TB,3,2026-09-27,MIN @ TB,MIN,TB,MIN -1.5,MIN,9,Bet if money agrees,,MIN,MIN,MIN,MIN,MIN,23,16,Win,Win,Under,Win,,2026 + late 2025
 2026_03_BAL_DAL,3,2026-09-27,BAL @ DAL,BAL,DAL,BAL -3,BAL,7,Needs the handle,,DAL,BAL,BAL,BAL,BAL,34,31,Win,Push,,,DAL team total under,2026 + late 2025
 2026_03_LV_NO,3,2026-09-27,LV @ NO,LV,NO,NO -3.5,NO,5,Lean at best,,NO,Even,Even,NO,NO,35,27,Loss,Loss,Over,Win,,2026 + late 2025
@@ -57,7 +57,7 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_04_KC_LV,4,2026-10-04,KC @ LV,KC,LV,KC -4.5,KC,6,Needs handle + line,,KC,KC,LV,KC,Even,30,27,Win,Loss,Under,Loss,LV team total under,2026 + late 2025
 2026_04_LAC_SEA,4,2026-10-04,LAC @ SEA,LAC,SEA,SEA -7,SEA,5,Lean at best,,SEA,Even,Even,SEA,SEA,23,30,Win,Push,Under,Loss,,2026 + late 2025
 2026_04_DET_CAR,4,2026-10-04,DET @ CAR,DET,CAR,DET -4.5,CAR,5,Pass rule,CAR loses both trench checks,DET,DET,CAR,CAR,CAR,26,32,Win,Win,,,,2026 + late 2025
-2026_04_ATL_NO,4,2026-10-05,ATL @ NO,ATL,NO,NO -1.5,NO,4,Lean at best,,NO,ATL,Even,NO,ATL,45,24,Loss,Loss,Over,Win,,2026 + late 2025
+2026_04_ATL_NO,4,2026-10-05,ATL @ NO,ATL,NO,NO -1.5,ATL,3,Pass,,Even,ATL,Even,NO,ATL,45,24,Win,Win,Over,Win,,2026 + late 2025
 2026_05_TB_DAL,5,2026-10-08,TB @ DAL,TB,DAL,DAL -9.5,DAL,5,Lean at best,,DAL,TB,DAL,TB,DAL,24,16,Loss,Loss,Over,Loss,TB is a bad team that can run: dog/ML look,2026 only
 2026_05_PHI_JAX,5,2026-10-11,PHI @ JAX,PHI,JAX,JAX -7.5,JAX,9,Bet if money agrees,,JAX,JAX,JAX,JAX,JAX,17,19,Win,Loss,,,PHI team total under,2026 only
 2026_05_CHI_GB,5,2026-10-11,CHI @ GB,CHI,GB,CHI -1.5,CHI,9,Bet if money agrees,,CHI,CHI,CHI,CHI,CHI,7,31,Loss,Loss,Under,Win,GB team total under,2026 only
@@ -66,9 +66,9 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_05_CLE_NYJ,5,2026-10-11,CLE @ NYJ,CLE,NYJ,NYJ -2.5,CLE,5,Lean at best,,CLE,CLE,NYJ,Even,CLE,12,17,Loss,Loss,,,,2026 only
 2026_05_IND_PIT,5,2026-10-11,IND @ PIT,IND,PIT,PIT -3,PIT,7,Needs the handle,,Even,PIT,PIT,PIT,PIT,22,34,Win,Win,Under,Loss,IND team total under,2026 only
 2026_05_NYG_WAS,5,2026-10-11,NYG @ WAS,NYG,WAS,WAS -3.5,WAS,5,Lean at best,,WAS,WAS,Even,NYG,WAS,27,27,Tie,Loss,Under,Loss,NYG team total under (winning-record dog: strongest),2026 only
-2026_05_DEN_LAC,5,2026-10-11,DEN @ LAC,DEN,LAC,DEN -3.5,DEN,6,Needs handle + line,,DEN,LAC,DEN,DEN,Even,23,17,Win,Win,,,LAC is a bad team that can run: dog/ML look,2026 only
+2026_05_DEN_LAC,5,2026-10-11,DEN @ LAC,DEN,LAC,DEN -3.5,DEN,6,Needs handle + line,,DEN,LAC,DEN,DEN,Even,23,17,Win,Win,Over,Loss,LAC is a bad team that can run: dog/ML look,2026 only
 2026_05_SF_SEA,5,2026-10-11,SF @ SEA,SF,SEA,SEA -3,SF,4,Lean at best,,SEA,SF,Even,SF,Even,32,29,Win,Win,,,,2026 only
-2026_05_BAL_ATL,5,2026-10-11,BAL @ ATL,BAL,ATL,ATL -3.5,BAL,5,Lean at best,,BAL,ATL,BAL,Even,BAL,30,23,Win,Win,,,BAL team total under (winning-record dog: strongest),2026 only
+2026_05_BAL_ATL,5,2026-10-11,BAL @ ATL,BAL,ATL,ATL -3.5,BAL,5,Lean at best,,BAL,ATL,BAL,Even,BAL,30,23,Win,Win,Over,Win,BAL team total under (winning-record dog: strongest),2026 only
 2026_05_BUF_LA,5,2026-10-12,BUF @ LA,BUF,LA,LA -3.5,LA,4,Lean at best,,LA,Even,BUF,LA,BUF,37,34,Loss,Loss,,,,2026 only
 2026_06_SEA_DEN,6,2026-10-15,SEA @ DEN,SEA,DEN,SEA -2.5,DEN,5,Pass rule,DEN is a dog that can't score (bottom 5),DEN,SEA,DEN,SEA,DEN,14,17,Win,Win,Under,Win,DEN team total under (winning-record dog: strongest),2026 only
 2026_06_HOU_JAX,6,2026-10-18,HOU @ JAX,HOU,JAX,JAX -2.5,JAX,7,Needs the handle,,HOU,JAX,JAX,JAX,JAX,34,31,Loss,Loss,Under,Loss,HOU team total under,2026 only
@@ -80,7 +80,7 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_06_CAR_PHI,6,2026-10-18,CAR @ PHI,CAR,PHI,CAR -3,CAR,5,Lean at best,,CAR,PHI,CAR,PHI,CAR,25,14,Win,Win,,,PHI is a bad team that can run: dog/ML look,2026 only
 2026_06_PIT_TB,6,2026-10-18,PIT @ TB,PIT,TB,PIT -2.5,PIT,4,Lean at best,,PIT,TB,PIT,Even,TB,26,19,Win,Win,,,TB is a bad team that can run: dog/ML look,2026 only
 2026_06_ARI_LA,6,2026-10-18,ARI @ LA,ARI,LA,LA -12.5,LA,6,Needs handle + line,,LA,LA,ARI,LA,Even,18,16,Loss,Loss,,,,2026 only
-2026_06_LAC_KC,6,2026-10-18,LAC @ KC,LAC,KC,KC -7.5,KC,9,Bet if money agrees,,KC,KC,KC,KC,KC,6,22,Win,Win,Under,Win,LAC team total under,2026 only
+2026_06_LAC_KC,6,2026-10-18,LAC @ KC,LAC,KC,KC -7.5,KC,9,Bet if money agrees,,KC,KC,KC,KC,KC,6,22,Win,Win,,,LAC team total under,2026 only
 2026_06_BUF_LV,6,2026-10-18,BUF @ LV,BUF,LV,BUF -5.5,LV,4,Lean at best,,LV,BUF,LV,Even,BUF,33,30,Loss,Win,Over,Win,LV team total under (winning-record dog: strongest),2026 only
 2026_06_DAL_GB,6,2026-10-18,DAL @ GB,DAL,GB,DAL -1.5,GB,8,Needs the handle,,GB,GB,GB,GB,DAL,13,23,Win,Win,,,,2026 only
 2026_06_WAS_SF,6,2026-10-19,WAS @ SF,WAS,SF,SF -7.5,SF,7,Needs the handle,,SF,SF,WAS,SF,SF,17,23,Win,Loss,,,,2026 only
@@ -107,6 +107,6 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_08_CLE_PIT,8,2026-11-01,CLE @ PIT,CLE,PIT,PIT -3.5,PIT,7,Needs the handle,,CLE,PIT,PIT,PIT,PIT,6,27,Win,Win,Under,Win,CLE team total under (winning-record dog: strongest),2026 only
 2026_08_ATL_TB,8,2026-11-01,ATL @ TB,ATL,TB,TB -2.5,TB,4,Lean at best,,ATL,TB,Even,TB,ATL,0,16,Win,Win,Under,Win,ATL team total under,2026 only
 2026_08_LAC_LA,8,2026-11-01,LAC @ LA,LAC,LA,LA -6.5,LA,6,Needs handle + line,,LA,LA,Even,LA,LAC,9,24,Win,Win,Under,Win,LAC team total under,2026 only
-2026_08_KC_DEN,8,2026-11-01,KC @ DEN,KC,DEN,DEN -1.5,KC,6,Needs handle + line,,DEN,KC,KC,KC,DEN,24,28,Loss,Loss,Under,Loss,,2026 only
+2026_08_KC_DEN,8,2026-11-01,KC @ DEN,KC,DEN,DEN -1.5,KC,6,Needs handle + line,,DEN,KC,KC,KC,DEN,24,28,Loss,Loss,,,,2026 only
 2026_08_NE_MIA,8,2026-11-01,NE @ MIA,NE,MIA,NE -7,NE,5,Lean at best,,NE,Even,MIA,NE,NE,24,19,Win,Loss,,,,2026 only
 2026_08_PHI_WAS,8,2026-11-01,PHI @ WAS,PHI,WAS,WAS -6,WAS,7,Needs the handle,,WAS,WAS,WAS,PHI,WAS,10,27,Win,Win,,,PHI team total under,2026 only

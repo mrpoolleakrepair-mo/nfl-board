@@ -110,3 +110,4 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_08_KC_DEN,8,2026-11-01,KC @ DEN,KC,DEN,DEN -1.5,KC,6,Needs handle + line,,DEN,KC,KC,KC,DEN,24,28,Loss,Loss,,,,2026 only
 2026_08_NE_MIA,8,2026-11-01,NE @ MIA,NE,MIA,NE -7,NE,5,Lean at best,,NE,Even,MIA,NE,NE,24,19,Win,Loss,,,,2026 only
 2026_08_PHI_WAS,8,2026-11-01,PHI @ WAS,PHI,WAS,WAS -6,WAS,7,Needs the handle,,WAS,WAS,WAS,PHI,WAS,10,27,Win,Win,,,PHI team total under,2026 only
+2026_08_CHI_SEA,8,2026-11-02,CHI @ SEA,CHI,SEA,SEA -3,SEA,4,Lean at best,,CHI,SEA,Even,SEA,CHI,34,17,Loss,Loss,Under,Loss,CHI team total under (winning-record dog: strongest),2026 only

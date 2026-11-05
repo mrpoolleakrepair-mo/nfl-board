@@ -1,6 +1,6 @@
 check,games,su_w,su_l,su_pct,ats_w,ats_l,ats_pct
-C1 Pass rush,93,53,39,0.576,41,47,0.466
-C2 Run game,97,50,46,0.521,39,54,0.419
+C1 Pass rush,94,54,39,0.581,42,47,0.472
+C2 Run game,98,50,47,0.515,39,55,0.415
 C3 Turnovers,94,53,41,0.564,45,45,0.5
-C4 Red zone D,96,59,36,0.621,45,46,0.495
-C5 Situational spot,92,60,31,0.659,43,44,0.494
+C4 Red zone D,97,59,37,0.615,45,47,0.489
+C5 Situational spot,93,61,31,0.663,44,44,0.5

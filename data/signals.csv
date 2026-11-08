@@ -13,23 +13,23 @@ Fade the defense-vs-QB-type alert (spread),2025,41,27,0.603
 Matchup alert: defense vs QB type (total),2025,32,37,0.464
 Run-game edge 1.0+ YPC,2025,34,34,0.5
 Pass-game edge 0.75+ yds/dropback,2025,81,71,0.533
-"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2026,7,6,0.538
-"Alert: pocket QB vs top-8 pass rush (total, under)",2026,6,8,0.429
-Matchup alert: defense vs QB type (spread),2026,5,3,0.625
-Fade the defense-vs-QB-type alert (spread),2026,3,5,0.375
-Matchup alert: defense vs QB type (total),2026,6,2,0.75
-Run-game edge 1.0+ YPC,2026,16,21,0.432
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2026,7,7,0.5
+"Alert: pocket QB vs top-8 pass rush (total, under)",2026,7,8,0.467
+Matchup alert: defense vs QB type (spread),2026,5,4,0.556
+Fade the defense-vs-QB-type alert (spread),2026,4,5,0.444
+Matchup alert: defense vs QB type (total),2026,7,2,0.778
+Run-game edge 1.0+ YPC,2026,16,22,0.421
 Pass-game edge 0.75+ yds/dropback,2026,20,26,0.435
 Model vs book spread gap 3+,2025,44,51,0.463
 Model vs book total gap 3+,2025,49,50,0.495
-Model vs book spread gap 3+,2026,15,22,0.405
+Model vs book spread gap 3+,2026,15,23,0.395
 Model vs book total gap 3+,2026,12,15,0.444
-"Alert: pocket QB vs top-8 pass rush (spread, defense side)",All,72,61,0.541
-"Alert: pocket QB vs top-8 pass rush (total, under)",All,65,68,0.489
-Fade the defense-vs-QB-type alert (spread),All,80,67,0.544
-Matchup alert: defense vs QB type (spread),All,67,80,0.456
-Matchup alert: defense vs QB type (total),All,76,73,0.51
-Model vs book spread gap 3+,All,59,73,0.447
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",All,72,62,0.537
+"Alert: pocket QB vs top-8 pass rush (total, under)",All,66,68,0.493
+Fade the defense-vs-QB-type alert (spread),All,81,67,0.547
+Matchup alert: defense vs QB type (spread),All,67,81,0.453
+Matchup alert: defense vs QB type (total),All,77,73,0.513
+Model vs book spread gap 3+,All,59,74,0.444
 Model vs book total gap 3+,All,61,65,0.484
 Pass-game edge 0.75+ yds/dropback,All,179,159,0.53
-Run-game edge 1.0+ YPC,All,104,85,0.55
+Run-game edge 1.0+ YPC,All,104,86,0.547

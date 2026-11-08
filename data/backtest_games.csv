@@ -112,3 +112,4 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_08_PHI_WAS,8,2026-11-01,PHI @ WAS,PHI,WAS,WAS -6,WAS,7,Needs the handle,,WAS,WAS,WAS,PHI,WAS,10,27,Win,Win,,,PHI team total under,2026 only
 2026_08_CHI_SEA,8,2026-11-02,CHI @ SEA,CHI,SEA,SEA -3,SEA,4,Lean at best,,CHI,SEA,Even,SEA,CHI,34,17,Loss,Loss,Under,Loss,CHI team total under (winning-record dog: strongest),2026 only
 2026_09_JAX_BAL,9,2026-11-05,JAX @ BAL,JAX,BAL,JAX -8.5,JAX,9,Bet if money agrees,,JAX,JAX,JAX,JAX,JAX,33,10,Win,Win,Under,Loss,,2026 only
+2026_09_CIN_ATL,9,2026-11-08,CIN @ ATL,CIN,ATL,CIN -3,CIN,7,Needs the handle,,CIN,ATL,CIN,CIN,CIN,34,17,Win,Win,Over,Loss,ATL is a bad team that can run: dog/ML look,2026 only

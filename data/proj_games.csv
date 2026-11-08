@@ -73,3 +73,4 @@ test,season,week,game_id,away,home,proj_away,proj_home,proj_margin,proj_total,sp
 2026 (trained on 2024-2025),2026,8,2026_08_PHI_WAS,PHI,WAS,18.2,25.2,7.0,43.3,6.0,40.5,17.0,37.0,10.0,27.0,1.0,2.799999999999997,Win,Loss,Win,Win
 2026 (trained on 2024-2025),2026,8,2026_08_CHI_SEA,CHI,SEA,18.9,26.8,7.8,45.7,3.0,46.5,-17.0,51.0,34.0,17.0,4.8,-0.7999999999999972,Loss,Loss,Loss,Loss
 2026 (trained on 2024-2025),2026,9,2026_09_JAX_BAL,JAX,BAL,25.8,24.2,-1.6,50.1,-8.5,40.5,-23.0,43.0,33.0,10.0,6.9,9.600000000000001,Loss,Win,Win,Win
+2026 (trained on 2024-2025),2026,9,2026_09_CIN_ATL,CIN,ATL,25.1,25.1,-0.0,50.2,-3.0,52.5,-17.0,51.0,34.0,17.0,3.0,-2.299999999999997,Loss,Win,Win,Win

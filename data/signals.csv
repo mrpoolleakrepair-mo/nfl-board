@@ -13,23 +13,23 @@ Fade the defense-vs-QB-type alert (spread),2025,41,27,0.603
 Matchup alert: defense vs QB type (total),2025,32,37,0.464
 Run-game edge 1.0+ YPC,2025,34,34,0.5
 Pass-game edge 0.75+ yds/dropback,2025,81,71,0.533
-"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2026,9,7,0.562
-"Alert: pocket QB vs top-8 pass rush (total, under)",2026,8,9,0.471
-Matchup alert: defense vs QB type (spread),2026,6,7,0.462
-Fade the defense-vs-QB-type alert (spread),2026,7,6,0.538
-Matchup alert: defense vs QB type (total),2026,8,5,0.615
-Run-game edge 1.0+ YPC,2026,19,23,0.452
-Pass-game edge 0.75+ yds/dropback,2026,27,27,0.5
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",2026,10,7,0.588
+"Alert: pocket QB vs top-8 pass rush (total, under)",2026,9,9,0.5
+Matchup alert: defense vs QB type (spread),2026,6,8,0.429
+Fade the defense-vs-QB-type alert (spread),2026,8,6,0.571
+Matchup alert: defense vs QB type (total),2026,8,6,0.571
+Run-game edge 1.0+ YPC,2026,20,23,0.465
+Pass-game edge 0.75+ yds/dropback,2026,28,27,0.509
 Model vs book spread gap 3+,2025,44,51,0.463
 Model vs book total gap 3+,2025,49,50,0.495
 Model vs book spread gap 3+,2026,17,26,0.395
-Model vs book total gap 3+,2026,14,16,0.467
-"Alert: pocket QB vs top-8 pass rush (spread, defense side)",All,74,62,0.544
-"Alert: pocket QB vs top-8 pass rush (total, under)",All,67,69,0.493
-Fade the defense-vs-QB-type alert (spread),All,84,68,0.553
-Matchup alert: defense vs QB type (spread),All,68,84,0.447
-Matchup alert: defense vs QB type (total),All,78,76,0.506
+Model vs book total gap 3+,2026,14,17,0.452
+"Alert: pocket QB vs top-8 pass rush (spread, defense side)",All,75,62,0.547
+"Alert: pocket QB vs top-8 pass rush (total, under)",All,68,69,0.496
+Fade the defense-vs-QB-type alert (spread),All,85,68,0.556
+Matchup alert: defense vs QB type (spread),All,68,85,0.444
+Matchup alert: defense vs QB type (total),All,78,77,0.503
 Model vs book spread gap 3+,All,61,77,0.442
-Model vs book total gap 3+,All,63,66,0.488
-Pass-game edge 0.75+ yds/dropback,All,186,160,0.538
-Run-game edge 1.0+ YPC,All,107,87,0.552
+Model vs book total gap 3+,All,63,67,0.485
+Pass-game edge 0.75+ yds/dropback,All,187,160,0.539
+Run-game edge 1.0+ YPC,All,108,87,0.554

@@ -46,7 +46,7 @@
     "home": 0.75
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:07:13.294538+00:00"
    },
    "handle_pct": {
     "away": null,
@@ -54,14 +54,14 @@
    },
    "home_odds": null,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:03:13.294538+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy"
    },
    "updated_at": "2026-11-05T16:40:53.683948+00:00"
   },
-  "fetched_at": "2026-11-12T13:07:45.988673+00:00",
+  "fetched_at": "2026-11-13T13:03:13.294538+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
@@ -78,139 +78,156 @@
   "away_team": "Buffalo Bills",
   "home_team": "New York Jets",
   "spread": {
-   "away_line": -8,
-   "away_odds": -8,
+   "away_line": -8.5,
+   "away_odds": -8.5,
    "bets_pct": {
-    "away": 0.82,
-    "home": 0.18
+    "away": 0.79,
+    "home": 0.21
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:11:14.755386+00:00"
+    "bets_pct": "2026-11-13T13:06:57.751236+00:00",
+    "handle_pct": "2026-11-13T13:06:57.751236+00:00"
    },
    "handle_pct": {
-    "away": 0.44,
-    "home": 0.56
+    "away": 0.52,
+    "home": 0.48
    },
-   "home_line": 8,
-   "home_odds": 8,
+   "home_line": 8.5,
+   "home_odds": 8.5,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:08:14.755386+00:00"
+    "bets_pct": "2026-11-13T13:03:57.751236+00:00",
+    "handle_pct": "2026-11-13T13:03:57.751236+00:00"
    },
    "sources": {
-    "bets_pct": "wiseguy",
+    "bets_pct": "dkn",
     "handle_pct": "dkn"
    },
-   "updated_at": "2026-11-12T10:54:16.662630+00:00"
+   "updated_at": "2026-11-13T12:54:12.283186+00:00"
   },
   "total": {
    "bets_pct": {
-    "over": 0.34,
-    "under": 0.66
+    "over": 0.33,
+    "under": 0.68
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:11:14.755386+00:00"
+    "bets_pct": "2026-11-13T13:07:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:06:57.751236+00:00"
    },
    "handle_pct": {
-    "over": 0.35,
-    "under": 0.65
+    "over": 0.3,
+    "under": 0.7
    },
-   "line": 51,
+   "line": 50.5,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:08:14.755386+00:00"
+    "bets_pct": "2026-11-13T13:03:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:03:57.751236+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
     "handle_pct": "dkn"
    },
-   "updated_at": "2026-11-12T11:50:17.664808+00:00"
+   "updated_at": "2026-11-13T08:21:51.191756+00:00"
   },
   "moneyline": {
-   "away_odds": -440,
+   "away_odds": -425,
    "bets_pct": {
-    "away": 0.98,
-    "home": 0.02
+    "away": 0.97,
+    "home": 0.03
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:11:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:07:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:07:13.294538+00:00"
    },
    "handle_pct": {
-    "away": 0.77,
-    "home": 0.23
+    "away": 0.92,
+    "home": 0.08
    },
-   "home_odds": 340,
+   "home_odds": 330,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:07:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:03:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:03:13.294538+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
     "handle_pct": "wiseguy"
    },
-   "updated_at": "2026-11-12T12:41:21.790054+00:00"
+   "updated_at": "2026-11-12T23:05:06.940822+00:00"
   },
-  "fetched_at": "2026-11-12T13:08:14.755386+00:00",
+  "fetched_at": "2026-11-13T13:03:57.751236+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
   ],
   "exchanges": {
-   "fetched_at": "2026-11-12T13:07:33.376712+00:00",
+   "fetched_at": "2026-11-13T13:01:37.335084+00:00",
    "moneyline": [
     {
      "exchange": "kalshi",
      "line": null,
      "money_pct": {
-      "away": 0.91,
-      "home": 0.09
+      "away": 0.94,
+      "home": 0.06
      },
      "trades_pct": {
-      "away": 0.75,
-      "home": 0.25
+      "away": 0.77,
+      "home": 0.23
      },
-     "usd_traded": 176599,
-     "trade_count": 6308,
+     "usd_traded": 274171,
+     "trade_count": 8392,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:31:00.704000+00:00"
+     "updated_at": "2026-11-13T12:31:01.434000+00:00"
     },
     {
      "exchange": "polymarket",
      "line": null,
      "money_pct": {
-      "away": 0.57,
-      "home": 0.43
+      "away": 0.55,
+      "home": 0.45
      },
      "trades_pct": {
-      "away": 0.33,
-      "home": 0.67
+      "away": 0.38,
+      "home": 0.62
      },
-     "usd_traded": 14503,
-     "trade_count": 191,
+     "usd_traded": 17076,
+     "trade_count": 212,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:31:00.704000+00:00"
+     "updated_at": "2026-11-13T12:31:01.434000+00:00"
+    },
+    {
+     "exchange": "prophetx",
+     "line": null,
+     "money_pct": {
+      "away": 0.86,
+      "home": 0.14
+     },
+     "trades_pct": {
+      "away": 0.53,
+      "home": 0.47
+     },
+     "usd_traded": 4103,
+     "trade_count": 32,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-13T12:24:02.434000+00:00"
     },
     {
      "exchange": "novig",
      "line": null,
      "money_pct": {
-      "away": 0.84,
-      "home": 0.16
+      "away": 0.78,
+      "home": 0.22
      },
      "trades_pct": {
-      "away": 0.62,
-      "home": 0.38
+      "away": 0.68,
+      "home": 0.32
      },
-     "usd_traded": 13529,
-     "trade_count": 182,
+     "usd_traded": 27326,
+     "trade_count": 287,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ],
    "spread": [
@@ -228,11 +245,11 @@
       "away": 0.84,
       "home": 0.16
      },
-     "usd_traded": 8206,
-     "trade_count": 302,
+     "usd_traded": 9986,
+     "trade_count": 426,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T13:01:01.704000+00:00"
+     "updated_at": "2026-11-13T12:01:01.434000+00:00"
     },
     {
      "exchange": "polymarket",
@@ -241,18 +258,18 @@
       "home": 7.5
      },
      "money_pct": {
-      "away": 0.07,
-      "home": 0.93
+      "away": 0.11,
+      "home": 0.89
      },
      "trades_pct": {
-      "away": 0.64,
-      "home": 0.36
+      "away": 0.81,
+      "home": 0.19
      },
-     "usd_traded": 7467,
-     "trade_count": 11,
+     "usd_traded": 7747,
+     "trade_count": 21,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:16:00.704000+00:00"
+     "updated_at": "2026-11-13T12:16:02.434000+00:00"
     },
     {
      "exchange": "novig",
@@ -261,18 +278,18 @@
       "home": 7.5
      },
      "money_pct": {
+      "away": 0.56,
+      "home": 0.44
+     },
+     "trades_pct": {
       "away": 0.62,
       "home": 0.38
      },
-     "trades_pct": {
-      "away": 0.68,
-      "home": 0.32
-     },
-     "usd_traded": 10902,
-     "trade_count": 116,
+     "usd_traded": 13901,
+     "trade_count": 164,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ],
    "total": [
@@ -280,35 +297,52 @@
      "exchange": "kalshi",
      "line": 50.5,
      "money_pct": {
-      "over": 0.13,
-      "under": 0.87
+      "over": 0.19,
+      "under": 0.81
      },
      "trades_pct": {
-      "over": 0.41,
-      "under": 0.59
+      "over": 0.42,
+      "under": 0.58
      },
-     "usd_traded": 4219,
-     "trade_count": 69,
+     "usd_traded": 4870,
+     "trade_count": 111,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:16:00.704000+00:00"
+     "updated_at": "2026-11-13T12:16:02.434000+00:00"
     },
     {
      "exchange": "polymarket",
      "line": 50.5,
      "money_pct": {
-      "over": 0.84,
-      "under": 0.16
+      "over": 0.72,
+      "under": 0.28
      },
      "trades_pct": {
-      "over": 0.5,
-      "under": 0.5
+      "over": 0.42,
+      "under": 0.58
      },
-     "usd_traded": 825,
-     "trade_count": 20,
+     "usd_traded": 952,
+     "trade_count": 24,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T13:01:01.704000+00:00"
+     "updated_at": "2026-11-13T12:01:01.434000+00:00"
+    },
+    {
+     "exchange": "prophetx",
+     "line": 51,
+     "money_pct": {
+      "over": 0.17,
+      "under": 0.83
+     },
+     "trades_pct": {
+      "over": 0.17,
+      "under": 0.83
+     },
+     "usd_traded": 422,
+     "trade_count": 18,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-13T12:24:02.434000+00:00"
     },
     {
      "exchange": "novig",
@@ -318,14 +352,14 @@
       "under": 0.64
      },
      "trades_pct": {
-      "over": 0.25,
-      "under": 0.75
+      "over": 0.28,
+      "under": 0.72
      },
-     "usd_traded": 5210,
-     "trade_count": 56,
+     "usd_traded": 5479,
+     "trade_count": 64,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ]
   }
@@ -344,28 +378,28 @@
    "away_line": null,
    "away_odds": null,
    "bets_pct": {
-    "away": 0.71,
-    "home": 0.29
+    "away": 0.75,
+    "home": 0.25
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:11:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:06:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:06:14.458594+00:00"
    },
    "handle_pct": {
-    "away": 0.21,
-    "home": 0.79
+    "away": 0.22,
+    "home": 0.78
    },
    "home_line": null,
    "home_odds": null,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:07:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:02:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:02:14.458594+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
     "handle_pct": "wiseguy"
    },
-   "updated_at": "2026-11-12T06:21:02.736752+00:00"
+   "updated_at": "2026-11-13T06:50:23.005603+00:00"
   },
   "total": {
    "bets_pct": {
@@ -373,8 +407,8 @@
     "under": 0.4
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:11:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:06:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:06:14.458594+00:00"
    },
    "handle_pct": {
     "over": 0.88,
@@ -382,8 +416,8 @@
    },
    "line": null,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:07:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:02:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:02:14.458594+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
@@ -394,12 +428,12 @@
   "moneyline": {
    "away_odds": null,
    "bets_pct": {
-    "away": 0.5,
-    "home": 0.5
+    "away": 0.6,
+    "home": 0.4
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:11:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:06:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:06:14.458594+00:00"
    },
    "handle_pct": {
     "away": 0.95,
@@ -407,73 +441,90 @@
    },
    "home_odds": null,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:46.352034+00:00",
-    "handle_pct": "2026-11-12T13:07:46.352034+00:00"
+    "bets_pct": "2026-11-13T13:02:14.458594+00:00",
+    "handle_pct": "2026-11-13T13:02:14.458594+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
     "handle_pct": "wiseguy"
    },
-   "updated_at": "2026-11-12T06:21:02.736752+00:00"
+   "updated_at": "2026-11-13T09:54:53.228001+00:00"
   },
-  "fetched_at": "2026-11-12T13:07:46.352034+00:00",
+  "fetched_at": "2026-11-13T13:02:14.458594+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
   ],
   "exchanges": {
-   "fetched_at": "2026-11-12T13:07:33.376712+00:00",
+   "fetched_at": "2026-11-13T13:01:37.335084+00:00",
    "moneyline": [
     {
      "exchange": "kalshi",
      "line": null,
      "money_pct": {
-      "away": 0.91,
-      "home": 0.09
+      "away": 0.94,
+      "home": 0.06
      },
      "trades_pct": {
-      "away": 0.75,
-      "home": 0.25
+      "away": 0.77,
+      "home": 0.23
      },
-     "usd_traded": 176599,
-     "trade_count": 6308,
+     "usd_traded": 274171,
+     "trade_count": 8392,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:31:00.704000+00:00"
+     "updated_at": "2026-11-13T12:31:01.434000+00:00"
     },
     {
      "exchange": "polymarket",
      "line": null,
      "money_pct": {
-      "away": 0.57,
-      "home": 0.43
+      "away": 0.55,
+      "home": 0.45
      },
      "trades_pct": {
-      "away": 0.33,
-      "home": 0.67
+      "away": 0.38,
+      "home": 0.62
      },
-     "usd_traded": 14503,
-     "trade_count": 191,
+     "usd_traded": 17076,
+     "trade_count": 212,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:31:00.704000+00:00"
+     "updated_at": "2026-11-13T12:31:01.434000+00:00"
+    },
+    {
+     "exchange": "prophetx",
+     "line": null,
+     "money_pct": {
+      "away": 0.86,
+      "home": 0.14
+     },
+     "trades_pct": {
+      "away": 0.53,
+      "home": 0.47
+     },
+     "usd_traded": 4103,
+     "trade_count": 32,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-13T12:24:02.434000+00:00"
     },
     {
      "exchange": "novig",
      "line": null,
      "money_pct": {
-      "away": 0.84,
-      "home": 0.16
+      "away": 0.78,
+      "home": 0.22
      },
      "trades_pct": {
-      "away": 0.62,
-      "home": 0.38
+      "away": 0.68,
+      "home": 0.32
      },
-     "usd_traded": 13529,
-     "trade_count": 182,
+     "usd_traded": 27326,
+     "trade_count": 287,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ],
    "spread": [
@@ -491,11 +542,11 @@
       "away": 0.84,
       "home": 0.16
      },
-     "usd_traded": 8206,
-     "trade_count": 302,
+     "usd_traded": 9986,
+     "trade_count": 426,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T13:01:01.704000+00:00"
+     "updated_at": "2026-11-13T12:01:01.434000+00:00"
     },
     {
      "exchange": "polymarket",
@@ -504,18 +555,18 @@
       "home": 7.5
      },
      "money_pct": {
-      "away": 0.07,
-      "home": 0.93
+      "away": 0.11,
+      "home": 0.89
      },
      "trades_pct": {
-      "away": 0.64,
-      "home": 0.36
+      "away": 0.81,
+      "home": 0.19
      },
-     "usd_traded": 7467,
-     "trade_count": 11,
+     "usd_traded": 7747,
+     "trade_count": 21,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:16:00.704000+00:00"
+     "updated_at": "2026-11-13T12:16:02.434000+00:00"
     },
     {
      "exchange": "novig",
@@ -524,18 +575,18 @@
       "home": 7.5
      },
      "money_pct": {
+      "away": 0.56,
+      "home": 0.44
+     },
+     "trades_pct": {
       "away": 0.62,
       "home": 0.38
      },
-     "trades_pct": {
-      "away": 0.68,
-      "home": 0.32
-     },
-     "usd_traded": 10902,
-     "trade_count": 116,
+     "usd_traded": 13901,
+     "trade_count": 164,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ],
    "total": [
@@ -543,35 +594,52 @@
      "exchange": "kalshi",
      "line": 50.5,
      "money_pct": {
-      "over": 0.13,
-      "under": 0.87
+      "over": 0.19,
+      "under": 0.81
      },
      "trades_pct": {
-      "over": 0.41,
-      "under": 0.59
+      "over": 0.42,
+      "under": 0.58
      },
-     "usd_traded": 4219,
-     "trade_count": 69,
+     "usd_traded": 4870,
+     "trade_count": 111,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:16:00.704000+00:00"
+     "updated_at": "2026-11-13T12:16:02.434000+00:00"
     },
     {
      "exchange": "polymarket",
      "line": 50.5,
      "money_pct": {
-      "over": 0.84,
-      "under": 0.16
+      "over": 0.72,
+      "under": 0.28
      },
      "trades_pct": {
-      "over": 0.5,
-      "under": 0.5
+      "over": 0.42,
+      "under": 0.58
      },
-     "usd_traded": 825,
-     "trade_count": 20,
+     "usd_traded": 952,
+     "trade_count": 24,
      "light_trading": true,
      "all_lines": false,
-     "updated_at": "2026-11-12T13:01:01.704000+00:00"
+     "updated_at": "2026-11-13T12:01:01.434000+00:00"
+    },
+    {
+     "exchange": "prophetx",
+     "line": 51,
+     "money_pct": {
+      "over": 0.17,
+      "under": 0.83
+     },
+     "trades_pct": {
+      "over": 0.17,
+      "under": 0.83
+     },
+     "usd_traded": 422,
+     "trade_count": 18,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-13T12:24:02.434000+00:00"
     },
     {
      "exchange": "novig",
@@ -581,14 +649,14 @@
       "under": 0.64
      },
      "trades_pct": {
-      "over": 0.25,
-      "under": 0.75
+      "over": 0.28,
+      "under": 0.72
      },
-     "usd_traded": 5210,
-     "trade_count": 56,
+     "usd_traded": 5479,
+     "trade_count": 64,
      "light_trading": false,
      "all_lines": false,
-     "updated_at": "2026-11-12T12:39:01.704000+00:00"
+     "updated_at": "2026-11-13T12:54:01.434000+00:00"
     }
    ]
   }
@@ -640,8 +708,8 @@
     "home": 0.33
    },
    "expires_at": {
-    "bets_pct": "2026-11-12T13:11:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:11:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:07:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:07:13.294538+00:00"
    },
    "handle_pct": {
     "away": 0.83,
@@ -649,8 +717,8 @@
    },
    "home_odds": -245,
    "observed_at": {
-    "bets_pct": "2026-11-12T13:07:45.988673+00:00",
-    "handle_pct": "2026-11-12T13:07:45.988673+00:00"
+    "bets_pct": "2026-11-13T13:03:13.294538+00:00",
+    "handle_pct": "2026-11-13T13:03:13.294538+00:00"
    },
    "sources": {
     "bets_pct": "wiseguy",
@@ -658,7 +726,7 @@
    },
    "updated_at": "2026-11-05T16:40:53.683948+00:00"
   },
-  "fetched_at": "2026-11-12T13:07:45.988673+00:00",
+  "fetched_at": "2026-11-13T13:03:13.294538+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"

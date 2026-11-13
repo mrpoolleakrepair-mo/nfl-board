@@ -124,3 +124,4 @@ game_id,week,date,matchup,away,home,spread,pick,pick_pts,verdict,pass_rules,c1,c
 2026_09_LV_SF,9,2026-11-08,LV @ SF,LV,SF,SF -8.5,SF,5,Lean at best,,LV,SF,LV,SF,SF,17,38,Win,Win,,,LV team total under,2026 only
 2026_09_GB_NE,9,2026-11-08,GB @ NE,GB,NE,NE -3,NE,4,Lean at best,,Even,NE,GB,NE,GB,45,27,Loss,Loss,Under,Loss,GB team total under (winning-record dog: strongest),2026 only
 2026_09_TB_CHI,9,2026-11-08,TB @ CHI,TB,CHI,CHI -6.5,TB,6,Pass rule,TB is a dog that can't score (bottom 5),CHI,TB,TB,TB,Even,24,27,Loss,Win,,,TB is a bad team that can run: dog/ML look,2026 only
+2026_10_WAS_NYG,10,2026-11-12,WAS @ NYG,WAS,NYG,NYG -1.5,WAS,6,Needs handle + line,,WAS,WAS,WAS,NYG,NYG,24,21,Win,Win,,,WAS is a bad team that can run: dog/ML look,2026 only

@@ -1,108 +1,318 @@
 [
  {
-  "event_id": "nfl_bears_lions_2026-11-26_b2",
+  "event_id": "nfl_cardinals_chiefs_2026-11-22_b2",
+  "event_uuid": "ca941c9fc6c34a8e",
+  "canonical_event_id": "nfl_cardinals_chiefs_2026-11-22_b2",
+  "event_start_time": "2026-11-22T18:00:00Z",
   "sport": "football",
   "league": "nfl",
   "sportsbook": "draftkings",
-  "away_team": "Bears",
-  "home_team": "Lions",
+  "away_team": "Arizona Cardinals",
+  "home_team": "Kansas City Chiefs",
+  "spread": {
+   "away_line": 16.5,
+   "away_odds": 16.5,
+   "bets_pct": {
+    "away": 0.58,
+    "home": 0.42
+   },
+   "handle_pct": {
+    "away": 0.2,
+    "home": 0.8
+   },
+   "home_line": -16.5,
+   "home_odds": -16.5,
+   "line_source": "source",
+   "updated_at": "2026-11-17T12:45:01.848225+00:00"
+  },
+  "total": {
+   "bets_pct": {
+    "over": 0.88,
+    "under": 0.13
+   },
+   "handle_pct": {
+    "over": 1,
+    "under": 0
+   },
+   "line": 41.5,
+   "line_source": "source",
+   "updated_at": "2026-11-17T12:54:55.551915+00:00"
+  },
+  "moneyline": {
+   "away_odds": 850,
+   "bets_pct": {
+    "away": 0.14,
+    "home": 0.86
+   },
+   "handle_pct": {
+    "away": 0.21,
+    "home": 0.79
+   },
+   "home_odds": -1450,
+   "line_source": "source",
+   "outcomes": 2,
+   "updated_at": "2026-11-17T11:06:49.417871+00:00"
+  },
+  "fetched_at": "2026-11-17T13:03:56.245093+00:00",
+  "available_metrics": [
+   "bets_pct",
+   "handle_pct"
+  ],
+  "exchanges": {
+   "fetched_at": "2026-11-17T13:02:20.706587+00:00",
+   "moneyline": [
+    {
+     "exchange": "kalshi",
+     "line": null,
+     "money_pct": {
+      "away": 0.15,
+      "home": 0.85
+     },
+     "trades_pct": {
+      "away": 0.46,
+      "home": 0.54
+     },
+     "usd_traded": 46156,
+     "trade_count": 2851,
+     "light_trading": false,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:31:02.187000+00:00"
+    },
+    {
+     "exchange": "polymarket",
+     "line": null,
+     "money_pct": {
+      "away": 0.84,
+      "home": 0.16
+     },
+     "trades_pct": {
+      "away": 0.3,
+      "home": 0.7
+     },
+     "usd_traded": 2820,
+     "trade_count": 23,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:31:02.187000+00:00"
+    },
+    {
+     "exchange": "novig",
+     "line": null,
+     "money_pct": {
+      "away": 0.06,
+      "home": 0.94
+     },
+     "trades_pct": {
+      "away": 0.61,
+      "home": 0.39
+     },
+     "usd_traded": 5897,
+     "trade_count": 61,
+     "light_trading": false,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:54:02.187000+00:00"
+    }
+   ],
+   "spread": [
+    {
+     "exchange": "kalshi",
+     "line": {
+      "away": 16.5,
+      "home": -16.5
+     },
+     "money_pct": {
+      "away": 0.08,
+      "home": 0.92
+     },
+     "trades_pct": {
+      "away": 0.37,
+      "home": 0.63
+     },
+     "usd_traded": 1900,
+     "trade_count": 70,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:46:02.187000+00:00"
+    }
+   ],
+   "total": [
+    {
+     "exchange": "kalshi",
+     "line": 40.5,
+     "money_pct": {
+      "over": 0.93,
+      "under": 0.07
+     },
+     "trades_pct": {
+      "over": 0.75,
+      "under": 0.25
+     },
+     "usd_traded": 661,
+     "trade_count": 20,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:46:02.187000+00:00"
+    }
+   ]
+  }
+ },
+ {
+  "event_id": "nfl_panthers_ravens_2026-11-22_b2",
+  "event_uuid": "6b98f06dfa347ce0",
+  "canonical_event_id": "nfl_panthers_ravens_2026-11-22_b2",
+  "event_start_time": "2026-11-22T18:00:00Z",
+  "sport": "football",
+  "league": "nfl",
+  "sportsbook": "draftkings",
+  "away_team": "Baltimore Ravens",
+  "home_team": "Carolina Panthers",
   "spread": {
    "away_line": 2.5,
    "away_odds": 2.5,
    "bets_pct": {
-    "away": null,
-    "home": null
+    "away": 0.52,
+    "home": 0.48
    },
    "handle_pct": {
-    "away": null,
-    "home": null
+    "away": 0.71,
+    "home": 0.29
    },
    "home_line": -2.5,
-   "home_odds": -2.5
+   "home_odds": -2.5,
+   "line_source": "source",
+   "updated_at": "2026-11-17T12:48:01.849134+00:00"
   },
   "total": {
    "bets_pct": {
-    "over": null,
-    "under": null
+    "over": 0.67,
+    "under": 0.33
    },
    "handle_pct": {
-    "over": null,
-    "under": null
+    "over": 0.4,
+    "under": 0.6
    },
-   "line": 52.5
+   "line": 43.5,
+   "line_source": "source",
+   "updated_at": "2026-11-17T05:37:18.386086+00:00"
   },
   "moneyline": {
-   "away_odds": null,
+   "away_odds": 120,
    "bets_pct": {
-    "away": 0.25,
-    "home": 0.75
+    "away": 0.44,
+    "home": 0.56
    },
    "handle_pct": {
-    "away": null,
-    "home": null
+    "away": 0.38,
+    "home": 0.62
    },
-   "home_odds": null,
-   "outcomes": 2
+   "home_odds": -142,
+   "line_source": "source",
+   "outcomes": 2,
+   "updated_at": "2026-11-17T12:51:55.113354+00:00"
   },
-  "fetched_at": "2026-11-15T20:45:02.285237+00:00",
+  "fetched_at": "2026-11-17T13:03:56.245093+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
-  ]
- },
- {
-  "event_id": "nfl_bills_jets_2026-11-15_b2",
-  "event_uuid": "a202ef2a70a64c65",
-  "canonical_event_id": "nfl_bills_jets_2026-11-15_b2",
-  "event_start_time": "2026-11-15T18:00:00Z",
-  "sport": "football",
-  "league": "nfl",
-  "sportsbook": "draftkings",
-  "away_team": "Buffalo Bills",
-  "home_team": "New York Jets",
-  "spread": {
-   "away_line": -15,
-   "away_odds": -15,
-   "bets_pct": {
-    "away": 0.8,
-    "home": 0.2
-   },
-   "handle_pct": {
-    "away": 0.74,
-    "home": 0.26
-   },
-   "home_line": 15,
-   "home_odds": 15
-  },
-  "total": {
-   "bets_pct": {
-    "over": 0.56,
-    "under": 0.44
-   },
-   "handle_pct": {
-    "over": 0.7,
-    "under": 0.3
-   },
-   "line": 43.5
-  },
-  "moneyline": {
-   "away_odds": null,
-   "bets_pct": {
-    "away": 0.96,
-    "home": 0.04
-   },
-   "handle_pct": {
-    "away": 0.9,
-    "home": 0.1
-   },
-   "home_odds": null,
-   "outcomes": 2
-  },
-  "fetched_at": "2026-11-15T20:45:02.285237+00:00",
-  "available_metrics": [
-   "bets_pct",
-   "handle_pct"
-  ]
+  ],
+  "exchanges": {
+   "fetched_at": "2026-11-17T13:02:20.706632+00:00",
+   "moneyline": [
+    {
+     "exchange": "kalshi",
+     "line": null,
+     "money_pct": {
+      "away": 0.2,
+      "home": 0.8
+     },
+     "trades_pct": {
+      "away": 0.46,
+      "home": 0.54
+     },
+     "usd_traded": 28258,
+     "trade_count": 1423,
+     "light_trading": false,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:31:02.187000+00:00"
+    },
+    {
+     "exchange": "polymarket",
+     "line": null,
+     "money_pct": {
+      "away": 0.33,
+      "home": 0.67
+     },
+     "trades_pct": {
+      "away": 0.55,
+      "home": 0.45
+     },
+     "usd_traded": 607,
+     "trade_count": 29,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:31:02.187000+00:00"
+    },
+    {
+     "exchange": "novig",
+     "line": null,
+     "money_pct": {
+      "away": 0.47,
+      "home": 0.53
+     },
+     "trades_pct": {
+      "away": 0.41,
+      "home": 0.59
+     },
+     "usd_traded": 4834,
+     "trade_count": 237,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:54:02.187000+00:00"
+    }
+   ],
+   "spread": [
+    {
+     "exchange": "kalshi",
+     "line": {
+      "away": 2.5,
+      "home": -2.5
+     },
+     "money_pct": {
+      "away": 0.2,
+      "home": 0.8
+     },
+     "trades_pct": {
+      "away": 0.23,
+      "home": 0.77
+     },
+     "usd_traded": 2450,
+     "trade_count": 82,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:16:01.187000+00:00"
+    },
+    {
+     "exchange": "polymarket",
+     "line": {
+      "away": 2.5,
+      "home": -2.5
+     },
+     "money_pct": {
+      "away": 0.05,
+      "home": 0.95
+     },
+     "trades_pct": {
+      "away": 0.44,
+      "home": 0.56
+     },
+     "usd_traded": 764,
+     "trade_count": 18,
+     "light_trading": true,
+     "all_lines": false,
+     "updated_at": "2026-11-17T12:46:02.187000+00:00"
+    }
+   ]
+  }
  },
  {
   "event_id": "nfl_cardinals_saints_2026-12-27_b2",
@@ -123,7 +333,9 @@
     "home": null
    },
    "home_line": -5.5,
-   "home_odds": -5.5
+   "home_odds": -5.5,
+   "line_source": "source",
+   "updated_at": null
   },
   "total": {
    "bets_pct": {
@@ -134,7 +346,9 @@
     "over": null,
     "under": null
    },
-   "line": 43.5
+   "line": 43.5,
+   "line_source": "source",
+   "updated_at": null
   },
   "moneyline": {
    "away_odds": 200,
@@ -147,63 +361,70 @@
     "home": 0.17
    },
    "home_odds": -245,
-   "outcomes": 2
+   "line_source": "source",
+   "outcomes": 2,
+   "updated_at": "2026-11-05T16:40:53.683948+00:00"
   },
-  "fetched_at": "2026-11-15T20:45:02.285237+00:00",
+  "fetched_at": "2026-11-17T13:03:43.109970+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
   ]
  },
  {
-  "event_id": "nfl_panthers_saints_2026-11-15_b2",
-  "event_uuid": "9a4c4a8ef015de4a",
-  "canonical_event_id": "nfl_panthers_saints_2026-11-15_b2",
-  "event_start_time": "2026-11-15T18:00:00Z",
+  "event_id": "nfl_bears_lions_2026-11-26_b2",
+  "event_uuid": "1c768b46df150ac5",
+  "canonical_event_id": "nfl_bears_lions_2026-11-26_b2",
+  "event_start_time": "2026-11-26T18:00:00Z",
   "sport": "football",
   "league": "nfl",
   "sportsbook": "draftkings",
-  "away_team": "Carolina Panthers",
-  "home_team": "New Orleans Saints",
+  "away_team": "Chicago Bears",
+  "home_team": "Detroit Lions",
   "spread": {
-   "away_line": -1.5,
-   "away_odds": -1.5,
+   "away_line": 2.5,
+   "away_odds": 2.5,
    "bets_pct": {
-    "away": 0.63,
-    "home": 0.37
+    "away": null,
+    "home": null
    },
    "handle_pct": {
-    "away": 0.6,
-    "home": 0.4
+    "away": null,
+    "home": null
    },
-   "home_line": 1.5,
-   "home_odds": 1.5
+   "home_line": -2.5,
+   "home_odds": -2.5,
+   "line_source": "source",
+   "updated_at": null
   },
   "total": {
    "bets_pct": {
-    "over": 0.78,
-    "under": 0.22
+    "over": null,
+    "under": null
    },
    "handle_pct": {
-    "over": 0.83,
-    "under": 0.17
+    "over": null,
+    "under": null
    },
-   "line": 24.5
+   "line": 52.5,
+   "line_source": "source",
+   "updated_at": null
   },
   "moneyline": {
    "away_odds": null,
    "bets_pct": {
-    "away": 0.64,
-    "home": 0.36
+    "away": 0.25,
+    "home": 0.75
    },
    "handle_pct": {
-    "away": 0.49,
-    "home": 0.51
+    "away": null,
+    "home": null
    },
    "home_odds": null,
-   "outcomes": 2
+   "outcomes": 2,
+   "updated_at": "2026-11-05T16:40:53.683948+00:00"
   },
-  "fetched_at": "2026-11-15T20:45:02.285237+00:00",
+  "fetched_at": "2026-11-17T13:03:43.109970+00:00",
   "available_metrics": [
    "bets_pct",
    "handle_pct"
